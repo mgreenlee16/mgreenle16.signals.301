@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn Signals · AAE 301</title>
+<meta name="description" content="Interactive study site for AAE 301 Signals and Systems at Purdue: lessons, live figures, and endless auto-generated practice problems.">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-root="./">
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="eyebrow">AAE 301 · Signal Analysis for Aerospace Engineering · Purdue</div>
+        <h1>Learn Signals</h1>
+        <p class="lead">Interactive lessons and problem generators for AAE 301. Each lesson explains the ideas in the course's own notation and has live figures to experiment with. It ends with a generator that writes a new exam-style problem every time you finish one, checks your answer, and shows a worked solution.</p>
+        <p class="lead" style="font-size:.95rem">Exam 1 is ready: complex numbers, inner products, Fourier series and the DFT. Exam 2 and final-exam material will be added closer to those exams.</p>
+        <div class="stats"><div><b>4</b><span>lessons</span></div><div><b>15</b><span>interactive figures</span></div><div><b>18</b><span>problem generators</span></div><div><b>∞</b><span>practice problems</span></div></div>
+      </div>
+      <svg viewBox="0 0 420 260" aria-hidden="true">
+        <line x1="10" y1="130" x2="410" y2="130" stroke="#9a9182" stroke-width="1"/>
+        <path d="M10 70 H110 V190 H210 V70 H310 V190 H410" fill="none" stroke="#6f675a" stroke-width="1.5"/>
+        <path id="hp" fill="none" stroke="#cfb991" stroke-width="3"/>
+        <g id="hs" fill="#e0a04a"></g>
+        <text x="14" y="240" style="fill:#cfb991;font-size:14px;font-family:sans-serif">p₇(t) = Σ aₖ e^(−ikω₀t),  |k| ≤ 7</text>
+      </svg>
+    </div>
+  </section>
+
+  <section id="lessons" class="section-head">
+    <div class="eyebrow">Learn</div>
+    <h2>Lessons</h2>
+    <p class="prose">The lessons are grouped by exam. Work through them in order: each one uses the one before. Lesson 1's complex arithmetic and Lesson 2's orthogonal expansions are the language of Lesson 3's Fourier series, and Lesson 4 computes Fourier series from samples.</p>
+    <div id="lessonCards"></div>
+  </section>
+
+  <section id="exams" class="section-head">
+    <div class="eyebrow">Prepare</div>
+    <h2>Exam review</h2>
+    <p class="prose">The Exam 1 page has a checklist of learning objectives, a formula sheet, exam-style problems with full solutions, and a practice-exam generator with an optional timer. The <a href="practice.html">Practice</a> page mixes every problem type and tracks your accuracy by topic.</p>
+    <div id="examCards"></div>
+  </section>
+
+  <section id="tools" class="section-head">
+    <div class="eyebrow">For homework</div>
+    <h2>Calculators</h2>
+    <p class="prose">Check hand calculations. They use the same conventions as the lessons and print MATLAB-ordered output.</p>
+    <div id="toolCards"></div>
+  </section>
+
+  <section class="section-head prose">
+    <div class="eyebrow">Notes</div>
+    <h2>Using the site</h2>
+    <p><b>Conventions.</b> Everything follows the course notes (A. E. Frazho, <i>Notes on Signals and Systems</i>): \(f(t) = \sum a_ke^{-ik\omega_0t}\) with \(a_k = \frac1\tau\int_0^\tau f(t)e^{ik\omega_0t}dt\), the normalized inner product \((f,g) = \frac1\tau\int_0^\tau f\bar g\,dt\), and MATLAB's <code>fft</code>/<code>ifft</code>. Some lecture slides use \(e^{+jk\omega_0t}\) instead, which flips the sign in the derivative and shift rules. The lessons point this out where it matters.</p>
+    <p><b>Answers.</b> Problem generators accept exact expressions such as <code>sqrt(3)/2</code>, <code>-pi/4</code>, <code>2-3i</code> or <code>e^(-pi/2)</code>, and accept any angle equal modulo 2π. Your progress is stored only in this browser. Theme and text size (top right) are remembered too.</p>
+    <p><b>Exam problems.</b> The practice problems are written in the style of past exams and the course's practice test, with new numbers each time. They are not copies of real exam questions.</p>
+  </section>
+</main>
+<script src="assets/js/cx.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+(function () {
+  UI.cards("#lessonCards", "lessons");
+  UI.cards("#examCards", "exams");
+  UI.cards("#toolCards", "tools");
+  // hero: partial sum of a square wave, sampled
+  const X = t => 10 + t * 100 / Math.PI, Y = v => 130 - v * 60;
+  let d = "";
+  for (let i = 0; i <= 400; i++) {
+    const t = i * 4 * Math.PI / 400;
+    let s = 0; for (let k = 1; k <= 7; k += 2) s += 4 / (Math.PI * k) * Math.sin(k * t);
+    d += (i ? "L" : "M") + X(t).toFixed(1) + " " + Y(s).toFixed(1);
+  }
+  document.getElementById("hp").setAttribute("d", d);
+  document.getElementById("hs").innerHTML = Array.from({ length: 16 }, (_, j) => {
+    const t = j * 4 * Math.PI / 16; let s = 0; for (let k = 1; k <= 7; k += 2) s += 4 / (Math.PI * k) * Math.sin(k * t);
+    return `<circle cx="${X(t).toFixed(1)}" cy="${Y(s).toFixed(1)}" r="3.5"/>`;
+  }).join("");
+})();
+</script>
+</body>
+</html>

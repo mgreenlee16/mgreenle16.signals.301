@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complex Numbers · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="complex">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 1 · Exam 1</div>
+  <h1>Complex Numbers</h1>
+  <p class="lead">Every signal in this course is built from complex exponentials, so complex arithmetic has to be automatic. This lesson covers rectangular and polar form, Euler's formula, powers and roots, complex exponents and logarithms, and the phasor method for adding sinusoids. These are the skills Exam 1 tests directly in its first problem and uses in every other one.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#arith">Rectangular form and arithmetic</a></li>
+    <li><a href="#polar">Polar form and Euler's formula</a></li>
+    <li><a href="#powers">Powers: De Moivre's formula</a></li>
+    <li><a href="#roots">Roots and roots of unity</a></li>
+    <li><a href="#log">Complex exponents, logarithms and trig functions</a></li>
+    <li><a href="#phasor">Sinusoids and phasors</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+    <li><a href="#summary">Key equations</a></li>
+  </ol></nav>
+
+  <h2 id="arith"><span class="sec">Section 1.1</span>Rectangular form and arithmetic</h2>
+  <p>A complex number is \(z = x + iy\) with real part \(x = \Re z\), imaginary part \(y = \Im z\), and \(i^2 = -1\). (MATLAB and the lecture slides also write \(j\).) Add and subtract part by part; multiply by expanding and using \(i^2=-1\):</p>
+  $$(x_1+iy_1)(x_2+iy_2) = (x_1x_2 - y_1y_2) + i(x_1y_2 + y_1x_2).$$
+  <p>The <b class="term">conjugate</b> is \(\bar z = x - iy\), the reflection across the real axis, and the <b class="term">modulus</b> is \(|z| = \sqrt{x^2+y^2}\). They are linked by \(z\bar z = |z|^2\), which is the key to division: multiply top and bottom by the conjugate of the denominator.</p>
+  $$\frac{z_1}{z_2} = \frac{z_1\bar z_2}{|z_2|^2}, \qquad \text{e.g.}\quad \frac{1+2i}{3-i} = \frac{(1+2i)(3+i)}{10} = \frac{1+7i}{10}.$$
+  <p>Useful facts: \(\overline{z_1z_2} = \bar z_1\bar z_2\), \(\overline{z_1+z_2} = \bar z_1+\bar z_2\), \(\Re z = (z+\bar z)/2\), \(\Im z = (z-\bar z)/(2i)\), \(|z_1z_2| = |z_1||z_2|\), and the triangle inequality \(|z_1+z_2| \le |z_1|+|z_2|\). Also \(1/i = -i\) and the powers of \(i\) cycle with period 4: \(i, -1, -i, 1\).</p>
+
+  <h2 id="polar"><span class="sec">Section 1.2</span>Polar form and Euler's formula</h2>
+  <p><b class="term">Euler's formula</b> \(e^{i\theta} = \cos\theta + i\sin\theta\) puts every nonzero complex number in <b class="term">polar form</b></p>
+  $$z = re^{i\theta},\qquad r = |z|,\qquad \theta = \angle z,$$
+  <p>where \(e^{i\theta}\) is the point at angle \(\theta\) on the unit circle. In polar form multiplication and division are easy: <em>moduli multiply and angles add</em>,</p>
+  $$r_1e^{i\theta_1}\cdot r_2e^{i\theta_2} = r_1r_2\,e^{i(\theta_1+\theta_2)}, \qquad \frac{r_1e^{i\theta_1}}{r_2e^{i\theta_2}} = \frac{r_1}{r_2}e^{i(\theta_1-\theta_2)}.$$
+  <p>So for a quotient of products such as \(\gamma = \dfrac{-i(3+2i)}{(1-4i)(-4-4i)}\), find \(|\gamma|\) as the product of the top moduli over the bottom ones, and \(\angle\gamma\) as the sum of top angles minus the bottom angles. Then wrap the angle back into \((-\pi, \pi]\).</p>
+  <div class="note"><b>The angle trap</b>\(\angle z\) is <em>not</em> \(\tan^{-1}(y/x)\) when \(x &lt; 0\). The arctangent only returns angles in \((-\pi/2, \pi/2)\), so for points in the left half-plane add or subtract \(\pi\): \(\angle(-1-i) = -3\pi/4\), not \(\pi/4\). MATLAB's <code>angle(z)</code> and <code>atan2(y, x)</code> do this correctly. Always sketch the point first.</div>
+  <p>Inverting Euler's formula gives the two identities used constantly in Fourier analysis:</p>
+  $$\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2},\qquad \sin\theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}.$$
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Complex plane explorer</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl inline"><span>Show</span>
+      <div class="seg" id="opS" data-value="mul"><button data-value="add" aria-pressed="false">z + w</button><button data-value="mul" aria-pressed="true">z·w</button><button data-value="div" aria-pressed="false">z / w</button><button data-value="conj" aria-pressed="false">z̄</button></div></div>
+    <p class="drag-hint">Drag the points z (teal) and w (blue). In the product, watch the angles add and the lengths multiply.</p>
+    <div class="presets"><span>Try</span>
+      <button data-z="1,1" data-w="1,1">(1+i)²</button>
+      <button data-z="0,1" data-w="0,1">i · i</button>
+      <button data-z="3,4" data-w="3,-4">z·z̄ = |z|²</button>
+      <button data-z="-1,-1" data-w="1,0">angle of −1−i</button>
+    </div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plane1"></div><figcaption>z (teal), w (blue) and the result (pink). The dashed circle is the unit circle.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="powers"><span class="sec">Section 1.3</span>Powers: De Moivre's formula</h2>
+  <p>Raising \(z = re^{i\theta}\) to an integer power multiplies its angle:</p>
+  $$z^n = r^ne^{in\theta} = r^n(\cos n\theta + i\sin n\theta).$$
+  <p>This turns \((1+i)^{10}\), which would take ten multiplications, into one line: \(1+i = \sqrt2e^{i\pi/4}\), so \((1+i)^{10} = 2^5e^{i10\pi/4} = 32e^{i\pi/2} = 32i\). The recipe is always the same: convert to polar, raise the modulus to the power, multiply the angle, reduce the angle modulo \(2\pi\), and convert back. For huge powers, leave the answer as \(r^ne^{i\theta}\).</p>
+
+  <h2 id="roots"><span class="sec">Section 1.4</span>Roots and roots of unity</h2>
+  <p>The equation \(z^n = w\) with \(w = \rho e^{i\phi} \ne 0\) has exactly \(n\) solutions. Because \(e^{i\phi} = e^{i(\phi + 2\pi k)}\) for every integer \(k\),</p>
+  $$z_k = \rho^{1/n}\,e^{i(\phi + 2\pi k)/n},\qquad k = 0, 1, \dots, n-1.$$
+  <p>The roots all lie on the circle of radius \(\rho^{1/n}\) and are spaced \(2\pi/n\) apart: they are the vertices of a regular \(n\)-gon. For \(w = 1\) these are the <b class="term">roots of unity</b> \(\lambda_k = e^{2\pi ik/n}\). Their sum is zero for \(n \ge 2\) (a geometric series, or the symmetry of the polygon). This fact is exactly why the DFT matrix of Lesson 4 is invertible with \(F^{-1} = F^*/\nu\).</p>
+  <p>Exams often ask for "the root with the smallest positive angle" or "all solutions of \(z^4 + 16 = 0\)". For the second: \(z^4 = -16 = 16e^{i\pi}\), so \(z = 2e^{i(\pi + 2\pi k)/4}\), giving \(\sqrt2(\pm1 \pm i)\).</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Powers and roots</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl inline"><span>Show</span>
+      <div class="seg" id="prS" data-value="roots"><button data-value="powers" aria-pressed="false">powers z⁰…zⁿ</button><button data-value="roots" aria-pressed="true">n-th roots of z</button></div></div>
+    <div class="ctl"><label for="prN">n <output for="prN"></output></label>
+      <input type="range" id="prN" min="2" max="12" step="1" value="5" data-dec="0"></div>
+    <p class="drag-hint">Drag z. Inside the unit circle the powers spiral in, outside they spiral out, and on it they walk around the circle.</p>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"prS":"roots","prN":5}' data-z="1,0">5th roots of unity</button>
+      <button data-preset='{"prS":"roots","prN":4}' data-z="-16,0">z⁴ = −16</button>
+      <button data-preset='{"prS":"powers","prN":10}' data-z="1,1">(1+i)¹⁰</button>
+      <button data-preset='{"prS":"powers","prN":12}' data-z="0.866,0.5">e^{iπ/6} powers</button>
+    </div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plane2"></div><figcaption>Powers are joined in order. Roots are joined as the regular polygon they form, with the circle of radius |z|<sup>1/n</sup> dashed.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="log"><span class="sec">Section 1.5</span>Complex exponents, logarithms and trig functions</h2>
+  <p>The exponential of \(z = x+iy\) is \(e^z = e^xe^{iy}\): the real part sets the size and the imaginary part sets the angle. Because \(e^{i2\pi k} = 1\), the logarithm is <em>many-valued</em>:</p>
+  $$\ln z = \ln|z| + i(\angle z + 2\pi k),\qquad k \in \mathbb Z.$$
+  <p>The <b>principal value</b> takes \(k=0\) and \(\angle z \in (-\pi,\pi]\). Complex powers are defined through the logarithm, \(a^b = e^{b\ln a}\). The classic example is real:</p>
+  $$i^i = e^{i\ln i} = e^{i\cdot i(\pi/2 + 2\pi k)} = e^{-\pi/2 - 2\pi k}, \qquad \text{principal value } e^{-\pi/2} \approx 0.2079.$$
+  <p>Similarly \(2^i = e^{i\ln 2} = \cos(\ln2) + i\sin(\ln 2)\), a point on the unit circle. Euler's identities define \(\cos\) and \(\sin\) for complex arguments; on the imaginary axis they become hyperbolic functions:</p>
+  $$\cos(ib) = \frac{e^{-b}+e^{b}}{2} = \cosh b, \qquad \sin(ib) = \frac{e^{-b}-e^{b}}{2i} = i\sinh b.$$
+  <p>So \(\cos z\) is unbounded in the complex plane, unlike on the real line. The same identities prove trigonometric formulas in a line, such as \(\cos^2\theta = \tfrac12 + \tfrac12\cos2\theta\) and \(\sin^3\theta = \tfrac34\sin\theta - \tfrac14\sin3\theta\), which Lesson 3 uses to read off Fourier coefficients.</p>
+  <p>One more tool from the notes is the <b class="term">geometric sum</b>, \(\sum_{k=0}^{n-1} q^k = \dfrac{1-q^n}{1-q}\) for \(q \ne 1\). With \(q = i\) or \(q = e^{2\pi i/n}\) it collapses many exam sums.</p>
+
+  <h2 id="phasor"><span class="sec">Section 1.6</span>Sinusoids and phasors</h2>
+  <p>Any combination of a cosine and a sine at the same frequency is one shifted cosine. In the course's harmonic form,</p>
+  $$\alpha\cos\omega t + \beta\sin\omega t = \gamma\cos(\omega t - \psi),\qquad \gamma = \sqrt{\alpha^2+\beta^2} = |\alpha + i\beta|,\quad \psi = \angle(\alpha + i\beta).$$
+  <p>To see why, note that \(\Re\big[(\alpha + i\beta)e^{-i\omega t}\big] = \alpha\cos\omega t + \beta\sin\omega t\), and \((\alpha+i\beta) = \gamma e^{i\psi}\) gives \(\Re[\gamma e^{-i(\omega t - \psi)}] = \gamma\cos(\omega t-\psi)\). The complex number \(\alpha + i\beta\) is the <b class="term">phasor</b> of the sinusoid. Sums of sinusoids at one frequency are sums of phasors, which you can add as vectors:</p>
+  $$\gamma_1\cos(\omega t - \psi_1) + \gamma_2\cos(\omega t - \psi_2) = \gamma\cos(\omega t - \psi),\qquad \gamma e^{i\psi} = \gamma_1e^{i\psi_1} + \gamma_2e^{i\psi_2}.$$
+  <p>This is the same \(\gamma_k, \psi_k\) that appears in the harmonic form of a Fourier series in Lesson 3. Use the angle rule from Section 1.2 for \(\psi\): \(-\cos t - \sin t = \sqrt2\cos(t + 3\pi/4)\), since \(\angle(-1-i) = -3\pi/4\).</p>
+</div>
+
+<section class="lab" id="lab3">
+  <div class="lab-head"><span class="num">Interactive 3</span><span class="title">Adding sinusoids with phasors</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="ph1">γ₁ <output for="ph1"></output></label><input type="range" id="ph1" min="0" max="3" step="0.05" value="2" data-dec="2"></div>
+    <div class="ctl"><label for="ps1">ψ₁ (×π) <output for="ps1"></output></label><input type="range" id="ps1" min="-1" max="1" step="0.0125" value="0" data-dec="3"></div>
+    <div class="ctl"><label for="ph2">γ₂ <output for="ph2"></output></label><input type="range" id="ph2" min="0" max="3" step="0.05" value="2" data-dec="2"></div>
+    <div class="ctl"><label for="ps2">ψ₂ (×π) <output for="ps2"></output></label><input type="range" id="ps2" min="-1" max="1" step="0.0125" value="0.5" data-dec="3"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"ph1":2,"ps1":0,"ph2":2,"ps2":0.5}'>2cos t + 2sin t</button>
+      <button data-preset='{"ph1":1,"ps1":1,"ph2":1,"ps2":-0.5}'>−cos t − sin t</button>
+      <button data-preset='{"ph1":1.5,"ps1":0.25,"ph2":1.5,"ps2":-0.75}'>cancellation</button>
+      <button data-preset='{"ph1":3,"ps1":0,"ph2":1,"ps2":0.5}'>3cos t + sin t</button>
+    </div>
+    <div id="ro3" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="plane3"></div><figcaption>Phasors γ₁e<sup>iψ₁</sup> (teal), γ₂e<sup>iψ₂</sup> (blue, drawn tip to tail) and their sum (pink).</figcaption></figure>
+    <figure><div id="plot3"></div><figcaption>γ₁cos(t − ψ₁), γ₂cos(t − ψ₂), and their sum γcos(t − ψ).</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 1.7</span>Worked examples</h2>
+  <p>These are written in the style of the exam problems. Try each one on paper before opening the solution.</p></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 1.1 · Magnitude and angle</button><button>Ex 1.2 · A big power</button><button>Ex 1.3 · Roots</button><button>Ex 1.4 · iⁱ and friends</button><button>Ex 1.5 · Harmonic form</button></div>
+  <div class="panel">
+    <p>Find \(|\gamma|\) and \(\angle\gamma \in (-\pi,\pi]\) for \(\displaystyle \gamma = \frac{2i(1+i)}{(1-i)(-\sqrt3 + i)}\).</p>
+    <details><summary>Solution</summary>
+    <p>Work factor by factor in polar form: \(2i = 2e^{i\pi/2}\), \(1+i = \sqrt2e^{i\pi/4}\), \(1-i = \sqrt2e^{-i\pi/4}\), and \(-\sqrt3+i = 2e^{i5\pi/6}\) (second quadrant, so the angle is \(\pi - \pi/6\)).</p>
+    $$|\gamma| = \frac{2\cdot\sqrt2}{\sqrt2\cdot 2} = 1,\qquad \angle\gamma = \frac\pi2 + \frac\pi4 - \left(-\frac\pi4\right) - \frac{5\pi}6 = \frac{\pi}{6}.$$
+    <p>Check by multiplying out: \(\gamma = e^{i\pi/6} = \tfrac{\sqrt3}{2} + \tfrac i2\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Compute \((\sqrt3 - i)^{9}\) and \((1-i)^{7}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\sqrt3 - i = 2e^{-i\pi/6}\), so \((\sqrt3-i)^9 = 2^9e^{-i9\pi/6} = 512e^{-i3\pi/2} = 512e^{i\pi/2} = 512i\).</p>
+    <p>\(1 - i = \sqrt2e^{-i\pi/4}\), so \((1-i)^7 = 2^{7/2}e^{-i7\pi/4} = 8\sqrt2e^{i\pi/4} = 8\sqrt2\cdot\tfrac{1+i}{\sqrt2} = 8 + 8i\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Find all solutions of \(z^3 + 8i = 0\), and the one with the smallest nonnegative angle.</p>
+    <details><summary>Solution</summary>
+    <p>\(z^3 = -8i = 8e^{-i\pi/2} = 8e^{i(-\pi/2 + 2\pi k)}\), so \(z_k = 2e^{i(-\pi/6 + 2\pi k/3)}\):</p>
+    $$z_0 = 2e^{-i\pi/6} = \sqrt3 - i,\qquad z_1 = 2e^{i\pi/2} = 2i,\qquad z_2 = 2e^{i7\pi/6} = -\sqrt3 - i.$$
+    <p>Measured in \([0,2\pi)\), the angles are \(11\pi/6\), \(\pi/2\) and \(7\pi/6\), so the smallest is \(z = 2i\). Check: \((2i)^3 = -8i\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>Find all values of \(i^i\), the principal value of \(2^{i}\), and \(\cos(2i)\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\ln i = i(\pi/2 + 2\pi k)\), so \(i^i = e^{i\ln i} = e^{-\pi/2 - 2\pi k}\), all real; the principal value is \(e^{-\pi/2} \approx 0.208\).</p>
+    <p>\(2^i = e^{i\ln2} = \cos(\ln 2) + i\sin(\ln 2) \approx 0.769 + 0.639i\), with modulus 1.</p>
+    <p>\(\cos(2i) = \dfrac{e^{i\cdot2i} + e^{-i\cdot2i}}{2} = \dfrac{e^{-2} + e^{2}}{2} = \cosh2 \approx 3.762\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Write \(f(t) = -3\cos 2t + 3\sqrt3\sin 2t\) as \(\gamma\cos(2t - \psi)\).</p>
+    <details><summary>Solution</summary>
+    <p>The phasor is \(\alpha + i\beta = -3 + 3\sqrt3i\). Its modulus is \(\gamma = \sqrt{9 + 27} = 6\). It lies in the second quadrant, so \(\psi = \pi - \tan^{-1}(\sqrt3) = 2\pi/3\) (the bare arctangent would give the wrong \(-\pi/3\)).</p>
+    $$f(t) = 6\cos\!\left(2t - \tfrac{2\pi}{3}\right).$$
+    <p>Check at \(t=0\): \(6\cos(-2\pi/3) = -3\). ✓</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 1.8</span>Practice problems</h2>
+  <p>New problems are generated every time. Type exact expressions such as <code>sqrt(3)/2</code>, <code>-pi/6</code> or <code>2-3i</code>. Check your answer, read the worked solution, then ask for another. Your record is saved in this browser and shown on the <a href="../practice.html">Practice</a> page.</p></div>
+<div id="qz"></div>
+
+<div class="prose"><h2 id="summary"><span class="sec">Summary</span>Key equations</h2></div>
+<div class="keyeq">
+  <div><h4>Arithmetic</h4>
+    $$z\bar z = |z|^2,\qquad \frac{z_1}{z_2} = \frac{z_1\bar z_2}{|z_2|^2}$$
+    $$\Re z = \tfrac{z+\bar z}{2},\quad \Im z = \tfrac{z-\bar z}{2i}$$</div>
+  <div><h4>Polar form</h4>
+    $$e^{i\theta} = \cos\theta + i\sin\theta,\quad z = re^{i\theta}$$
+    $$z^n = r^ne^{in\theta},\quad z_k = \rho^{1/n}e^{i(\phi+2\pi k)/n}$$</div>
+  <div><h4>Logs and powers</h4>
+    $$\ln z = \ln|z| + i(\angle z + 2\pi k)$$
+    $$a^b = e^{b\ln a},\quad i^i = e^{-\pi/2}$$</div>
+  <div><h4>Phasors</h4>
+    $$\alpha\cos\omega t + \beta\sin\omega t = \gamma\cos(\omega t - \psi)$$
+    $$\gamma e^{i\psi} = \alpha + i\beta$$</div>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script>
+(function () {
+  const { C, add, mul, div, conj, abs, arg, polar, pow, num } = CX;
+  const PI = Math.PI;
+  const r2 = z => C(Math.round(z.re * 4) / 4, Math.round(z.im * 4) / 4); // snap drags to quarter units
+  const rect = z => CX.str(z, 3);
+  const pol = z => abs(z) < 1e-12 ? "0" : `r = ${num(abs(z), 3)}, θ = ${num(arg(z) / PI, 3)}π`;
+  const parseZ = s => { const [a, b] = s.split(",").map(Number); return C(a, b); };
+
+  // ---------- Interactive 1: explorer ----------
+  let z1 = C(1.5, 1), w1 = C(1, 1.25);
+  const lab1 = document.getElementById("lab1");
+  const p1 = UI.cplane("#plane1", { R: 4, onDrag(i, z) { if (i === 0) z1 = r2(z); else if (i === 1) w1 = r2(z); draw1(); } });
+  function draw1() {
+    const op = UI.seg("opS");
+    const res = op === "add" ? add(z1, w1) : op === "mul" ? mul(z1, w1) : op === "div" ? (abs(w1) ? div(z1, w1) : C(NaN)) : conj(z1);
+    const name = { add: "z + w", mul: "z·w", div: "z / w", conj: "z̄" }[op];
+    const pts = [{ z: z1, c: 1, label: "z", drag: true, ray: true }];
+    if (op !== "conj") pts.push({ z: w1, c: 2, label: "w", drag: true, ray: true });
+    else pts.push({ z: C(99, 99), c: 2 }); // keep indices stable
+    pts.push({ z: res, c: 4, label: name, ray: true });
+    const polys = op === "add" ? [{ pts: [z1, res, w1], c: 6, dash: true }] : [];
+    p1.redraw({ points: pts, polys, circles: [{ r: 1, c: 6, dash: true }] });
+    const rows = [["z", rect(z1), pol(z1)], ["w", rect(w1), pol(w1)], [name, rect(res), pol(res)]];
+    if (op === "mul") rows.push(["check", `|z||w| = ${num(abs(z1) * abs(w1), 3)}`, `∠z + ∠w = ${num((arg(z1) + arg(w1)) / PI, 3)}π`]);
+    if (op === "div") rows.push(["check", `|z|/|w| = ${num(abs(z1) / abs(w1), 3)}`, `∠z − ∠w = ${num((arg(z1) - arg(w1)) / PI, 3)}π`]);
+    UI.readout("#ro1", rows.map(([k, a, b]) => [k, a, b]));
+    UI.live("#lab1", `${name} = ${rect(res)}`);
+  }
+  UI.wire(lab1, draw1);
+  lab1.querySelectorAll("[data-z]").forEach(b => b.addEventListener("click", () => { z1 = parseZ(b.dataset.z); w1 = parseZ(b.dataset.w); draw1(); }));
+
+  // ---------- Interactive 2: powers and roots ----------
+  let z2 = C(1, 1);
+  const lab2 = document.getElementById("lab2");
+  let p2 = null;
+  function draw2() {
+    const n = UI.val("prN"), mode = UI.seg("prS");
+    let pts = [], polys = [], circles = [{ r: 1, c: 6, dash: true }], R = 2.5;
+    pts.push({ z: z2, c: 1, label: "z", drag: true, ray: true });
+    const rows = [["z", rect(z2), pol(z2)]];
+    if (mode === "powers") {
+      const ps = Array.from({ length: n + 1 }, (_, k) => pow(z2, k));
+      const big = Math.max(...ps.map(abs));
+      R = Math.min(Math.max(2.5, big * 1.1), 1200);
+      ps.forEach((p, k) => { if (k !== 1) pts.push({ z: p, c: 2, label: k === 0 || k === 2 || k === n ? "z^" + k : "", r: 3.5 }); });
+      polys.push({ pts: ps, c: 2 });
+      const zn = ps[n];
+      rows.push([`z^${n}`, rect(zn), pol(zn)], ["De Moivre", `|z|^${n} = ${num(abs(z2) ** n, 4)}`, `${n}·∠z = ${num(n * arg(z2) / PI, 4)}π`]);
+      UI.live("#lab2", `z^${n} = ${rect(zn)}`);
+    } else {
+      const rho = abs(z2), phi = arg(z2);
+      const rs = Array.from({ length: n }, (_, k) => polar(Math.pow(rho, 1 / n), (phi + 2 * PI * k) / n));
+      R = Math.max(2.5, abs(z2) * 1.1);
+      rs.forEach((r, k) => pts.push({ z: r, c: 3, label: `z${"₀₁₂₃₄₅₆₇₈₉".charAt(k) || k}`, r: 5 }));
+      polys.push({ pts: rs, c: 3, closed: true });
+      circles.push({ r: Math.pow(rho, 1 / n), c: 3, dash: true });
+      rows.push(["root radius", `|z|^(1/${n}) = ${num(Math.pow(rho, 1 / n), 4)}`, `spacing 2π/${n}`]);
+      rs.slice(0, 4).forEach((r, k) => rows.push([`z${"₀₁₂₃"[k]}`, rect(r), pol(r)]));
+      UI.live("#lab2", `${n} roots of z`);
+    }
+    R = Math.ceil(R);
+    if (!p2 || p2.R !== R) { p2 = UI.cplane("#plane2", { R, onDrag(i, z) { if (i === 0) { z2 = C(Math.round(z.re * 20) / 20, Math.round(z.im * 20) / 20); draw2(); } } }); p2.R = R; }
+    p2.redraw({ points: pts, polys, circles });
+    UI.readout("#ro2", rows);
+  }
+  UI.wire(lab2, draw2);
+  lab2.querySelectorAll("[data-z]").forEach(b => b.addEventListener("click", () => { z2 = parseZ(b.dataset.z); setTimeout(draw2); }));
+
+  // ---------- Interactive 3: phasors ----------
+  const p3 = UI.cplane("#plane3", { R: 5, w: 360, h: 360 });
+  UI.wire("#lab3", () => {
+    const g1 = UI.val("ph1"), s1 = UI.val("ps1") * PI, g2 = UI.val("ph2"), s2 = UI.val("ps2") * PI;
+    const P1 = polar(g1, s1), P2 = polar(g2, s2), S = add(P1, P2), g = abs(S), s = arg(S);
+    p3.redraw({ points: [{ z: P1, c: 1, ray: true, label: "γ₁" }, { z: S, from: P1, c: 2, ray: true }, { z: S, c: 4, ray: true, label: "sum" }],
+      circles: [{ r: 1, c: 6, dash: true }] });
+    const t = UI.linspace(0, 4 * PI, 400);
+    UI.plot("#plot3", { xlabel: "t", ylabel: "signal", xlim: [0, 4 * PI], ylim: [-6, 6], h: 360, legend: "br", legendWidth: 150,
+      series: [{ x: t, y: t.map(v => g1 * Math.cos(v - s1)), c: 1, label: "γ₁cos(t−ψ₁)" }, { x: t, y: t.map(v => g2 * Math.cos(v - s2)), c: 2, label: "γ₂cos(t−ψ₂)" },
+        { x: t, y: t.map(v => g * Math.cos(v - s)), c: 4, width: 3, label: "sum" }] });
+    UI.readout("#ro3", [["α = Re (sum)", S.re], ["β = Im (sum)", S.im], ["γ = |α + iβ|", g], ["ψ = ∠(α + iβ)", `${num(s / PI, 4)}π`, `= ${num(s, 4)} rad`]]);
+    UI.live("#lab3", `${num(g, 3)} cos(t − ${num(s, 3)})`);
+  });
+
+  QZ.mount("#qz", { topics: ["cx-arith", "cx-polar", "cx-power", "cx-roots", "cx-euler", "cx-sinusoid"], title: "Complex numbers: problem generator" });
+})();
+</script>
+</body>
+</html>

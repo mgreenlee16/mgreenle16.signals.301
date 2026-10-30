@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inner Products &amp; Orthogonal Expansions · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="inner-products">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 2 · Exam 1</div>
+  <h1>Inner Products &amp; Orthogonal Expansions</h1>
+  <p class="lead">A Fourier series is an expansion in an orthogonal basis, and the same geometry works for arrows in the plane, vectors in \(\mathbb C^n\) and functions in \(L^2(0,\tau)\). This lesson gives the tools: linear spaces, inner products and norms, Cauchy–Schwarz, orthogonality, and orthogonal expansions with Parseval's formula and the best-approximation property. Once these are in place, Lesson 3 needs only one new idea, which is the basis \(e^{-ik\omega_0t}\).</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#spaces">Linear spaces</a></li>
+    <li><a href="#ip">Inner products and norms</a></li>
+    <li><a href="#cs">Cauchy–Schwarz, angles and orthogonality</a></li>
+    <li><a href="#func">Inner products of functions</a></li>
+    <li><a href="#expand">Orthogonal expansions and Parseval</a></li>
+    <li><a href="#best">Best approximation</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+    <li><a href="#summary">Key equations</a></li>
+  </ol></nav>
+
+  <h2 id="spaces"><span class="sec">Section 2.1</span>Linear spaces</h2>
+  <p>A <b class="term">linear (vector) space</b> is a set where you can add elements and multiply them by scalars (here complex numbers) with the usual rules. The three spaces of this course are:</p>
+  <ul>
+    <li>\(\mathbb C^n\), column vectors of \(n\) complex numbers. Samples of a signal live here.</li>
+    <li>\(L^2(0,\tau)\), functions on \([0,\tau]\) with \(\int_0^\tau |f(t)|^2dt &lt; \infty\), the finite-energy signals. Periodic signals live here, viewed over one period.</li>
+    <li>Trigonometric polynomials \(\sum_{k=-n}^{n} a_ke^{-ik\omega_0t}\), a finite-dimensional subspace of \(L^2(0,\tau)\) with dimension \(2n+1\). These are what the DFT works with.</li>
+  </ul>
+  <p>A set \(\{\varphi_k\}\) is <b>linearly independent</b> if \(\sum c_k\varphi_k = 0\) forces every \(c_k = 0\), and it is a <b>basis</b> if in addition every element is some combination \(\sum c_k\varphi_k\). The number of basis elements is the <b>dimension</b>: \(n\) for \(\mathbb C^n\), infinite for \(L^2(0,\tau)\).</p>
+
+  <h2 id="ip"><span class="sec">Section 2.2</span>Inner products and norms</h2>
+  <p>An <b class="term">inner product</b> \((f,g)\) assigns a complex number to each pair of elements so that</p>
+  $$(f,f) &gt; 0 \text{ for } f\ne0,\qquad (g,f) = \overline{(f,g)},\qquad (c_1f_1 + c_2f_2, g) = c_1(f_1,g) + c_2(f_2,g).$$
+  <p>It is linear in the first slot and <em>conjugate</em>-linear in the second: \((f, cg) = \bar c\,(f,g)\). On \(\mathbb C^n\) the standard inner product conjugates the second vector:</p>
+  $$(f, g) = \sum_{k=1}^n f_k\overline{g_k} = g^*f.$$
+  <p>The <b class="term">norm</b> (length) is \(\|f\| = \sqrt{(f,f)}\) and the distance between \(f\) and \(g\) is \(\|f-g\|\). For \(f = [1+i,\;2]^T\), \(\|f\|^2 = |1+i|^2 + |2|^2 = 6\). Forgetting the conjugate is the most common mistake: \((1+i)(1+i) = 2i\) is not \(|1+i|^2\).</p>
+
+  <h2 id="cs"><span class="sec">Section 2.3</span>Cauchy–Schwarz, angles and orthogonality</h2>
+  <p>The <b class="term">Cauchy–Schwarz inequality</b> \(|(f,g)| \le \|f\|\,\|g\|\) holds in every inner product space, with equality only when one element is a multiple of the other. It lets us define the angle between real vectors by \(\cos\theta = (f,g)/(\|f\|\|g\|)\), and it implies the triangle inequality \(\|f+g\|\le\|f\|+\|g\|\).</p>
+  <p>Two elements are <b class="term">orthogonal</b>, \(f\perp g\), when \((f,g) = 0\). For orthogonal elements the <b>Pythagorean theorem</b> holds: \(\|f+g\|^2 = \|f\|^2 + \|g\|^2\). The <b class="term">projection</b> of \(f\) onto \(g\) is the multiple of \(g\) closest to \(f\):</p>
+  $$P_gf = \frac{(f,g)}{\|g\|^2}\,g, \qquad f - P_gf \perp g.$$
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Projection in the plane</span><span class="live"></span></div>
+  <div class="controls">
+    <p class="drag-hint">Drag the tips of f (teal) and g (blue). The pink vector is the projection of f onto g; the dashed gray error f − P<sub>g</sub>f always meets g at a right angle.</p>
+    <div class="presets"><span>Try</span>
+      <button data-f="3,1" data-g="1,-3">orthogonal</button>
+      <button data-f="2,2" data-g="1,1">parallel (equality)</button>
+      <button data-f="3,2" data-g="4,0">onto the x-axis</button>
+    </div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plane1"></div><figcaption>Vectors in ℝ² with (f, g) = f₁g₁ + f₂g₂.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="func"><span class="sec">Section 2.4</span>Inner products of functions</h2>
+  <p>On \(L^2(0,\tau)\) the course uses the <em>normalized</em> inner product</p>
+  $$(f,g) = \frac1\tau\int_0^\tau f(t)\overline{g(t)}\,dt,\qquad \|f\|^2 = \frac1\tau\int_0^\tau |f(t)|^2\,dt.$$
+  <p>The factor \(1/\tau\) makes \(\|f\|^2\) the <em>average power</em> of the signal and makes each \(e^{-ik\omega_0t}\) a unit vector. On a general interval \((a,b)\) the normalization is \(1/(b-a)\). Watch for it: an exam answer of \(4/3\) where \(2/3\) was expected usually means the factor was dropped.</p>
+  <p>Orthogonality of functions depends on the interval. \(\cos(\pi t/4)\) and \(\sin(\pi t/4)\) are orthogonal on \((0,4)\), where their product \(\tfrac12\sin(\pi t/2)\) runs through a full period and averages to zero. They are not orthogonal on \((0,2)\), which covers only the positive half of that period. The basic orthogonality relations, valid on any interval of length \(\tau = 2\pi/\omega_0\), are</p>
+  $$\frac1\tau\int_0^\tau e^{-ik\omega_0t}\,\overline{e^{-in\omega_0t}}\,dt = \frac1\tau\int_0^\tau e^{-i(k-n)\omega_0t}\,dt = \begin{cases}1 & k=n\\ 0 & k\ne n.\end{cases}$$
+  <p>So \(\{e^{-ik\omega_0t}\}_{k\in\mathbb Z}\) is <b>orthonormal</b> in \(L^2(0,\tau)\). The real set \(\{1, \cos k\omega_0t, \sin k\omega_0t\}\) is orthogonal but not orthonormal: \(\|\cos k\omega_0t\|^2 = \|\sin k\omega_0t\|^2 = \tfrac12\).</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Inner products of functions</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="fF">f(t)</label><input type="text" id="fF" value="cos(pi*t/4)" spellcheck="false"></div>
+    <div class="ctl"><label for="fG">g(t)</label><input type="text" id="fG" value="sin(pi*t/4)" spellcheck="false"></div>
+    <div class="ctl"><label for="fA">Interval start a <output for="fA"></output></label><input type="range" id="fA" min="-4" max="0" step="0.5" value="0" data-dec="1"></div>
+    <div class="ctl"><label for="fB">Interval end b <output for="fB"></output></label><input type="range" id="fB" min="0.5" max="8" step="0.5" value="2" data-dec="1"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"fF":"cos(pi*t/4)","fG":"sin(pi*t/4)","fA":0,"fB":2}'>cos vs sin on (0,2)</button>
+      <button data-preset='{"fF":"cos(pi*t/4)","fG":"sin(pi*t/4)","fA":0,"fB":4}'>… on (0,4)</button>
+      <button data-preset='{"fF":"t","fG":"t^2","fA":-2,"fB":2}'>t vs t² on (−2,2)</button>
+      <button data-preset='{"fF":"t+1","fG":"t-5/9","fA":0,"fB":1}'>t+1 ⟂ t−5/9</button>
+      <button data-preset='{"fF":"exp(-i*2*pi*t)","fG":"exp(-i*4*pi*t)","fA":0,"fB":1}'>e^{−i2πt} vs e^{−i4πt}</button>
+    </div>
+    <p class="drag-hint">Type any expression in t: <code>sin</code>, <code>exp</code>, <code>abs</code>, <code>if(t&lt;1, 1, 0)</code>, complex constants like <code>2i</code>.</p>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot2"></div><figcaption>Re f (teal), Re g (blue), and the integrand Re f·ḡ (pink, shaded). The normalized inner product is the signed average of the shaded area.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="expand"><span class="sec">Section 2.5</span>Orthogonal expansions and Parseval</h2>
+  <p>If \(\{\varphi_k\}\) is an orthogonal basis, every \(f\) expands as \(f = \sum_k a_k\varphi_k\). Taking the inner product of both sides with \(\varphi_n\) kills every term but one, so the coefficients come straight from inner products:</p>
+  $$a_k = \frac{(f,\varphi_k)}{\|\varphi_k\|^2}\qquad\big(a_k = (f,\varphi_k)\text{ if the basis is orthonormal}\big).$$
+  <p>No linear system has to be solved. Applying Pythagoras to all the terms gives <b class="term">Parseval's formula</b>:</p>
+  $$\|f\|^2 = \sum_k |a_k|^2\,\|\varphi_k\|^2,\qquad (f,g) = \sum_k a_k\overline{b_k}\,\|\varphi_k\|^2.$$
+  <p>For the Fourier basis this reads \(\frac1\tau\int_0^\tau|f|^2dt = \sum_k |a_k|^2\): the power of a signal equals the sum of the powers in its harmonics.</p>
+
+  <h2 id="best"><span class="sec">Section 2.6</span>Best approximation</h2>
+  <p>Suppose only the first \(N\) basis elements are kept. Which coefficients \(c_k\) make \(\|f - \sum_{k\le N} c_k\varphi_k\|\) smallest? The answer is the same \(a_k\) as in the full expansion. The truncated sum is the <b>orthogonal projection</b> of \(f\) onto the span of \(\varphi_1,\dots,\varphi_N\), the error is orthogonal to every \(\varphi_k\) kept, and its size follows from Parseval:</p>
+  $$\Big\|f - \sum_{k\le N}a_k\varphi_k\Big\|^2 = \|f\|^2 - \sum_{k\le N}|a_k|^2\|\varphi_k\|^2 = \sum_{k&gt;N}|a_k|^2\|\varphi_k\|^2.$$
+  <p>This is the formula behind the "truncation error" problems in Lesson 3. It also explains why adding a term never makes the fit worse and never changes the coefficients already found, which is the great advantage of orthogonal bases.</p>
+</div>
+
+<section class="lab" id="lab3">
+  <div class="lab-head"><span class="num">Interactive 3</span><span class="title">Orthogonal expansion in ℝ⁴</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="v1">f₁ <output for="v1"></output></label><input type="range" id="v1" min="-5" max="5" step="1" value="4" data-dec="0"></div>
+    <div class="ctl"><label for="v2">f₂ <output for="v2"></output></label><input type="range" id="v2" min="-5" max="5" step="1" value="2" data-dec="0"></div>
+    <div class="ctl"><label for="v3">f₃ <output for="v3"></output></label><input type="range" id="v3" min="-5" max="5" step="1" value="0" data-dec="0"></div>
+    <div class="ctl"><label for="v4">f₄ <output for="v4"></output></label><input type="range" id="v4" min="-5" max="5" step="1" value="-2" data-dec="0"></div>
+    <div class="ctl"><label for="vN">Terms kept N <output for="vN"></output></label><input type="range" id="vN" min="0" max="4" step="1" value="2" data-dec="0"></div>
+    <div class="ctl inline"><span>Basis</span>
+      <div class="seg" id="vB" data-value="walsh"><button data-value="walsh" aria-pressed="true">Walsh</button><button data-value="haar" aria-pressed="false">Haar</button></div></div>
+    <div id="ro3" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot3"></div><figcaption>f (teal stems) and its best approximation from the first N basis vectors (pink). The table lists the basis and the coefficients aₖ = (f, ψₖ)/‖ψₖ‖².</figcaption></figure>
+    <div id="tab3"></div></div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 2.7</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 2.1 · Vectors in ℂ³</button><button>Ex 2.2 · Orthogonal or not?</button><button>Ex 2.3 · Find c</button><button>Ex 2.4 · Expansion and error</button><button>Ex 2.5 · Power of a signal</button></div>
+  <div class="panel">
+    <p>For \(f = [1+i,\; 2,\; -i]^T\) and \(g = [i,\; 1-i,\; 3]^T\), compute \((f,g)\), \((g,f)\), \(\|f\|\) and \(\|g\|\), and check Cauchy–Schwarz.</p>
+    <details><summary>Solution</summary>
+    $$(f,g) = (1+i)\bar{i} + 2\,\overline{(1-i)} + (-i)\cdot 3 = (1+i)(-i) + 2(1+i) - 3i = (1 - i) + (2 + 2i) - 3i = 3 - 2i.$$
+    <p>\((g,f) = \overline{(f,g)} = 3 + 2i\). \(\|f\|^2 = 2 + 4 + 1 = 7\) and \(\|g\|^2 = 1 + 2 + 9 = 12\). Then \(|(f,g)| = \sqrt{13} \approx 3.61 \le \sqrt{84} \approx 9.17\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>Are \(\cos(\pi t/4)\) and \(\sin(\pi t/4)\) orthogonal in \(L^2(0,2)\)? In \(L^2(0,4)\)?</p>
+    <details><summary>Solution</summary>
+    <p>Use \(\cos x\sin x = \tfrac12\sin 2x\):</p>
+    $$\frac1L\int_0^L \cos\tfrac{\pi t}4\sin\tfrac{\pi t}4\,dt = \frac1{2L}\int_0^L\sin\tfrac{\pi t}{2}\,dt = \frac{1}{2L}\cdot\frac2\pi\Big(1 - \cos\tfrac{\pi L}{2}\Big).$$
+    <p>For \(L = 2\): \(\frac14\cdot\frac2\pi\cdot 2 = \frac1\pi \ne 0\), <b>not orthogonal</b>. For \(L = 4\): \(1 - \cos2\pi = 0\), <b>orthogonal</b>. Interactive 2 shows both.</p></details>
+  </div>
+  <div class="panel">
+    <p>Find the constant \(c\) so that \(g(t) = t - c\) is orthogonal to \(f(t) = t + 1\) in \(L^2(0,1)\). Then find \(\|f\|^2\).</p>
+    <details><summary>Solution</summary>
+    $$0 = \int_0^1 (t+1)(t-c)\,dt = \int_0^1 \big(t^2 + (1-c)t - c\big)dt = \frac13 + \frac{1-c}{2} - c = \frac56 - \frac{3c}2 \;\Rightarrow\; c = \frac59.$$
+    <p>The normalization does not matter for orthogonality. \(\|f\|^2 = \int_0^1 (t+1)^2dt = \frac{(2)^3 - 1}{3} = \frac73\).</p></details>
+  </div>
+  <div class="panel">
+    <p>The Walsh vectors \(\psi_1 = [1,1,1,1]\), \(\psi_2 = [1,-1,1,-1]\), \(\psi_3 = [1,1,-1,-1]\), \(\psi_4 = [1,-1,-1,1]\) are an orthogonal basis of \(\mathbb C^4\). Expand \(f = [4, 2, 0, -2]\) and find the error of the best approximation using only \(\psi_1, \psi_2\).</p>
+    <details><summary>Solution</summary>
+    <p>Each \(\|\psi_k\|^2 = 4\). The coefficients are \(a_k = (f,\psi_k)/4\):</p>
+    $$a_1 = \tfrac{4+2+0-2}{4} = 1,\quad a_2 = \tfrac{4-2+0+2}{4} = 1,\quad a_3 = \tfrac{4+2-0+2}{4} = 2,\quad a_4 = \tfrac{4-2-0-2}{4} = 0.$$
+    <p>So \(f = \psi_1 + \psi_2 + 2\psi_3\). Parseval: \(\|f\|^2 = 24 = 4(1 + 1 + 4 + 0)\). ✓ The error with two terms is \(\|f\|^2 - 4(1+1) = 16 = |a_3|^2\|\psi_3\|^2\), so the distance is 4. Interactive 3 starts at this example.</p></details>
+  </div>
+  <div class="panel">
+    <p>Find the average power \(\|f\|^2\) of \(f(t) = 2 + 3\cos t - 4\sin 2t\) on \((0,2\pi)\) without integrating.</p>
+    <details><summary>Solution</summary>
+    <p>\(\{1, \cos t, \sin 2t\}\) are orthogonal with \(\|1\|^2 = 1\) and \(\|\cos t\|^2 = \|\sin 2t\|^2 = \tfrac12\). By Parseval,</p>
+    $$\|f\|^2 = 2^2\cdot 1 + 3^2\cdot\tfrac12 + 4^2\cdot\tfrac12 = 4 + 4.5 + 8 = 16.5.$$</details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 2.8</span>Practice problems</h2></div>
+<div id="qz"></div>
+
+<div class="prose"><h2 id="summary"><span class="sec">Summary</span>Key equations</h2></div>
+<div class="keyeq">
+  <div><h4>Inner products</h4>
+    $$(f,g) = \sum f_k\overline{g_k},\qquad (f,g) = \frac1\tau\int_0^\tau f\bar g\,dt$$
+    $$(g,f) = \overline{(f,g)},\quad (f,cg) = \bar c(f,g)$$</div>
+  <div><h4>Geometry</h4>
+    $$|(f,g)| \le \|f\|\|g\|,\qquad f\perp g \iff (f,g) = 0$$
+    $$P_gf = \frac{(f,g)}{\|g\|^2}g$$</div>
+  <div><h4>Expansion</h4>
+    $$f = \sum a_k\varphi_k,\qquad a_k = \frac{(f,\varphi_k)}{\|\varphi_k\|^2}$$
+    $$\|f\|^2 = \sum|a_k|^2\|\varphi_k\|^2$$</div>
+  <div><h4>Best approximation</h4>
+    $$\Big\|f - \sum_{k\le N}a_k\varphi_k\Big\|^2 = \sum_{k&gt;N}|a_k|^2\|\varphi_k\|^2$$</div>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script>
+(function () {
+  const { C, abs, num, str } = CX;
+
+  // ---------- Interactive 1: projection ----------
+  let f = { re: 3, im: 2 }, g = { re: 4, im: 1 };
+  const lab1 = document.getElementById("lab1");
+  const snap = z => C(Math.round(z.re * 4) / 4, Math.round(z.im * 4) / 4);
+  const p1 = UI.cplane("#plane1", { R: 5, onDrag(i, z) { if (i === 0) f = snap(z); else if (i === 1) g = snap(z); draw1(); } });
+  function draw1() {
+    const fg = f.re * g.re + f.im * g.im, gg = g.re ** 2 + g.im ** 2, ff = f.re ** 2 + f.im ** 2;
+    const P = gg ? C(fg / gg * g.re, fg / gg * g.im) : C(0);
+    p1.redraw({ points: [{ z: f, c: 1, label: "f", drag: true, ray: true }, { z: g, c: 2, label: "g", drag: true, ray: true },
+      { z: P, c: 4, label: "P_g f", ray: true, r: 4 }, { z: f, from: P, c: 6, ray: true, dash: true, r: 0.1 }] });
+    const cs = Math.sqrt(ff * gg);
+    UI.readout("#ro1", [["(f, g)", fg], ["‖f‖ ‖g‖", cs, "Cauchy–Schwarz: |(f,g)| ≤ this"], ["angle θ", cs ? `${num(Math.acos(Math.max(-1, Math.min(1, fg / cs))) * 180 / Math.PI, 3)}°` : "—"],
+      ["P_g f", `(${num(P.re, 3)}, ${num(P.im, 3)})`, `coefficient (f,g)/‖g‖² = ${gg ? num(fg / gg, 3) : "—"}`], ["‖f − P_g f‖²", ff - (gg ? fg * fg / gg : 0), "= ‖f‖² − ‖P_g f‖²"]]);
+    UI.live("#lab1", Math.abs(fg) < 1e-9 ? "f ⟂ g" : `(f, g) = ${num(fg, 3)}`);
+  }
+  lab1.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => {
+    const [a, c] = b.dataset.f.split(",").map(Number), [d, e] = b.dataset.g.split(",").map(Number);
+    f = C(a, c); g = C(d, e); draw1();
+  }));
+  draw1();
+
+  // ---------- Interactive 2: function inner products ----------
+  UI.wire("#lab2", () => {
+    const a = UI.val("fA"), b = UI.val("fB");
+    let F, G;
+    const ro = document.getElementById("ro2");
+    try { F = CX.compile(document.getElementById("fF").value); G = CX.compile(document.getElementById("fG").value); F({ t: 0.123 }); G({ t: 0.123 }); }
+    catch (e) { UI.readout(ro, [["Error", "could not read f or g"]]); return; }
+    const fe = t => CX.toC(F({ t })), ge = t => CX.toC(G({ t }));
+    const L = b - a;
+    const prod = t => CX.mul(fe(t), CX.conj(ge(t)));
+    const I = CX.integrate(prod, a, b, 400), If = CX.integrate(t => abs(fe(t)) ** 2, a, b, 400), Ig = CX.integrate(t => abs(ge(t)) ** 2, a, b, 400);
+    const ip = CX.scale(CX.toC(I), 1 / L), nf = CX.toC(If).re / L, ng = CX.toC(Ig).re / L;
+    const t = UI.linspace(a, b, 400);
+    const fy = t.map(v => fe(v).re), gy = t.map(v => ge(v).re), py = t.map(v => prod(v).re);
+    const lim = Math.max(1, ...fy.map(Math.abs), ...gy.map(Math.abs), ...py.map(Math.abs)) * 1.08;
+    UI.plot("#plot2", { xlabel: "t", ylabel: "value", xlim: [a, b], ylim: [-lim, lim], legend: "tr",
+      series: [{ x: t, y: py, c: 4, fill: true, label: "Re f·ḡ" }, { x: t, y: fy, c: 1, width: 2.5, label: "Re f" }, { x: t, y: gy, c: 2, width: 2.5, label: "Re g" }] });
+    const orth = abs(ip) < 1e-6 * Math.max(1, Math.sqrt(nf * ng));
+    UI.readout(ro, [["(f, g) normalized", str(ip, 4), `= (1/${num(L, 3)}) ∫ f ḡ dt`], ["∫ f ḡ dt (unnormalized)", str(CX.toC(I), 4)],
+      ["‖f‖²", nf], ["‖g‖²", ng], ["|(f,g)| / (‖f‖‖g‖)", Math.sqrt(nf * ng) ? abs(ip) / Math.sqrt(nf * ng) : "—", "≤ 1 by Cauchy–Schwarz"]]);
+    UI.live("#lab2", orth ? "orthogonal" : `(f, g) ≈ ${str(ip, 3)}`);
+  });
+
+  // ---------- Interactive 3: expansion in R^4 ----------
+  const BASES = {
+    walsh: [[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]],
+    haar: [[1, 1, 1, 1], [1, 1, -1, -1], [1, -1, 0, 0], [0, 0, 1, -1]],
+  };
+  UI.wire("#lab3", () => {
+    const fv = [1, 2, 3, 4].map(k => UI.val("v" + k)), N = UI.val("vN"), B = BASES[UI.seg("vB")];
+    const dot = (u, v) => u.reduce((s, x, i) => s + x * v[i], 0);
+    const coef = B.map(p => dot(fv, p) / dot(p, p));
+    const approx = [0, 1, 2, 3].map(j => B.slice(0, N).reduce((s, p, k) => s + coef[k] * p[j], 0));
+    const ff = dot(fv, fv), kept = B.slice(0, N).reduce((s, p, k) => s + coef[k] ** 2 * dot(p, p), 0);
+    UI.plot("#plot3", { xlabel: "index j", ylabel: "value", xlim: [0.5, 4.5], ylim: [-6, 6], xticks: [1, 2, 3, 4], h: 300, legend: "tr", legendWidth: 120,
+      stems: [{ x: [0.92, 1.92, 2.92, 3.92], y: fv, c: 1, label: "f", width: 3 }, { x: [1.08, 2.08, 3.08, 4.08], y: approx, c: 4, label: `N = ${N}`, width: 3 }] });
+    UI.table("#tab3", ["k", "ψₖ", "‖ψₖ‖²", "(f, ψₖ)", "aₖ", "kept?"],
+      B.map((p, k) => [k + 1, `[${p.join(", ")}]`, dot(p, p), dot(fv, p), coef[k], k < N ? "✓" : ""]));
+    UI.readout("#ro3", [["‖f‖²", ff], ["Σ kept |aₖ|²‖ψₖ‖²", kept], ["error ‖f − approx‖²", ff - kept, "= ‖f‖² − kept power"]]);
+    UI.live("#lab3", `error² = ${num(ff - kept, 4)}`);
+  });
+
+  QZ.mount("#qz", { topics: ["ip-vec", "ip-func", "ip-expand"], title: "Inner products: problem generator" });
+})();
+</script>
+</body>
+</html>

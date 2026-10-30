@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complex Calculator · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="tools">
+<main>
+<div class="prose">
+  <div class="eyebrow">Calculator · Exam 1</div>
+  <h1>Complex Calculator</h1>
+  <p class="lead">Evaluate any complex expression and see it in rectangular and polar form, with its conjugate, principal logarithm and all \(n\)-th roots, plotted on the complex plane.</p>
+</div>
+<section class="calc">
+  <div class="inputs">
+    <label class="grow">Expression z<input type="text" id="cE" value="(1+sqrt(3)*i)^5/(2i)" spellcheck="false"></label>
+    <label>Roots: n<input type="number" id="cN" value="3" min="1" max="24" step="1"></label>
+  </div>
+  <div class="presets" style="margin-top:.6rem"><span>Try</span>
+    <button data-e="i^i">i^i</button><button data-e="(1-i)^7">(1−i)^7</button><button data-e="-27" data-n="3">cube roots of −27</button>
+    <button data-e="-i*(3+2i)/((1-4i)*(-4-4i))">quotient</button><button data-e="cos(2i)">cos(2i)</button><button data-e="2^i">2^i</button>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="calc-grid results"><div><div id="o1" class="readout"></div><div id="o2"></div></div><div id="pl"></div></div>
+</section>
+<div class="prose">
+  <h2>How to type expressions</h2>
+  <p>Use <code>i</code> or <code>j</code> for \(\sqrt{-1}\), <code>pi</code>, <code>e</code>, <code>+ - * / ^</code>, implicit multiplication (<code>2i</code>, <code>3(1+i)</code>), <code>|z|</code>, and the functions <code>sqrt exp log ln sin cos tan sinh cosh conj re im abs angle</code>. Powers like <code>a^b</code> use the principal logarithm, \(a^b = e^{b\ln a}\); integer powers are computed exactly. Angles are in radians. See <a href="../lessons/complex.html">Lesson 1</a> for the methods.</p>
+  <p><a href="../index.html#tools">← All calculators</a></p>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script>
+(function () {
+  const { abs, arg, str, num, conj, polar, C } = CX;
+  const PI = Math.PI;
+  const E = document.getElementById("cE"), N = document.getElementById("cN"), err = document.getElementById("err");
+  let plane = null, planeR = 0;
+  function run() {
+    let z;
+    try { z = CX.evalC(E.value); if (!isFinite(z.re) || !isFinite(z.im)) throw 0; err.textContent = ""; }
+    catch (e) { err.textContent = "Could not evaluate that expression."; return; }
+    const n = Math.max(1, Math.min(24, Math.round(+N.value || 1))), r = abs(z), th = arg(z);
+    const roots = Array.from({ length: n }, (_, k) => polar(Math.pow(r, 1 / n), (th + 2 * PI * k) / n));
+    UI.readout("#o1", [["z (rectangular)", str(z, 6)], ["|z|", r], ["∠z (rad)", th, `= ${num(th / PI, 5)}π, ${num(th * 180 / PI, 5)}°`],
+      ["polar", r ? `${num(r, 5)} e^(i·${num(th, 5)})` : "0"], ["z̄", str(conj(z), 6)], ["|z|²", r * r],
+      ["ln z (principal)", r ? str(C(Math.log(r), th), 5) : "—", r ? `all values: ${num(Math.log(r), 4)} + i(${num(th, 4)} + 2πk)` : ""]]);
+    UI.table("#o2", ["k", `root zₖ of zⁿ = z`, "|zₖ|", "∠zₖ / π"], roots.map((w, k) => [k, str(w, 5), abs(w), num(arg(w) / PI, 4)]));
+    const R = Math.max(2, Math.ceil(Math.max(r, Math.pow(r, 1 / n)) * 1.15));
+    if (!plane || R !== planeR) { plane = UI.cplane("#pl", { R }); planeR = R; }
+    plane.redraw({ points: [{ z, c: 1, ray: true, label: "z" }, ...roots.map((w, k) => ({ z: w, c: 4, label: n <= 8 ? `z${k}` : "", r: 4 }))],
+      polys: n > 2 ? [{ pts: roots, c: 4, closed: true, dash: true }] : [], circles: [{ r: 1, c: 6, dash: true }] });
+  }
+  E.addEventListener("input", run); N.addEventListener("input", run);
+  document.querySelectorAll("[data-e]").forEach(b => b.addEventListener("click", () => { E.value = b.dataset.e; if (b.dataset.n) N.value = b.dataset.n; run(); }));
+  run();
+})();
+</script>
+</body>
+</html>

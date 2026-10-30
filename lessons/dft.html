@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The DFT &amp; FFT · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="dft">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 4 · Exam 1</div>
+  <h1>The DFT &amp; FFT</h1>
+  <p class="lead">A computer never sees \(f(t)\), only samples of it. The discrete Fourier transform (DFT) turns \(\nu\) samples into Fourier coefficients and back. For a trigonometric polynomial with enough samples the result is exact; for anything else it is an approximation, and aliasing explains the error. The fast Fourier transform (FFT) computes the same thing in \(\nu\log\nu\) operations instead of \(\nu^2\). This lesson also covers MATLAB's ordering of <code>fft</code>/<code>ifft</code> output and how to read physical frequencies off a spectrum, the skills behind the last exam problem.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#sampling">Sampling a trigonometric polynomial</a></li>
+    <li><a href="#matrix">The DFT matrix and its inverse</a></li>
+    <li><a href="#matlab">MATLAB's fft and ifft</a></li>
+    <li><a href="#nyquist">Nyquist and aliasing</a></li>
+    <li><a href="#approx">Approximating Fourier coefficients of any signal</a></li>
+    <li><a href="#fft">The FFT</a></li>
+    <li><a href="#spectral">Spectral analysis in hertz</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+    <li><a href="#summary">Key equations</a></li>
+  </ol></nav>
+
+  <h2 id="sampling"><span class="sec">Section 4.1</span>Sampling a trigonometric polynomial</h2>
+  <p>Take a trigonometric polynomial of period \(\tau\) and sample it at \(\nu\) equally spaced points in one period:</p>
+  $$p(t) = \sum_{k} a_ke^{-ik\omega_0t},\qquad t_j = \frac{j\tau}{\nu},\quad j = 0, 1, \dots, \nu-1.$$
+  <p>Since \(k\omega_0t_j = 2\pi jk/\nu\), each sample is \(p(t_j) = \sum_k a_k\lambda^{jk}\) with \(\lambda = e^{-2\pi i/\nu}\), a root of unity (Lesson 1). Because \(\lambda^\nu = 1\), harmonic \(k\) and harmonic \(k \pm \nu\) produce <em>identical</em> samples. So only \(\nu\) distinct harmonics can be told apart, and the natural choice is the \(\nu\) closest to zero.</p>
+
+  <h2 id="matrix"><span class="sec">Section 4.2</span>The DFT matrix and its inverse</h2>
+  <p>Collect the samples in \(y = [p(t_0),\dots,p(t_{\nu-1})]^T\). The relation between samples and coefficients is a matrix product, \(y = F_\nu u\), with the <b class="term">DFT matrix</b></p>
+  $$F_\nu[j,k] = e^{-2\pi ijk/\nu}\quad(j,k = 0,\dots,\nu-1),\qquad F_4 = \begin{bmatrix}1&1&1&1\\1&-i&-1&i\\1&-1&1&-1\\1&i&-1&-i\end{bmatrix}.$$
+  <p>Its columns are orthogonal with squared norm \(\nu\): the inner product of columns \(k\) and \(m\) is a geometric sum of the roots of unity \(e^{-2\pi ij(k-m)/\nu}\), which is \(\nu\) if \(k = m\) and \(0\) otherwise. So \(F_\nu^*F_\nu = \nu I\) and</p>
+  $$F_\nu^{-1} = \frac1\nu F_\nu^* = \frac1\nu\overline{F_\nu},\qquad u = F_\nu^{-1}y,\qquad u_k = \frac1\nu\sum_{j=0}^{\nu-1} y_j\,e^{+2\pi ijk/\nu}.$$
+  <p>(\(F_\nu\) is symmetric, so \(F_\nu^* = \overline{F_\nu}\).) The last formula is the Riemann-sum version of \(a_k = \frac1\tau\int_0^\tau f e^{ik\omega_0t}dt\), which is why the coefficients come out of \(F^{-1}\).</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">The DFT matrix as a grid of phasors</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="mN">ν <output for="mN"></output></label><input type="range" id="mN" min="2" max="12" step="1" value="4" data-dec="0"></div>
+    <div class="ctl"><label for="mR">Highlight row j <output for="mR"></output></label><input type="range" id="mR" min="0" max="11" step="1" value="1" data-dec="0"></div>
+    <div class="ctl inline"><span>Matrix</span>
+      <div class="seg" id="mW" data-value="F"><button data-value="F" aria-pressed="true">F_ν</button><button data-value="Finv" aria-pressed="false">ν·F_ν⁻¹ = F̄_ν</button></div></div>
+    <p class="drag-hint">Each dial shows one entry e^{−2πijk/ν} as an arrow on the unit circle. Row j turns j steps of 2π/ν per column; the inverse turns the other way.</p>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="grid1"></div><figcaption>Entry (j, k) sits in row j, column k, both counted from 0. Since F[j,k] = e<sup>−ikω₀t<sub>j</sub></sup>, column k lists harmonic k at every sample time, and the highlighted row j lists every harmonic at time t<sub>j</sub>.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="matlab"><span class="sec">Section 4.3</span>MATLAB's fft and ifft</h2>
+  <p>MATLAB computes exactly these two products: <code>fft(y)</code> \(= F_\nu y\) and <code>ifft(y)</code> \(= F_\nu^{-1}y\). So <b><code>ifft</code> of the samples gives the Fourier coefficients</b> in the course's convention. The only subtlety is the <b>order</b>. Slot \(k\) (counting from 0) holds the harmonic \(k\) if \(k \le \nu/2\), and the harmonic \(k - \nu\) otherwise:</p>
+  $$\texttt{ifft}(y) = [\,a_0,\ a_1,\ \dots,\ a_n,\ a_{-m},\ \dots,\ a_{-1}\,],\qquad n = \lfloor\nu/2\rfloor,\quad m = \lceil\nu/2\rceil - 1.$$
+  <p>MATLAB counts from 1, so <code>a(1)</code> is \(a_0\), <code>a(k+1)</code> is \(a_k\), and \(a_{-k}\) sits in <code>a(ν−k+1)</code>, for example <code>a(end)</code> \(= a_{-1}\). (<code>fftshift</code> reorders the output to run from negative to positive harmonics.) For a real signal, the negative slots are the conjugates of the positive ones. Converting back to cosine–sine form uses \(\alpha_k = 2\Re a_k\) and \(\beta_k = 2\Im a_k\), with \(a_0\) <em>not</em> doubled.</p>
+
+  <h2 id="nyquist"><span class="sec">Section 4.4</span>Nyquist and aliasing</h2>
+  <p>A trigonometric polynomial with harmonics \(-K,\dots,K\) has \(2K+1\) unknown coefficients, so it is recovered exactly from \(\nu\) samples when</p>
+  $$\nu \ge 2K + 1\qquad\text{(Nyquist condition).}$$
+  <p>With fewer samples, harmonic \(k\) is indistinguishable from \(k \bmod \nu\) folded into \((-\nu/2,\nu/2]\): it is <b class="term">aliased</b>. The notes' example: \(2\sin4t\) sampled at \(\nu = 5\) points of \([0,2\pi)\) gives exactly the same numbers as \(-2\sin t\), because \(4 \equiv -1 \pmod 5\) and \(\sin(-t) = -\sin t\). <code>ifft</code> then reports a harmonic that is not in the signal at all.</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Sampling and aliasing</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="sK">Harmonic k of the signal <output for="sK"></output></label><input type="range" id="sK" min="0" max="12" step="1" value="4" data-dec="0"></div>
+    <div class="ctl"><label for="sN">Samples ν <output for="sN"></output></label><input type="range" id="sN" min="2" max="16" step="1" value="5" data-dec="0"></div>
+    <div class="ctl inline"><span>Signal</span>
+      <div class="seg" id="sT" data-value="sin"><button data-value="cos" aria-pressed="false">2cos kt</button><button data-value="sin" aria-pressed="true">2sin kt</button></div></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"sK":4,"sN":5,"sT":"sin"}'>2sin 4t, ν = 5</button>
+      <button data-preset='{"sK":4,"sN":9,"sT":"sin"}'>ν = 9 (Nyquist)</button>
+      <button data-preset='{"sK":3,"sN":6,"sT":"sin"}'>k = ν/2: sine vanishes</button>
+      <button data-preset='{"sK":7,"sN":8,"sT":"cos"}'>cos 7t, ν = 8</button>
+    </div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot2"></div><figcaption>The signal (gray), its ν samples (dots), and the trigonometric polynomial that ifft reconstructs from those samples (pink).</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="approx"><span class="sec">Section 4.5</span>Approximating Fourier coefficients of any signal</h2>
+  <p>For a general periodic \(f\) (not a trigonometric polynomial), sample it and apply <code>ifft</code>. Slot \(k\) then holds not \(a_k\) but the sum of every harmonic that aliases onto it:</p>
+  $$\frac1\nu\sum_{j=0}^{\nu-1}f(t_j)e^{2\pi ijk/\nu} = \sum_{\ell=-\infty}^{\infty} a_{k+\ell\nu} = a_k + a_{k+\nu} + a_{k-\nu} + \cdots.$$
+  <p>If the coefficients decay quickly, the extra terms are small for \(|k| \ll \nu/2\). So <code>ifft</code> approximates the low harmonics well and the ones near \(\pm\nu/2\) poorly. Doubling \(\nu\) is the cure. In MATLAB, sample on <code>t = (0:nu-1)*tau/nu</code>, which leaves out the endpoint \(t = \tau\) (it would repeat \(t = 0\)). At a jump, use the midpoint value.</p>
+</div>
+
+<section class="lab" id="lab3">
+  <div class="lab-head"><span class="num">Interactive 3</span><span class="title">ifft of samples vs the true coefficients</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="iF">f(t) on [0, 2π)</label><input type="text" id="iF" value="t" spellcheck="false"></div>
+    <div class="ctl"><label for="iN">ν = 2^m <output for="iN"></output></label><input type="range" id="iN" min="2" max="7" step="1" value="4" data-dec="0"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"iF":"t","iN":4}'>sawtooth t</button>
+      <button data-preset='{"iF":"abs(t-pi)","iN":3}'>triangle |t − π|</button>
+      <button data-preset='{"iF":"3+2cos(t)-4sin(2t)","iN":3}'>trig polynomial</button>
+      <button data-preset='{"iF":"exp(cos(t))","iN":3}'>e^{cos t} (smooth)</button>
+    </div>
+    <div id="ro3" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot3"></div><figcaption>|aₖ| from ifft (pink, right) and the exact coefficients (gray, left), arranged by harmonic k from −ν/2 to ν/2.</figcaption></figure>
+    <div id="tab3"></div></div>
+</section>
+
+<div class="prose">
+  <h2 id="fft"><span class="sec">Section 4.6</span>The FFT</h2>
+  <p>Computing \(F_\nu y\) directly takes about \(\nu^2\) complex multiplications. The <b class="term">fast Fourier transform</b> (Cooley–Tukey, 1965) splits a length-\(\nu\) DFT into two of length \(\nu/2\), one for the even samples and one for the odd, plus \(\nu/2\) "twiddle" multiplications by powers of \(\lambda\). Repeating the split \(\log_2\nu\) times gives a cost of about \(\nu\log_2\nu\). The speed-up factor is \(\nu/\log_2\nu\): 102 for \(\nu = 1024\), 341 for \(\nu = 4096\), and over 50,000 for a million points. That speed is why spectral analysis is practical. MATLAB's <code>fft</code> is fastest when \(\nu\) is a power of 2, but it works for any length.</p>
+</div>
+
+<section class="lab" id="lab4">
+  <div class="lab-head"><span class="num">Interactive 4</span><span class="title">Spectrum analyzer</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="aF1">Cosine 1 frequency (Hz) <output for="aF1"></output></label><input type="range" id="aF1" min="1" max="250" step="0.5" value="50" data-dec="1"></div>
+    <div class="ctl"><label for="aA1">Amplitude 1 <output for="aA1"></output></label><input type="range" id="aA1" min="0" max="3" step="0.1" value="2" data-dec="1"></div>
+    <div class="ctl"><label for="aF2">Cosine 2 frequency (Hz) <output for="aF2"></output></label><input type="range" id="aF2" min="1" max="600" step="0.5" value="120" data-dec="1"></div>
+    <div class="ctl"><label for="aA2">Amplitude 2 <output for="aA2"></output></label><input type="range" id="aA2" min="0" max="3" step="0.1" value="1" data-dec="1"></div>
+    <div class="ctl"><label for="aFs">Sampling rate F<sub>s</sub> (Hz)</label><select id="aFs"><option>256</option><option selected>512</option><option>1000</option><option>2000</option></select></div>
+    <div class="ctl"><label for="aN">Samples N</label><select id="aN"><option>128</option><option selected>256</option><option>512</option><option>1024</option></select></div>
+    <div class="ctl inline"><span>x-axis</span>
+      <div class="seg" id="aX" data-value="hz"><button data-value="idx" aria-pressed="false">MATLAB index</button><button data-value="hz" aria-pressed="true">Hz (fftshift)</button></div></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"aF1":50,"aF2":120,"aFs":"512","aN":"256"}'>on-bin tones</button>
+      <button data-preset='{"aF1":51,"aF2":120,"aFs":"512","aN":"256"}'>off-bin: leakage</button>
+      <button data-preset='{"aF1":50,"aF2":400,"aFs":"512","aN":"256"}'>400 Hz aliases</button>
+    </div>
+    <div id="ro4" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot4"></div><figcaption>|fft(x)|²/N² for x = A₁cos(2πf₁t) + A₂cos(2πf₂t) sampled at t = (0:N−1)/Fs. Each cosine gives two peaks of height (A/2)².</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="spectral"><span class="sec">Section 4.7</span>Spectral analysis in hertz</h2>
+  <p>In practice data come as \(N\) samples at a sampling rate \(F_s\) (Hz), so the record lasts \(T = N/F_s\) seconds. That record is the "period" \(\tau\), and harmonic \(r\) has frequency \(r/T = rF_s/N\) Hz. The bin spacing \(\Delta f = F_s/N\) is the frequency resolution. To read a spectrum:</p>
+  <ol>
+    <li>MATLAB index \(k\) is bin \(r = k - 1\).</li>
+    <li>Bins \(r \le N/2\) are frequency \(rF_s/N\); bins \(r &gt; N/2\) are the negative frequency \((r - N)F_s/N\).</li>
+    <li>A real cosine \(\xi\cos2\pi f t\) gives a <em>pair</em> of peaks at \(\pm f\), each of height \(\xi/2\) in <code>ifft</code> or \(N\xi/2\) in <code>fft</code>. Count pairs to count cosines.</li>
+    <li>A complex exponential gives one peak. The sign matters: MATLAB's <code>fft</code> kernel is \(e^{-i2\pi rj/N}\), so for a signal written \(\eta e^{-i2\pi f t}\) the <code>fft</code> peak appears at frequency \(-f\). With <code>ifft</code> (the course's \(a_k\)) it appears at \(+f\).</li>
+    <li>Frequencies above the Nyquist frequency \(F_s/2\) fold back: a tone at \(f\) shows up at \(|f - \ell F_s|\) for the integer \(\ell\) that brings it into \([0, F_s/2]\).</li>
+  </ol>
+  <p>If a tone does not complete a whole number of cycles in the record (\(fT\) is not an integer), its power leaks into neighboring bins, exactly as in Interactive 4 of Lesson 3.</p>
+</div>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 4.8</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 4.1 · ifft by hand</button><button>Ex 4.2 · Signal → ifft array</button><button>Ex 4.3 · Aliasing</button><button>Ex 4.4 · Peaks to Hz</button><button>Ex 4.5 · FFT cost</button></div>
+  <div class="panel">
+    <p>Compute <code>ifft([1 2 3 4])</code> by hand and identify each entry as a Fourier coefficient.</p>
+    <details><summary>Solution</summary>
+    <p>\(\nu = 4\) and \(F_4^{-1} = \tfrac14\overline{F_4}\), so \(u_k = \tfrac14\sum_j y_j\,i^{jk}\):</p>
+    $$u_0 = \tfrac{1+2+3+4}{4} = 2.5,\quad u_1 = \tfrac{1 + 2i - 3 - 4i}{4} = -\tfrac12 - \tfrac i2,\quad u_2 = \tfrac{1 - 2 + 3 - 4}{4} = -\tfrac12,\quad u_3 = \tfrac{1 - 2i - 3 + 4i}{4} = -\tfrac12 + \tfrac i2.$$
+    <p>The order is \([a_0, a_1, a_2, a_{-1}]\). As expected for real data, \(a_{-1} = \overline{a_1}\), and \(a_0\) is the mean.</p></details>
+  </div>
+  <div class="panel">
+    <p>\(g(t) = 3 + 2\cos t - 4\sin 2t\) is sampled at \(t_j = 2\pi j/6\), \(j = 0,\dots,5\). What is <code>a = ifft(g)</code>?</p>
+    <details><summary>Solution</summary>
+    <p>The highest harmonic is 2 and \(\nu = 6 \ge 5\), so the result is exact. Read off the coefficients: \(a_0 = 3\), \(a_{\pm1} = 1\), and from \(-4\sin2t\): \(a_2 = -4\cdot\tfrac i2 = -2i\), \(a_{-2} = 2i\). Slot order for \(\nu = 6\) is \([a_0, a_1, a_2, a_3, a_{-2}, a_{-1}]\):</p>
+    $$\texttt{a} = [\,3,\ 1,\ -2i,\ 0,\ 2i,\ 1\,].$$
+    <p>Going backwards, <code>a(2)</code> \(= 1\) gives \(\alpha_1 = 2\), \(\beta_1 = 0\), and <code>a(3)</code> \(= -2i\) gives \(\alpha_2 = 0\), \(\beta_2 = -4\).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(f(t) = 2\sin 4t\) is sampled at 5 points of \([0,2\pi)\). What does <code>ifft</code> return, and which signal does it describe?</p>
+    <details><summary>Solution</summary>
+    <p>The true coefficients are \(a_4 = i\), \(a_{-4} = -i\). With \(\nu = 5\), harmonic \(4\) aliases to \(4 - 5 = -1\) and \(-4\) to \(1\). So <code>ifft</code> gives \(a_{1} = -i\), \(a_{-1} = i\), i.e. <code>[0, -i, 0, 0, i]</code>, which are the coefficients of \(-2\sin t\). The samples really are identical: \(\sin(4\cdot 2\pi j/5) = \sin(-2\pi j/5)\). Nyquist needs \(\nu \ge 9\).</p></details>
+  </div>
+  <div class="panel">
+    <p>A sum of real cosines is sampled \(N = 2048\) times at \(F_s = 1000\) Hz. <code>abs(fft(x)).^2</code> has peaks at MATLAB indices 101, 301, 1749 and 1949. How many cosines, at what frequencies?</p>
+    <details><summary>Solution</summary>
+    <p>Bins \(r = 100, 300, 1748, 1948\). The last two are above \(N/2 = 1024\), so they are negative: \(1748 - 2048 = -300\) and \(1948 - 2048 = -100\). The peaks form two ± pairs, so there are <b>2 cosines</b>, at</p>
+    $$100\cdot\frac{1000}{2048} \approx 48.8\ \text{Hz},\qquad 300\cdot\frac{1000}{2048} \approx 146.5\ \text{Hz}.$$</details>
+  </div>
+  <div class="panel">
+    <p>How many times faster than the direct matrix product is an FFT of length \(2^{12}\)? Of length \(2^{20}\)?</p>
+    <details><summary>Solution</summary>
+    <p>The ratio is \(\nu^2/(\nu\log_2\nu) = \nu/\log_2\nu\): \(4096/12 \approx 341\), and \(1{,}048{,}576/20 \approx 52{,}429\).</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 4.9</span>Practice problems</h2></div>
+<div id="qz"></div>
+
+<div class="prose"><h2 id="summary"><span class="sec">Summary</span>Key equations</h2></div>
+<div class="keyeq">
+  <div><h4>DFT matrix</h4>
+    $$F_\nu[j,k] = e^{-2\pi ijk/\nu},\quad F_\nu^{-1} = \tfrac1\nu\overline{F_\nu}$$
+    $$y = F_\nu u,\quad u = \texttt{ifft}(y)$$</div>
+  <div><h4>MATLAB order</h4>
+    $$\texttt{ifft}(y) = [a_0, a_1,\dots,a_n, a_{-m},\dots,a_{-1}]$$
+    $$a_k \to \texttt{a(k+1)},\quad a_{-k}\to\texttt{a}(\nu-k+1)$$</div>
+  <div><h4>Sampling</h4>
+    $$\nu \ge 2K+1,\qquad \texttt{ifft} \to \sum_\ell a_{k+\ell\nu}$$
+    $$\text{cost: } \nu\log_2\nu \text{ vs } \nu^2$$</div>
+  <div><h4>Hertz</h4>
+    $$f_r = r\frac{F_s}{N}\ (r\le N/2),\quad (r-N)\frac{F_s}{N}\ (r&gt;N/2)$$
+    $$\text{index } k = r + 1$$</div>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script>
+(function () {
+  const { C, abs, num, str, polar } = CX;
+  const PI = Math.PI;
+
+  // ---------- Interactive 1: matrix grid ----------
+  UI.wire("#lab1", () => {
+    const nu = UI.val("mN"), inv = UI.seg("mW") === "Finv";
+    const rIn = document.getElementById("mR"); rIn.max = nu - 1; if (+rIn.value > nu - 1) rIn.value = nu - 1;
+    const row = +rIn.value; rIn.parentElement.querySelector("output").textContent = row;
+    const cell = 44, pad = 26, W = pad + nu * cell + 4, sgn = inv ? 1 : -1;
+    const p = [];
+    for (let k = 0; k < nu; k++) p.push(`<text x="${pad + k * cell + cell / 2}" y="16" text-anchor="middle" class="tick">${k}</text>`);
+    for (let j = 0; j < nu; j++) {
+      p.push(`<text x="12" y="${pad + j * cell + cell / 2 + 4}" text-anchor="middle" class="tick">${j}</text>`);
+      if (j === row) p.push(`<rect x="${pad}" y="${pad + j * cell}" width="${nu * cell}" height="${cell}" class="okfill" rx="4"/>`);
+      for (let k = 0; k < nu; k++) {
+        const cx = pad + k * cell + cell / 2, cy = pad + j * cell + cell / 2, r = cell * 0.36, th = sgn * 2 * PI * ((j * k) % nu) / nu;
+        p.push(`<circle cx="${cx}" cy="${cy}" r="${r}" class="ring c6"/><line x1="${cx}" y1="${cy}" x2="${cx + r * Math.cos(th)}" y2="${cy - r * Math.sin(th)}" class="series c${j === row ? 4 : 2}" style="stroke-width:2.2"/>`);
+      }
+    }
+    document.getElementById("grid1").innerHTML = `<svg class="plot" viewBox="0 0 ${W} ${W}" style="max-width:${Math.min(560, W * 1.3)}px" role="img" aria-label="DFT matrix phasor grid">${p.join("")}</svg>`;
+    const entries = Array.from({ length: Math.min(nu, 6) }, (_, k) => str(polar(1, sgn * 2 * PI * ((row * k) % nu) / nu), 3));
+    UI.readout("#ro1", [[`row ${row}`, entries.join(",  ") + (nu > 6 ? ", …" : "")], ["λ = e^{−2πi/ν}", str(polar(1, -2 * PI / nu), 4)], ["column norms²", nu, "F*F = νI"]]);
+    UI.live("#lab1", `${nu}×${nu}`);
+  });
+
+  // ---------- Interactive 2: aliasing ----------
+  UI.wire("#lab2", () => {
+    const k = UI.val("sK"), nu = UI.val("sN"), typ = UI.seg("sT");
+    const f = t => 2 * (typ === "cos" ? Math.cos(k * t) : Math.sin(k * t));
+    const tj = Array.from({ length: nu }, (_, j) => 2 * PI * j / nu), y = tj.map(f);
+    const a = CX.ifft(y);
+    const rec = t => a.reduce((s, c, r) => s + CX.mul(c, polar(1, -CX.slotHarmonic(r, nu) * t)).re, 0);
+    const t = UI.linspace(0, 2 * PI, 600);
+    UI.plot("#plot2", { xlabel: "t", ylabel: "value", xlim: [0, 2 * PI], ylim: [-2.6, 2.6], h: 300, legend: "br", legendWidth: 150,
+      series: [{ x: t, y: t.map(f), c: 6, label: "signal" }, { x: t, y: t.map(rec), c: 4, width: 2.5, label: "from ifft" }],
+      stems: [{ x: tj, y, c: 1, width: 1, r: 5 }] });
+    const alias = CX.slotHarmonic(CX.harmonicSlot(k, nu), nu);
+    const ok = nu >= 2 * k + 1;
+    const nz = a.map((c, r) => [CX.slotHarmonic(r, nu), c]).filter(([, c]) => abs(c) > 1e-9).map(([h, c]) => `a_${h} = ${str(c, 3)}`);
+    UI.readout("#ro2", [["Nyquist ν ≥ 2k+1", ok ? `yes (${nu} ≥ ${2 * k + 1})` : `no (${nu} < ${2 * k + 1})`], ["harmonic k appears as", alias, ok ? "" : `${k} mod ${nu}, folded`],
+      ["nonzero ifft entries", nz.join(";  ") || "all zero"]]);
+    UI.live("#lab2", ok ? "recovered exactly" : `aliased to harmonic ${alias}`);
+  });
+
+  // ---------- Interactive 3: ifft vs exact ----------
+  UI.wire("#lab3", () => {
+    const m = UI.val("iN"), nu = 2 ** m;
+    document.querySelector('output[for="iN"]').textContent = `${m} → ν = ${nu}`;
+    let F;
+    try { F = CX.compile(document.getElementById("iF").value); F({ t: 0.3 }); } catch (e) { UI.readout("#ro3", [["Error", "could not read f(t)"]]); return; }
+    const fv = t => CX.toC(F({ t }));
+    // at t = 0 use the midpoint of f(0+) and f(2π−), as the series does at a jump
+    const y = Array.from({ length: nu }, (_, j) => j === 0 ? CX.scale(CX.add(fv(1e-9), fv(2 * PI - 1e-9)), 0.5) : fv(2 * PI * j / nu));
+    const a = CX.ifft(y);
+    const ks = [], approx = [], exact = [];
+    for (let r = 0; r < nu; r++) ks.push(CX.slotHarmonic(r, nu));
+    const order = ks.map((h, r) => [h, r]).sort((p, q) => p[0] - q[0]);
+    order.forEach(([h, r]) => { approx.push(abs(a[r])); exact.push(abs(CX.fsCoef(t => fv(t), 2 * PI, h, [], 200))); });
+    const hs = order.map(o => o[0]);
+    UI.plot("#plot3", { xlabel: "k", ylabel: "|a_k|", xlim: [hs[0] - 1, hs[hs.length - 1] + 1], h: 280, legend: "tr", legendWidth: 110,
+      stems: [{ x: hs.map(h => h - 0.15), y: exact, c: 6, label: "exact" }, { x: hs.map(h => h + 0.15), y: approx, c: 4, label: "ifft" }] });
+    const show = [0, 1, 2, 3, -1].filter(h => Math.abs(h) <= nu / 2 && (h >= 0 || nu > 2));
+    UI.table("#tab3", ["k", "MATLAB index", "ifft value", "exact aₖ", "error"], show.map(h => {
+      const r = CX.harmonicSlot(h, nu), ex = CX.fsCoef(t => fv(t), 2 * PI, h, [], 200);
+      return [h, r + 1, str(a[r], 4), str(ex, 4), num(abs(CX.sub(a[r], ex)), 2)];
+    }));
+    const e1 = abs(CX.sub(a[1], CX.fsCoef(t => fv(t), 2 * PI, 1, [], 200)));
+    UI.readout("#ro3", [["ν", nu], ["error in a₁", e1, "halves (jump) or quarters (kink) when ν doubles"]]);
+    UI.live("#lab3", `ν = ${nu}`);
+  });
+
+  // ---------- Interactive 4: spectrum analyzer ----------
+  UI.wire("#lab4", () => {
+    const f1 = UI.val("aF1"), A1 = UI.val("aA1"), f2 = UI.val("aF2"), A2 = UI.val("aA2");
+    const Fs = +document.getElementById("aFs").value, N = +document.getElementById("aN").value, mode = UI.seg("aX");
+    const x = Array.from({ length: N }, (_, j) => A1 * Math.cos(2 * PI * f1 * j / Fs) + A2 * Math.cos(2 * PI * f2 * j / Fs));
+    const X = CX.fft(x), P = X.map(c => (abs(c) / N) ** 2);
+    let xs, ys, xl;
+    if (mode === "idx") { xs = P.map((_, r) => r + 1); ys = P; xl = "MATLAB index k"; }
+    else { const pairs = P.map((p, r) => [CX.slotHarmonic(r, N) * Fs / N, p]).sort((a, b) => a[0] - b[0]); xs = pairs.map(q => q[0]); ys = pairs.map(q => q[1]); xl = "frequency (Hz)"; }
+    UI.plot("#plot4", { xlabel: xl, ylabel: "|fft|²/N²", xlim: [xs[0], xs[xs.length - 1]], ylim: [0, Math.max(1.1, ...ys) * 1.05], h: 300,
+      stems: [{ x: xs, y: ys, c: 1, width: 1.4, dots: false }] });
+    const peaks = P.map((p, r) => [r, p]).filter(([r, p]) => p > 0.02 && p >= (P[(r - 1 + N) % N]) && p >= P[(r + 1) % N]).slice(0, 8);
+    const alias = f => { const g = ((f % Fs) + Fs) % Fs; return g > Fs / 2 ? Fs - g : g; };
+    UI.readout("#ro4", [["Δf = Fs/N", `${num(Fs / N, 4)} Hz`, `record T = ${num(N / Fs, 4)} s`], ["Nyquist Fs/2", `${Fs / 2} Hz`],
+      ["peaks (index → Hz)", peaks.map(([r]) => `${r + 1} → ${num(CX.slotHarmonic(r, N) * Fs / N, 4)}`).join(";  ") || "—"],
+      ["tones appear at", `${num(alias(f1), 4)} Hz and ${num(alias(f2), 4)} Hz`, alias(f2) !== f2 || alias(f1) !== f1 ? "aliased!" : ""],
+      ["FFT speed-up ν/log₂ν", N / Math.log2(N)]]);
+    UI.live("#lab4", `${peaks.length} peaks`);
+  });
+
+  QZ.mount("#qz", { topics: ["dft-matrix", "dft-ifft", "dft-freq"], title: "DFT & FFT: problem generator" });
+})();
+</script>
+</body>
+</html>

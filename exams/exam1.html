@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam 1 Review · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="exams">
+<main>
+<div class="prose">
+  <div class="eyebrow">Exam 1 · Chapters 1–3 of the notes</div>
+  <h1>Exam 1 Review</h1>
+  <p class="lead">Exam 1 covers complex numbers, linear spaces and inner products, Fourier series, and the DFT/FFT (Lectures 2–14). This page collects what to know, a one-page formula sheet, four exam-style problems with full solutions, and a generator that builds a fresh practice exam whenever you want one.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#objectives">Learning objectives checklist</a></li>
+    <li><a href="#sheet">Formula sheet</a></li>
+    <li><a href="#mistakes">Common mistakes</a></li>
+    <li><a href="#problems">Exam-style problems</a></li>
+    <li><a href="#exam">Practice exam generator</a></li>
+    <li><a href="#progress">Your progress</a></li>
+  </ol></nav>
+
+  <h2 id="objectives"><span class="sec">Part 1</span>Learning objectives checklist</h2>
+  <p>Tick each item when you can do it without notes. The ticks are saved in this browser.</p>
+  <h3>Complex numbers <a href="../lessons/complex.html" style="font-size:.8rem">(Lesson 1)</a></h3>
+  <ul class="checklist ck" data-ck="c">
+    <li>Add, multiply and divide complex numbers; use the conjugate and \(z\bar z = |z|^2\).</li>
+    <li>Convert between rectangular and polar form, getting the angle right in every quadrant.</li>
+    <li>Find the magnitude and angle of a product or quotient of several factors.</li>
+    <li>Compute large powers with De Moivre's formula.</li>
+    <li>Find all \(n\)-th roots of a complex number, and roots of unity.</li>
+    <li>Evaluate \(e^z\), \(\ln z\) (all values), \(a^b\) such as \(i^i\), and \(\cos\)/\(\sin\) of complex arguments.</li>
+    <li>Combine \(\alpha\cos\omega t + \beta\sin\omega t\) into \(\gamma\cos(\omega t - \psi)\).</li>
+  </ul>
+  <h3>Linear spaces and inner products <a href="../lessons/inner-products.html" style="font-size:.8rem">(Lesson 2)</a></h3>
+  <ul class="checklist ck" data-ck="i">
+    <li>Compute inner products and norms in \(\mathbb C^n\) (conjugating the second vector) and in \(L^2(0,\tau)\) with the \(1/\tau\) factor.</li>
+    <li>Decide whether two vectors or functions are orthogonal; find a constant that makes them orthogonal.</li>
+    <li>Use Cauchy–Schwarz and the Pythagorean theorem.</li>
+    <li>Expand a vector in an orthogonal basis with \(a_k = (f,\varphi_k)/\|\varphi_k\|^2\).</li>
+    <li>Use Parseval's formula and compute the error of a best approximation.</li>
+  </ul>
+  <h3>Fourier series <a href="../lessons/fourier-series.html" style="font-size:.8rem">(Lesson 3)</a></h3>
+  <ul class="checklist ck" data-ck="f">
+    <li>Find the period and \(\omega_0\) of a signal.</li>
+    <li>Compute \(a_k\) by integration for piecewise signals (pulses, ramps, triangles, rectified sinusoids).</li>
+    <li>Read \(a_k\) off a trigonometric polynomial, using identities for products and powers.</li>
+    <li>Convert between exponential, cosine–sine (\(\alpha_k, \beta_k\)) and harmonic (\(\gamma_k, \psi_k\)) forms.</li>
+    <li>Use symmetry: real \(\Rightarrow a_{-k} = \overline{a_k}\); even \(\Rightarrow\) real \(a_k\); odd \(\Rightarrow\) imaginary \(a_k\).</li>
+    <li>Plot an amplitude/power spectrum; compute power with Parseval and the truncation error \(\|f - p_n\|^2\).</li>
+    <li>State what the series converges to at a jump (the midpoint) and describe the Gibbs phenomenon.</li>
+    <li>Apply the shift, modulation, derivative, integral, conjugate and product rules, and know which sign convention a problem uses.</li>
+  </ul>
+  <h3>DFT and FFT <a href="../lessons/dft.html" style="font-size:.8rem">(Lesson 4)</a></h3>
+  <ul class="checklist ck" data-ck="d">
+    <li>Write down \(F_\nu\) and \(F_\nu^{-1} = \frac1\nu\overline{F_\nu}\); compute a small DFT by hand.</li>
+    <li>Know MATLAB's ordering \([a_0, a_1, \dots, a_{-1}]\) and convert between a signal and its <code>ifft</code> array.</li>
+    <li>Apply the Nyquist condition \(\nu \ge 2K+1\) and predict aliasing.</li>
+    <li>Explain why <code>ifft</code> of samples approximates the Fourier coefficients and where it fails.</li>
+    <li>State the FFT's cost \(\nu\log_2\nu\) and compute the speed-up.</li>
+    <li>Read frequencies in Hz from <code>fft</code> peak indices, including negative frequencies and the sign of complex exponentials.</li>
+  </ul>
+
+  <h2 id="sheet"><span class="sec">Part 2</span>Formula sheet</h2>
+</div>
+<div class="keyeq wide">
+  <div><h4>Complex numbers</h4>
+    $$e^{i\theta} = \cos\theta + i\sin\theta,\quad z^n = r^ne^{in\theta}$$
+    $$z_k = \rho^{1/n}e^{i(\phi+2\pi k)/n}$$
+    $$\ln z = \ln|z| + i(\angle z + 2\pi k)$$
+    $$\alpha\cos\omega t + \beta\sin\omega t = \gamma\cos(\omega t - \psi)$$
+    $$\gamma e^{i\psi} = \alpha + i\beta$$</div>
+  <div><h4>Inner products</h4>
+    $$(f,g) = \textstyle\sum f_k\bar g_k,\quad (f,g) = \frac1\tau\int_0^\tau f\bar g\,dt$$
+    $$a_k = \frac{(f,\varphi_k)}{\|\varphi_k\|^2},\quad \|f\|^2 = \sum|a_k|^2\|\varphi_k\|^2$$
+    $$\Big\|f - \sum_{k\le N}a_k\varphi_k\Big\|^2 = \sum_{k&gt;N}|a_k|^2\|\varphi_k\|^2$$</div>
+  <div><h4>Fourier series</h4>
+    $$f = \sum a_ke^{-ik\omega_0t},\quad a_k = \frac1\tau\int_0^\tau fe^{ik\omega_0t}dt$$
+    $$\alpha_k = a_k + a_{-k},\quad \beta_k = i(a_{-k} - a_k)$$
+    $$a_k = \tfrac{\alpha_k + i\beta_k}{2},\quad \gamma_k = \sqrt{\alpha_k^2+\beta_k^2},\quad \psi_k = \angle(\alpha_k+i\beta_k)$$
+    $$\|f\|^2 = \sum|a_k|^2 = a_0^2 + \tfrac12\sum(\alpha_k^2+\beta_k^2)$$</div>
+  <div><h4>Properties (notes' convention)</h4>
+    $$f(t - T)\to a_ke^{ik\omega_0T},\quad e^{-in\omega_0t}f\to a_{k-n}$$
+    $$f'\to -ik\omega_0a_k,\quad \textstyle\int(f - a_0)\to \frac{ia_k}{k\omega_0}$$
+    $$\bar f\to \overline{a_{-k}},\quad fh \to \textstyle\sum_m a_mc_{k-m}$$</div>
+  <div><h4>DFT</h4>
+    $$F_\nu[j,k] = e^{-2\pi ijk/\nu},\quad F_\nu^{-1} = \tfrac1\nu\overline{F_\nu}$$
+    $$\texttt{ifft}(y) = [a_0,\dots,a_n,a_{-m},\dots,a_{-1}]$$
+    $$\nu\ge 2K+1,\quad \texttt{ifft} \to \textstyle\sum_\ell a_{k+\ell\nu}$$</div>
+  <div><h4>Spectra in Hz</h4>
+    $$\Delta f = F_s/N,\quad \text{index } k \to r = k-1$$
+    $$f = rF_s/N\ (r\le N/2),\quad (r-N)F_s/N\ (r &gt; N/2)$$
+    $$\text{FFT: } \nu\log_2\nu \text{ vs } \nu^2$$</div>
+</div>
+
+<div class="prose">
+  <h2 id="mistakes"><span class="sec">Part 3</span>Common mistakes</h2>
+  <ul>
+    <li><b>Wrong quadrant:</b> \(\angle(-1 - i) = -3\pi/4\), not \(\pi/4\). Sketch the point before taking an arctangent.</li>
+    <li><b>Missing conjugate:</b> \((f,g) = \sum f_k\overline{g_k}\), and \(\|1+i\|^2 = 2\), not \((1+i)^2 = 2i\).</li>
+    <li><b>Missing \(1/\tau\):</b> in \(L^2(0,\tau)\) the course normalizes inner products and coefficients by \(1/\tau\).</li>
+    <li><b>Sign convention:</b> the notes use \(e^{-ik\omega_0t}\) in the series. Under it, \(\sin t\) has \(a_1 = i/2\), not \(-i/2\).</li>
+    <li><b>Doubling \(a_0\):</b> \(\alpha_k = 2\Re a_k\) only for \(k \ge 1\). The constant term is \(a_0\).</li>
+    <li><b>Dividing by zero:</b> formulas like \(\frac{1}{k-1}\) need the \(k = 1\) case (and \(k = 0\)) done separately.</li>
+    <li><b>Wrong \(\omega_0\):</b> \(\omega_0\) comes from the period of the whole signal. In a signal of period 1, \(\cos4\pi t\) is harmonic 2.</li>
+    <li><b>MATLAB indices:</b> <code>a(1)</code> is \(a_0\), <code>a(end)</code> is \(a_{-1}\), and fft index \(k\) is bin \(k-1\).</li>
+  </ul>
+
+  <h2 id="problems"><span class="sec">Part 4</span>Exam-style problems</h2>
+  <p>Four multi-part problems in the format of the exam, one per chapter section. Work each on paper, then open the solution.</p>
+</div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Problems</span>
+    <button>1 · Complex numbers</button><button>2 · Inner products</button><button>3 · Fourier series</button><button>4 · DFT and spectra</button></div>
+  <div class="panel">
+    <p><b>(a)</b> Find \(|\gamma|\), \(\angle\gamma\in(-\pi,\pi]\), and \(\Re\gamma\), \(\Im\gamma\) for \(\gamma = \dfrac{(1 + i\sqrt3)^5}{2i}\).</p>
+    <p><b>(b)</b> Find all solutions of \(z^3 + 27 = 0\).</p>
+    <p><b>(c)</b> Find the principal value of \((1+i)^i\).</p>
+    <p><b>(d)</b> Write \(-\cos 3t - \sqrt3\sin 3t\) in the form \(\gamma\cos(3t - \psi)\).</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(1 + i\sqrt3 = 2e^{i\pi/3}\), so the numerator is \(32e^{i5\pi/3}\). Dividing by \(2i = 2e^{i\pi/2}\) gives \(\gamma = 16e^{i(5\pi/3 - \pi/2)} = 16e^{i7\pi/6} = 16e^{-i5\pi/6}\). So \(|\gamma| = 16\), \(\angle\gamma = -5\pi/6\), \(\gamma = -8\sqrt3 - 8i\).</p>
+    <p><b>(b)</b> \(z^3 = -27 = 27e^{i\pi}\), so \(z_k = 3e^{i(\pi + 2\pi k)/3}\): \(z = \tfrac32 + \tfrac{3\sqrt3}2i,\ -3,\ \tfrac32 - \tfrac{3\sqrt3}2i\).</p>
+    <p><b>(c)</b> \(\ln(1+i) = \ln\sqrt2 + i\pi/4\), so \((1+i)^i = e^{i\ln\sqrt2 - \pi/4} = e^{-\pi/4}\big(\cos(\ln\sqrt2) + i\sin(\ln\sqrt2)\big) \approx 0.429 + 0.155i\).</p>
+    <p><b>(d)</b> The phasor is \(\alpha + i\beta = -1 - i\sqrt3 = 2e^{-i2\pi/3}\) (third quadrant). So the signal is \(2\cos(3t + 2\pi/3)\), i.e. \(\gamma = 2\), \(\psi = -2\pi/3\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Work in \(L^2(0,1)\) with \((f,g) = \int_0^1 f\bar g\,dt\).</p>
+    <p><b>(a)</b> Show that \(1\) and \(t - \tfrac12\) are orthogonal, and find their norms.</p>
+    <p><b>(b)</b> Find \(b\) and \(c\) so that \(t^2 + bt + c\) is orthogonal to both \(1\) and \(t - \tfrac12\).</p>
+    <p><b>(c)</b> Find the best approximation of \(f(t) = t^2\) by a line \(c_0 + c_1(t - \tfrac12)\), and the squared error.</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(\int_0^1 (t - \tfrac12)dt = \tfrac12 - \tfrac12 = 0\). \(\|1\|^2 = 1\) and \(\|t - \tfrac12\|^2 = \int_0^1(t-\tfrac12)^2dt = \tfrac1{12}\).</p>
+    <p><b>(b)</b> Orthogonal to 1: \(\tfrac13 + \tfrac b2 + c = 0\). Orthogonal to \(t - \tfrac12\): \(\int_0^1 t^2(t - \tfrac12)dt + b\int_0^1 t(t-\tfrac12)dt = \tfrac1{12} + \tfrac b{12} = 0\), and the \(c\) term vanishes by (a). So \(b = -1\) and \(c = \tfrac16\): the polynomial is \(t^2 - t + \tfrac16\).</p>
+    <p><b>(c)</b> The basis is orthogonal, so \(c_0 = (t^2, 1)/\|1\|^2 = \tfrac13\) and \(c_1 = (t^2, t-\tfrac12)/\|t - \tfrac12\|^2 = \tfrac{1/12}{1/12} = 1\). The best line is \(\tfrac13 + (t - \tfrac12) = t - \tfrac16\). The error is \(\|t^2\|^2 - c_0^2\cdot1 - c_1^2\cdot\tfrac1{12} = \tfrac15 - \tfrac19 - \tfrac1{12} = \tfrac1{180}\). The leftover \(t^2 - t + \tfrac16\) is exactly the polynomial from (b), orthogonal to the line, as it must be.</p></details>
+  </div>
+  <div class="panel">
+    <p>Let \(f\) be the 4-periodic pulse \(f(t) = 1\) on \([0,1)\), \(f(t) = 0\) on \([1,4)\), with \(f = \sum a_ke^{-ik\omega_0t}\).</p>
+    <p><b>(a)</b> Find \(\omega_0\), \(a_0\) and \(a_k\) for \(k\ne0\).</p>
+    <p><b>(b)</b> Find \(\alpha_1\) and \(\beta_1\).</p>
+    <p><b>(c)</b> Find \(\|f\|^2\) and the mean-square error \(\|f - p_2\|^2\) of the partial sum with \(|k|\le2\).</p>
+    <p><b>(d)</b> What does the series equal at \(t = 1\)?</p>
+    <p><b>(e)</b> Find the coefficients of \(g(t) = f(t - 1)\) and of \(h(t) = e^{-i\pi t}f(t)\).</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(\omega_0 = 2\pi/4 = \pi/2\). \(a_0 = \tfrac14\) (the average). For \(k\ne0\):</p>
+    $$a_k = \frac14\int_0^1 e^{ik\pi t/2}dt = \frac14\cdot\frac{e^{ik\pi/2} - 1}{ik\pi/2} = \frac{e^{ik\pi/2} - 1}{2\pi ik}.$$
+    <p><b>(b)</b> \(a_1 = \frac{i - 1}{2\pi i} = \frac{1 + i}{2\pi}\), so \(\alpha_1 = 2\Re a_1 = \frac1\pi\) and \(\beta_1 = 2\Im a_1 = \frac1\pi\). (Check: \(\alpha_1 = \frac24\int_0^1\cos\frac{\pi t}2dt = \frac1\pi\).)</p>
+    <p><b>(c)</b> \(\|f\|^2 = \frac14\int_0^1 1\,dt = \frac14\). Since \(|a_k|^2 = \frac{2 - 2\cos(k\pi/2)}{4\pi^2k^2}\), we get \(|a_{\pm1}|^2 = \frac1{2\pi^2}\) and \(|a_{\pm2}|^2 = \frac1{4\pi^2}\). Then</p>
+    $$\|f - p_2\|^2 = \frac14 - \frac1{16} - 2\left(\frac1{2\pi^2} + \frac1{4\pi^2}\right) = \frac3{16} - \frac3{2\pi^2} \approx 0.0355.$$
+    <p><b>(d)</b> \(f\) jumps from 1 to 0 at \(t = 1\), so the series gives the midpoint \(\tfrac12\).</p>
+    <p><b>(e)</b> Delay by \(T = 1\): \(b_k = a_ke^{ik\omega_0} = a_ke^{ik\pi/2} = i^ka_k\). Modulation: \(e^{-i\pi t} = e^{-i2\omega_0t}\), so \(c_k = a_{k-2}\).</p></details>
+  </div>
+  <div class="panel">
+    <p><b>(a)</b> \(g(t) = 1 + 4\cos3t - 2\sin t\) is sampled at \(\nu = 8\) points \(t_j = 2\pi j/8\). Give <code>a = ifft(g)</code>.</p>
+    <p><b>(b)</b> Repeat with \(\nu = 5\). Which signal does the result describe?</p>
+    <p><b>(c)</b> A real signal is sampled \(N = 4096\) times at \(F_s = 2000\) Hz, and <code>abs(fft(x))</code> peaks only at indices 615 and 3483. Describe the signal.</p>
+    <p><b>(d)</b> If instead \(x\) samples a single complex exponential \(\eta e^{-i2\pi f t}\) and <code>fft</code> peaks only at index 3483, what is \(f\)?</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(a_0 = 1\), \(a_{\pm3} = 2\), and \(-2\sin t\) gives \(a_1 = -2\cdot\tfrac i2 = -i\), \(a_{-1} = i\). With \(\nu = 8\) the order is \([a_0, a_1, a_2, a_3, a_4, a_{-3}, a_{-2}, a_{-1}]\):</p>
+    $$\texttt{a} = [\,1,\ -i,\ 0,\ 2,\ 0,\ 2,\ 0,\ i\,].$$
+    <p><b>(b)</b> \(\nu = 5 &lt; 7\), so harmonic \(3\) aliases to \(3 - 5 = -2\) and \(-3\) to \(2\). With order \([a_0, a_1, a_2, a_{-2}, a_{-1}]\), <code>a</code> \(= [1, -i, 2, 2, i]\), which describes \(1 + 4\cos 2t - 2\sin t\).</p>
+    <p><b>(c)</b> Bins \(r = 614\) and \(3482 = 4096 - 614\): a ± pair, so one real cosine (with some phase) at \(614\cdot2000/4096 \approx 299.8\) Hz.</p>
+    <p><b>(d)</b> Bin 3482 is the negative frequency \((3482 - 4096)\cdot\frac{2000}{4096} \approx -299.8\) Hz. MATLAB's <code>fft</code> kernel is \(e^{-i2\pi rj/N}\), so a signal \(e^{-i2\pi ft}\) peaks at \(-f\). Hence \(f \approx +299.8\) Hz.</p></details>
+  </div>
+</div>
+
+<div class="prose">
+  <h2 id="exam"><span class="sec">Part 5</span>Practice exam generator</h2>
+  <p>Choose the number of problems and, if you like, a time limit, then generate. Problems are drawn across all four lessons, with answers graded together at the end and worked solutions for each. Generate again for a completely new exam.</p>
+</div>
+<div id="exam1"></div>
+
+<div class="prose"><h2 id="progress"><span class="sec">Part 6</span>Your progress</h2>
+  <p>Accuracy on your last 20 attempts of each topic, from the lessons, the <a href="../practice.html">Practice</a> page and practice exams.</p></div>
+<div id="mast"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script>
+(function () {
+  document.querySelectorAll(".checklist.ck").forEach(ul => {
+    ul.querySelectorAll("li").forEach((li, i) => {
+      const key = "ck." + ul.dataset.ck + i;
+      li.innerHTML = `<label><input type="checkbox"${UI.store.get(key, "") === "1" ? " checked" : ""}><span>${li.innerHTML}</span></label>`;
+      li.querySelector("input").addEventListener("change", e => UI.store.set(key, e.target.checked ? "1" : ""));
+    });
+  });
+  const ids = QZ.ORDER.filter(id => QZ.TOPICS[id].exam === 1);
+  const m = QZ.mastery("#mast", ids);
+  QZ.exam("#exam1", { topics: ids, count: 8, minutes: 50, onGrade: () => m.render() });
+})();
+</script>
+</body>
+</html>

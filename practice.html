@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice · Learn Signals</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-root="./" data-section="practice">
+<main>
+<div class="prose">
+  <div class="eyebrow">Practice</div>
+  <h1>Endless practice</h1>
+  <p class="lead">Every problem type from the Exam 1 lessons in one place. Pick the topics you want (all are on by default), solve, check, read the worked solution, and get a new problem. Your accuracy on the last 20 attempts of each topic is shown below, so you can see what still needs work.</p>
+  <div class="note"><b>Entering answers</b>Type numbers or expressions: <code>-3/2</code>, <code>sqrt(2)/2</code>, <code>pi/4</code>, <code>2-3i</code>, <code>e^(-pi/2)</code>, <code>2^(1/10)*e^(i*pi/20)</code>. Angles are in radians and any angle equal modulo 2π is accepted. About three significant figures is enough. Press Enter to check.</div>
+</div>
+<div id="qz"></div>
+<div class="prose">
+  <h2 id="mastery">Your progress</h2>
+  <p>Saved in this browser only. <button type="button" id="reset">Reset progress</button></p>
+</div>
+<div id="mast"></div>
+</main>
+<script src="assets/js/cx.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/quiz.js"></script>
+<script src="assets/js/gen-exam1.js"></script>
+<script>
+(function () {
+  const ids = QZ.ORDER.filter(id => QZ.TOPICS[id].exam === 1);
+  const m = QZ.mastery("#mast", ids);
+  QZ.mount("#qz", { topics: ids, title: "Exam 1 · all topics", groupBy: true, onAnswer: () => m.render() });
+  document.getElementById("reset").addEventListener("click", () => {
+    if (!confirm("Erase your saved practice record on this device?")) return;
+    try { Object.keys(localStorage).filter(k => k.startsWith("sg.qz.")).forEach(k => localStorage.removeItem(k)); } catch (e) { /* storage unavailable */ }
+    m.render();
+  });
+})();
+</script>
+</body>
+</html>

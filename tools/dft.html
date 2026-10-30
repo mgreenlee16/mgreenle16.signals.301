@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DFT / FFT Calculator · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="tools">
+<main>
+<div class="prose">
+  <div class="eyebrow">Calculator · Exam 1</div>
+  <h1>DFT / FFT Calculator</h1>
+  <p class="lead">MATLAB-style <code>fft</code> and <code>ifft</code> of any list of numbers, or of a function sampled at \(\nu\) points. For each slot the table shows the MATLAB index, the harmonic it holds, and (if you give a sampling rate) the frequency in hertz.</p>
+</div>
+<section class="calc">
+  <div class="inputs">
+    <label>Input<select id="dM"><option value="list">a list of numbers</option><option value="func">samples of f(t)</option></select></label>
+    <label class="grow" id="lL">Data y (commas or spaces; complex allowed)<input type="text" id="dL" value="1, 2, 3, 4" spellcheck="false"></label>
+    <label class="grow" id="lF" hidden>f(t)<input type="text" id="dF" value="1 + 4cos(3t) - 2sin(t)" spellcheck="false"></label>
+    <label id="lT" hidden>Period τ<input type="text" id="dT" value="2*pi"></label>
+    <label id="lN" hidden>ν samples<input type="number" id="dN" value="8" min="1" max="1024" step="1"></label>
+    <label>F<sub>s</sub> in Hz (optional)<input type="text" id="dFs" value="" placeholder="e.g. 1000"></label>
+  </div>
+  <div class="presets" style="margin-top:.6rem"><span>Try</span>
+    <button data-p='{"dM":"list","dL":"1, 2, 3, 4"}'>[1 2 3 4]</button>
+    <button data-p='{"dM":"func","dF":"1 + 4cos(3t) - 2sin(t)","dT":"2*pi","dN":8}'>ν = 8, exact</button>
+    <button data-p='{"dM":"func","dF":"1 + 4cos(3t) - 2sin(t)","dT":"2*pi","dN":5}'>ν = 5, aliased</button>
+    <button data-p='{"dM":"func","dF":"2sin(4t)","dT":"2*pi","dN":5}'>2 sin 4t, ν = 5</button>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="results" style="overflow-x:auto"><div id="o1"></div></div>
+  <div class="calc-grid results"><div id="p1"></div></div>
+</section>
+<div class="prose">
+  <h2>Conventions</h2>
+  <p><code>fft(y)</code> \(= F_\nu y\) with \(F_\nu[j,k] = e^{-2\pi ijk/\nu}\), and <code>ifft(y)</code> \(= F_\nu^{-1}y = \frac1\nu\overline{F_\nu}y\). When \(y\) samples a \(\tau\)-periodic signal at \(t_j = j\tau/\nu\), <code>ifft(y)</code> holds the Fourier coefficients \(a_k\) of \(f = \sum a_ke^{-ik\omega_0t}\) (exactly, for a trigonometric polynomial with \(\nu \ge 2K+1\)). Slot \(r\) (index \(r+1\)) holds harmonic \(r\) for \(r \le \nu/2\) and \(r - \nu\) above that. With a sampling rate, harmonic \(h\) is \(hF_s/\nu\) Hz. See <a href="../lessons/dft.html">Lesson 4</a>.</p>
+  <p><a href="../index.html#tools">← All calculators</a></p>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script>
+(function () {
+  const { abs, str, num } = CX;
+  const $ = id => document.getElementById(id), err = $("err");
+  function mode() {
+    const f = $("dM").value === "func";
+    $("lL").hidden = f; $("lF").hidden = !f; $("lT").hidden = !f; $("lN").hidden = !f;
+  }
+  function run() {
+    mode();
+    let y, Fs = null;
+    try {
+      if ($("dM").value === "list") {
+        y = $("dL").value.split(/[,;\s]+(?![^(]*\))/).map(s => s.trim()).filter(Boolean).map(s => CX.evalC(s));
+      } else {
+        const F = CX.compile($("dF").value), tau = CX.evalC($("dT").value).re, nu = Math.max(1, Math.min(1024, Math.round(+$("dN").value)));
+        y = Array.from({ length: nu }, (_, j) => CX.toC(F({ t: j * tau / nu })));
+      }
+      if (!y.length || y.some(z => !isFinite(z.re) || !isFinite(z.im))) throw 0;
+      if ($("dFs").value.trim()) { Fs = CX.evalC($("dFs").value).re; if (!(Fs > 0)) Fs = null; }
+      err.textContent = "";
+    } catch (e) { err.textContent = "Could not read the input."; return; }
+    const nu = y.length, X = CX.fft(y), a = CX.ifft(y);
+    const head = ["MATLAB index", "harmonic", ...(Fs ? ["Hz"] : []), "y", "fft(y)", "ifft(y)", "|ifft|"];
+    UI.table("#o1", head, y.map((v, r) => {
+      const h = CX.slotHarmonic(r, nu);
+      return [r + 1, h, ...(Fs ? [num(h * Fs / nu, 5)] : []), str(v, 4), str(X[r], 4), str(a[r], 4), abs(a[r])];
+    }));
+    const order = y.map((_, r) => r).sort((p, q) => CX.slotHarmonic(p, nu) - CX.slotHarmonic(q, nu));
+    const xs = order.map(r => Fs ? CX.slotHarmonic(r, nu) * Fs / nu : CX.slotHarmonic(r, nu));
+    UI.plot("#p1", { xlabel: Fs ? "frequency (Hz)" : "harmonic", ylabel: "|ifft(y)|", h: 280, xlim: [xs[0] - (xs[1] - xs[0] || 1), xs[xs.length - 1] + (xs[1] - xs[0] || 1)],
+      ylim: [0, Math.max(1e-9, ...a.map(abs)) * 1.1], stems: [{ x: xs, y: order.map(r => abs(a[r])), c: 1, dots: nu <= 128 }] });
+  }
+  ["dM", "dL", "dF", "dT", "dN", "dFs"].forEach(id => { $(id).addEventListener("input", run); $(id).addEventListener("change", run); });
+  document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { Object.entries(JSON.parse(b.dataset.p)).forEach(([k, v]) => { $(k).value = v; }); run(); }));
+  run();
+})();
+</script>
+</body>
+</html>

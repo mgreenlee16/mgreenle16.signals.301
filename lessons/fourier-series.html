@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fourier Series · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="fourier-series">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 3 · Exam 1</div>
+  <h1>Fourier Series</h1>
+  <p class="lead">A periodic signal is a sum of harmonics: a constant, a sinusoid at the fundamental frequency, and sinusoids at its integer multiples. This lesson computes the coefficients, moves between the exponential, cosine–sine and harmonic forms, reads off spectra and power with Parseval, measures the error of a truncated series, explains the Gibbs phenomenon, and collects the shift, modulation, derivative and integral rules. It is the center of Exam 1.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#periodic">Periodic signals</a></li>
+    <li><a href="#series">The Fourier series and its coefficients</a></li>
+    <li><a href="#forms">Cosine–sine and harmonic forms</a></li>
+    <li><a href="#trig">Reading coefficients off a trigonometric polynomial</a></li>
+    <li><a href="#parseval">Spectrum and Parseval</a></li>
+    <li><a href="#trunc">Truncation, convergence and Gibbs</a></li>
+    <li><a href="#props">Properties: shift, modulation, derivative, integral</a></li>
+    <li><a href="#window">Signals that do not fit the window</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+    <li><a href="#summary">Key equations</a></li>
+  </ol></nav>
+
+  <h2 id="periodic"><span class="sec">Section 3.1</span>Periodic signals</h2>
+  <p>A signal is <b class="term">periodic</b> with period \(\tau\) if \(f(t+\tau) = f(t)\) for all \(t\). The smallest such \(\tau\) is the <b>fundamental period</b> and \(\omega_0 = 2\pi/\tau\) is the <b>fundamental (angular) frequency</b>. A sum of sinusoids at frequencies \(\omega_1, \omega_2, \dots\) is periodic only if all the frequencies are integer multiples of one \(\omega_0\); then \(\omega_0\) is their greatest common divisor. For example, \(\cos 6\pi t + \sin 4\pi t\) has \(\omega_0 = \gcd(6\pi, 4\pi) = 2\pi\), so \(\tau = 1\). But \(\cos t + \cos\sqrt2 t\) is not periodic at all.</p>
+
+  <h2 id="series"><span class="sec">Section 3.2</span>The Fourier series and its coefficients</h2>
+  <p>Lesson 2 showed that \(\{e^{-ik\omega_0t}\}_{k\in\mathbb Z}\) is an orthonormal basis for \(L^2(0,\tau)\) with \((f,g) = \frac1\tau\int_0^\tau f\bar g\,dt\). Expanding in it gives the <b class="term">Fourier series</b>, with coefficients equal to inner products:</p>
+  $$f(t) = \sum_{k=-\infty}^{\infty} a_k e^{-ik\omega_0t},\qquad a_k = (f, e^{-ik\omega_0t}) = \frac1\tau\int_0^\tau f(t)\,e^{ik\omega_0t}\,dt.$$
+  <p>Any interval of length \(\tau\) can be used for the integral. \(a_0\) is the average value of \(f\). Because the course follows Frazho's notes, the series uses \(e^{-ik\omega_0t}\) and the coefficient integral uses \(e^{+ik\omega_0t}\).</p>
+  <div class="note"><b>Two sign conventions</b>The lecture slides on properties use the engineering convention \(f = \sum a_ke^{+jk\omega_0t}\), \(a_k = \frac1\tau\int f e^{-jk\omega_0t}dt\). The two conventions swap \(a_k \leftrightarrow a_{-k}\). Rules that involve \(k\) change sign: the slides' derivative rule \(b_k = jk\omega_0a_k\) becomes \(b_k = -ik\omega_0a_k\) here. On an exam, use whichever convention the problem states; this site uses the notes' convention throughout.</div>
+  <p>For a real signal, conjugating the coefficient integral gives \(a_{-k} = \overline{a_k}\), so \(|a_{-k}| = |a_k|\). If \(f\) is also <b>even</b>, every \(a_k\) is real; if it is <b>odd</b>, every \(a_k\) is purely imaginary. Checking symmetry first often halves the work.</p>
+
+  <h2 id="forms"><span class="sec">Section 3.3</span>Cosine–sine and harmonic forms</h2>
+  <p>Grouping the \(k\) and \(-k\) terms gives the <b>cosine–sine form</b>, and combining each cosine–sine pair with the phasor rule of Lesson 1 gives the <b>harmonic form</b>:</p>
+  $$f(t) = a_0 + \sum_{k=1}^\infty\big(\alpha_k\cos k\omega_0t + \beta_k\sin k\omega_0t\big) = a_0 + \sum_{k=1}^\infty \gamma_k\cos(k\omega_0t - \psi_k),$$
+  $$\alpha_k = a_k + a_{-k},\qquad \beta_k = i(a_{-k} - a_k),\qquad a_k = \frac{\alpha_k + i\beta_k}{2},\qquad \gamma_k = \sqrt{\alpha_k^2+\beta_k^2},\quad \psi_k = \angle(\alpha_k + i\beta_k).$$
+  <p>For real \(f\), \(\alpha_k = 2\Re a_k\), \(\beta_k = 2\Im a_k\) and \(\gamma_k = 2|a_k|\). The direct formulas are \(\alpha_k = \frac2\tau\int_0^\tau f\cos k\omega_0t\,dt\) and \(\beta_k = \frac2\tau\int_0^\tau f\sin k\omega_0t\,dt\). In MATLAB terms, \(\gamma_k\) is the amplitude and \(\psi_k\) the phase lag of the \(k\)-th harmonic.</p>
+
+  <h2 id="trig"><span class="sec">Section 3.4</span>Reading coefficients off a trigonometric polynomial</h2>
+  <p>When \(f\) is already a finite sum of sinusoids, no integral is needed. Rewrite each term with \(\cos\theta = \tfrac12(e^{i\theta}+e^{-i\theta})\) and \(\sin\theta = \tfrac1{2i}(e^{i\theta}-e^{-i\theta})\), and match \(e^{-ik\omega_0t}\):</p>
+  $$\cos k\omega_0 t \;\Rightarrow\; a_{\pm k} = \tfrac12,\qquad \sin k\omega_0t \;\Rightarrow\; a_{k} = \tfrac{i}{2},\; a_{-k} = -\tfrac{i}{2}.$$
+  <p>Products and powers are first turned into sums with identities: \(\cos A\cos B = \tfrac12[\cos(A-B) + \cos(A+B)]\), \(\cos^2\theta = \tfrac12 + \tfrac12\cos2\theta\), \(\sin^3\theta = \tfrac34\sin\theta - \tfrac14\sin3\theta\). Remember that \(\omega_0\) is set by the period of the whole signal, so \(\cos 4\pi t\) in a signal of period 1 is harmonic \(k = 2\).</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Build a signal from harmonics</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="h0">a₀ <output for="h0"></output></label><input type="range" id="h0" min="-2" max="2" step="0.05" value="0.5" data-dec="2"></div>
+    <div class="ctl"><label for="ha1">α₁ <output for="ha1"></output></label><input type="range" id="ha1" min="-2" max="2" step="0.05" value="1" data-dec="2"></div>
+    <div class="ctl"><label for="hb1">β₁ <output for="hb1"></output></label><input type="range" id="hb1" min="-2" max="2" step="0.05" value="0" data-dec="2"></div>
+    <div class="ctl"><label for="ha2">α₂ <output for="ha2"></output></label><input type="range" id="ha2" min="-2" max="2" step="0.05" value="0" data-dec="2"></div>
+    <div class="ctl"><label for="hb2">β₂ <output for="hb2"></output></label><input type="range" id="hb2" min="-2" max="2" step="0.05" value="-1" data-dec="2"></div>
+    <div class="ctl"><label for="ha3">α₃ <output for="ha3"></output></label><input type="range" id="ha3" min="-2" max="2" step="0.05" value="0" data-dec="2"></div>
+    <div class="ctl"><label for="hb3">β₃ <output for="hb3"></output></label><input type="range" id="hb3" min="-2" max="2" step="0.05" value="0" data-dec="2"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"h0":0,"ha1":0,"hb1":1.25,"ha2":0,"hb2":0,"ha3":0,"hb3":0.4}'>square-ish</button>
+      <button data-preset='{"h0":0,"ha1":0,"hb1":0.75,"ha2":0,"hb2":0,"ha3":0,"hb3":-0.25}'>sin³ t</button>
+      <button data-preset='{"h0":0.5,"ha1":0,"hb1":0,"ha2":0.5,"hb2":0,"ha3":0,"hb3":0}'>cos² t</button>
+      <button data-preset='{"h0":0,"ha1":-1,"hb1":-1,"ha2":0,"hb2":0,"ha3":0,"hb3":0}'>−cos t − sin t</button>
+    </div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot1"></div><figcaption>f(t) = a₀ + Σ(αₖcos kt + βₖsin kt) over two periods (τ = 2π, ω₀ = 1).</figcaption></figure>
+    <div id="tab1"></div></div>
+</section>
+
+<div class="prose">
+  <h2 id="parseval"><span class="sec">Section 3.5</span>Spectrum and Parseval</h2>
+  <p>The <b class="term">amplitude spectrum</b> is the plot of \(|a_k|\) against \(k\) (or against frequency \(k\omega_0\)); the <b>power spectrum</b> plots \(|a_k|^2\). For real signals both are symmetric about \(k=0\). <b class="term">Parseval's formula</b> says the average power in the time domain equals the total power in the harmonics:</p>
+  $$\|f\|^2 = \frac1\tau\int_0^\tau|f(t)|^2\,dt = \sum_{k=-\infty}^\infty |a_k|^2 = |a_0|^2 + \frac12\sum_{k=1}^\infty\big(\alpha_k^2 + \beta_k^2\big)\ \ (\text{real } f).$$
+  <p>Parseval works in both directions. It gives \(\|f\|^2\) of a trigonometric polynomial without integrating. Going the other way, it evaluates infinite sums: the triangle wave's \(\|f\|^2 = \tfrac13\) yields \(\sum_{k\text{ odd}} 1/k^4 = \pi^4/96\).</p>
+
+  <h2 id="trunc"><span class="sec">Section 3.6</span>Truncation, convergence and Gibbs</h2>
+  <p>The partial sum \(p_n(t) = \sum_{k=-n}^n a_ke^{-ik\omega_0t}\) is the best approximation of \(f\) by a trigonometric polynomial of degree \(n\) (Lesson 2), and its mean-square error is</p>
+  $$\|f - p_n\|^2 = \|f\|^2 - \sum_{|k|\le n}|a_k|^2 = \sum_{|k|&gt;n}|a_k|^2.$$
+  <p>How fast this goes to zero depends on smoothness. A signal with a <b>jump</b> has \(|a_k| \sim 1/k\) (square wave, sawtooth). A <b>continuous</b> periodic signal with a kink has \(|a_k| \sim 1/k^2\) (triangle), and smoother signals decay faster still.</p>
+  <p>Pointwise, <b class="term">Dirichlet's theorem</b> says that for piecewise smooth \(f\) the series converges to \(f(t)\) where \(f\) is continuous and to the <b>midpoint</b> \(\tfrac12[f(t^-) + f(t^+)]\) at a jump. The jump points include the ends of the period when \(f(0) \ne f(\tau)\): the sawtooth \(t\) on \([0,2\pi)\) has a series that equals \(\pi\) at \(t = 0\). Near a jump the partial sums always overshoot by about <b>8.9% of the jump</b>, however many terms are kept. This is the <b class="term">Gibbs phenomenon</b>. The overshoot narrows as \(n\) grows, so the energy of the error still goes to zero, but its peak height does not.</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Partial sums, spectrum and Gibbs</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="wW">Waveform</label><select id="wW"></select></div>
+    <div class="ctl"><label for="wN">Harmonics kept n <output for="wN"></output></label><input type="range" id="wN" min="0" max="60" step="1" value="5" data-dec="0"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"wW":"square","wN":49}'>Gibbs on the square wave</button>
+      <button data-preset='{"wW":"triangle","wN":3}'>triangle, 3 terms</button>
+      <button data-preset='{"wW":"saw","wN":15}'>sawtooth midpoint</button>
+      <button data-preset='{"wW":"halfsin","wN":4}'>half-wave rectifier</button>
+    </div>
+    <div id="ro2" class="readout"></div>
+    <div id="ak2" class="prose" style="font-size:.88rem"></div>
+  </div>
+  <div class="views">
+    <figure><div id="plot2"></div><figcaption>f (gray) and the partial sum pₙ (teal) over two periods.</figcaption></figure>
+    <figure><div id="spec2"></div><figcaption>Amplitude spectrum |aₖ| for |k| ≤ 20. Kept harmonics are teal, dropped ones gray.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="props"><span class="sec">Section 3.7</span>Properties: shift, modulation, derivative, integral</h2>
+  <p>Let \(f = \sum a_ke^{-ik\omega_0t}\) and write \(b_k\) for the coefficients of a new signal \(g\). Each rule follows by substituting the series and regrouping:</p>
+  <table class="data text"><thead><tr><th>New signal g(t)</th><th>Coefficients b<sub>k</sub> (notes' convention)</th><th>Why</th></tr></thead><tbody>
+    <tr><td>\(f(t - T)\), a delay</td><td>\(a_ke^{ik\omega_0T}\)</td><td>\(e^{-ik\omega_0(t-T)} = e^{ik\omega_0T}e^{-ik\omega_0t}\); only phases change, \(|b_k| = |a_k|\)</td></tr>
+    <tr><td>\(e^{-in\omega_0t}f(t)\), modulation</td><td>\(a_{k-n}\)</td><td>the spectrum slides \(n\) places to the right</td></tr>
+    <tr><td>\(f'(t)\)</td><td>\(-ik\omega_0a_k\)</td><td>differentiate each term; high harmonics are amplified</td></tr>
+    <tr><td>\(\int_0^t (f(s) - a_0)\,ds\)</td><td>\(\dfrac{ia_k}{k\omega_0}\) for \(k\ne0\)</td><td>the inverse of the derivative rule; remove \(a_0\) first so the result is periodic</td></tr>
+    <tr><td>\(\overline{f(t)}\)</td><td>\(\overline{a_{-k}}\)</td><td>conjugate each term</td></tr>
+    <tr><td>\(f(-t)\)</td><td>\(a_{-k}\)</td><td>replace \(k\) by \(-k\)</td></tr>
+    <tr><td>\(f(t)h(t)\)</td><td>\(\sum_m a_m c_{k-m}\)</td><td>product of series: convolution of coefficient sequences</td></tr>
+    <tr><td>\(f(t)^2\)</td><td>\(\sum_m a_m a_{k-m}\)</td><td>the special case \(h = f\)</td></tr>
+  </tbody></table>
+  <p>Linearity holds as well: \(c_1f + c_2h\) has coefficients \(c_1a_k + c_2c_k\). Real-valued modulation \(\cos(n\omega_0t)f(t)\) gives \(\tfrac12(a_{k-n} + a_{k+n})\), two half-height copies of the spectrum.</p>
+</div>
+
+<section class="lab" id="lab3">
+  <div class="lab-head"><span class="num">Interactive 3</span><span class="title">What each property does to the spectrum</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="pW">Starting signal f</label><select id="pW"></select></div>
+    <div class="ctl inline"><span>Operation</span>
+      <div class="seg" id="pOp" data-value="shift"><button data-value="shift" aria-pressed="true">delay</button><button data-value="mod" aria-pressed="false">e^{−inω₀t}·</button><button data-value="deriv" aria-pressed="false">d/dt</button><button data-value="cosmod" aria-pressed="false">cos·</button></div></div>
+    <div class="ctl"><label for="pT">Delay T (fraction of τ) <output for="pT"></output></label><input type="range" id="pT" min="0" max="1" step="0.025" value="0.25" data-dec="3"></div>
+    <div class="ctl"><label for="pn">Modulation index n <output for="pn"></output></label><input type="range" id="pn" min="-6" max="6" step="1" value="3" data-dec="0"></div>
+    <div id="ro3" class="readout"></div>
+  </div>
+  <div class="views">
+    <figure><div id="plot3"></div><figcaption>Re f (gray) and Re g (pink), both reconstructed from 60 harmonics.</figcaption></figure>
+    <figure><div id="spec3"></div><figcaption>|aₖ| of f (gray, left of each k) and |bₖ| of g (pink, right).</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="window"><span class="sec">Section 3.8</span>Signals that do not fit the window</h2>
+  <p>Any \(f\) in \(L^2(0,\tau)\) has a Fourier series on that interval, even if it is not periodic. The series then represents the <em>periodic extension</em> of the piece in the window. For \(\cos bt\) on \((0, 2\pi)\) with \(b\) an integer, the window holds whole cycles and the spectrum has two spikes at \(k = \pm b\). If \(b\) is not an integer, the periodic extension jumps at the window edge. The power then spreads into every harmonic, with the largest coefficients near \(\pm b\). This <b>leakage</b> appears again in the DFT whenever a sampled record does not contain whole cycles.</p>
+</div>
+
+<section class="lab" id="lab4">
+  <div class="lab-head"><span class="num">Interactive 4</span><span class="title">cos(bt) on a window of length 2π</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="lb">Frequency b <output for="lb"></output></label><input type="range" id="lb" min="0" max="8" step="0.05" value="3.5" data-dec="2"></div>
+    <div class="presets"><span>Try</span><button data-preset='{"lb":3}'>b = 3 (fits)</button><button data-preset='{"lb":3.5}'>b = 3.5 (worst leakage)</button><button data-preset='{"lb":0.5}'>b = ½</button></div>
+    <div id="ro4" class="readout"></div>
+  </div>
+  <div class="views">
+    <figure><div id="plot4"></div><figcaption>cos bt on [0, 2π) (pink) and its periodic extension (gray), which the series actually represents.</figcaption></figure>
+    <figure><div id="spec4"></div><figcaption>|aₖ| for |k| ≤ 12.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 3.9</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 3.1 · Square wave</button><button>Ex 3.2 · Read off aₖ</button><button>Ex 3.3 · Triangle, Parseval, error</button><button>Ex 3.4 · Properties</button><button>Ex 3.5 · Squaring a signal</button><button>Ex 3.6 · Convergence</button></div>
+  <div class="panel">
+    <p>Find the Fourier series of the square wave \(f = 1\) on \([0,\pi)\), \(f = -1\) on \([\pi, 2\pi)\), in exponential and cosine–sine form.</p>
+    <details><summary>Solution</summary>
+    <p>\(\tau = 2\pi\), \(\omega_0 = 1\), and \(a_0 = 0\) (the average). For \(k\ne0\),</p>
+    $$a_k = \frac1{2\pi}\left[\int_0^\pi e^{ikt}dt - \int_\pi^{2\pi}e^{ikt}dt\right] = \frac{1}{2\pi ik}\big[(e^{ik\pi}-1) - (1 - e^{ik\pi})\big] = \frac{(-1)^k - 1}{\pi ik}.$$
+    <p>So \(a_k = 0\) for even \(k\) and \(a_k = \frac{-2}{\pi ik} = \frac{2i}{\pi k}\) for odd \(k\). The signal is odd about \(t = 0\) (in its periodic extension), so the coefficients are purely imaginary. Then \(\alpha_k = 2\Re a_k = 0\) and \(\beta_k = 2\Im a_k = \frac{4}{\pi k}\):</p>
+    $$f(t) = \frac4\pi\left(\sin t + \frac{\sin3t}{3} + \frac{\sin 5t}{5} + \cdots\right).$$</details>
+  </div>
+  <div class="panel">
+    <p>\(f(t) = 3 + 4\cos2t - 2\sin3t\). Find every nonzero \(a_k\), and \(\|f\|^2\) on \((0,2\pi)\).</p>
+    <details><summary>Solution</summary>
+    <p>\(a_0 = 3\). \(4\cos2t = 2e^{-i2t} + 2e^{i2t}\), so \(a_{2} = a_{-2} = 2\). \(-2\sin 3t = \frac{-2}{2i}(e^{i3t} - e^{-i3t}) = i e^{i3t} - ie^{-i3t}\), so \(a_3 = -i\) and \(a_{-3} = i\).</p>
+    <p>Check against the cosine–sine form: \(\beta_3 = i(a_{-3} - a_3) = i(2i) = -2\). ✓ By Parseval, \(\|f\|^2 = 9 + 4 + 4 + 1 + 1 = 19\) \(= 9 + \tfrac12(16 + 4)\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>The triangle wave \(f = 2t\) on \([0,\tfrac12]\), \(2(1-t)\) on \([\tfrac12, 1]\) has \(a_0 = \tfrac12\) and \(a_k = \frac{(-1)^k-1}{\pi^2k^2}\). Verify Parseval and find the error of \(p_1\).</p>
+    <details><summary>Solution</summary>
+    <p>Directly, \(\|f\|^2 = 2\int_0^{1/2}4t^2dt = \tfrac13\). From the coefficients, only odd \(k\) survive, with \(|a_k|^2 = \frac{4}{\pi^4k^4}\):</p>
+    $$\sum|a_k|^2 = \frac14 + 2\cdot\frac4{\pi^4}\sum_{k\text{ odd}}\frac1{k^4} = \frac14 + \frac8{\pi^4}\cdot\frac{\pi^4}{96} = \frac14 + \frac1{12} = \frac13.\ ✓$$
+    <p>Keeping \(|k|\le1\): \(\|f - p_1\|^2 = \tfrac13 - \tfrac14 - 2\cdot\frac{4}{\pi^4} = \tfrac1{12} - \frac8{\pi^4} \approx 0.00121\). Three terms already capture 99.6% of the power, because the coefficients decay like \(1/k^2\).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(f\) has period \(\tau = 2\) and coefficients \(a_k\). Find the coefficients of \(g(t) = f(t - \tfrac12)\), of \(h = f'\), and of \(e^{-i2\pi t}f(t)\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\omega_0 = \pi\). Delay: \(b_k = a_ke^{ik\omega_0T} = a_ke^{ik\pi/2} = i^k a_k\). Derivative: \(b_k = -ik\pi\,a_k\). Modulation: \(e^{-i2\pi t} = e^{-i2\omega_0t}\) is \(n = 2\), so \(b_k = a_{k-2}\).</p>
+    <p>With the slides' \(e^{+jk\omega_0t}\) convention, the same problems give \(e^{-jk\omega_0T}a_k\) and \(jk\omega_0a_k\). The signs flip with the convention.</p></details>
+  </div>
+  <div class="panel">
+    <p>Find the coefficients of \(f(t)^2\) where \(f = \cos t + \sin t\), both by expanding and by convolving coefficients.</p>
+    <details><summary>Solution</summary>
+    <p>Expand: \(f^2 = \cos^2t + 2\sin t\cos t + \sin^2t = 1 + \sin2t\), so \(c_0 = 1\), \(c_2 = \tfrac i2\), \(c_{-2} = -\tfrac i2\).</p>
+    <p>Convolve: \(a_{1} = \tfrac12 + \tfrac i2\) and \(a_{-1} = \tfrac12 - \tfrac i2\). Then \(c_0 = a_1a_{-1} + a_{-1}a_1 = 2\cdot\tfrac12 = 1\), \(c_2 = a_1a_1 = \tfrac14(1+i)^2 = \tfrac i2\), \(c_{-2} = a_{-1}^2 = -\tfrac i2\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>The sawtooth \(f(t) = t\) on \([0, 2\pi)\). To what does its Fourier series converge at \(t = 0\), \(t = \pi\) and \(t = 2\pi\)? What is the largest value of \(p_n(t)\) near \(t = 2\pi\) for large \(n\)?</p>
+    <details><summary>Solution</summary>
+    <p>The periodic extension is continuous at \(\pi\), so the series gives \(\pi\) there. At \(t = 0\) and \(2\pi\) it jumps from \(2\pi\) down to \(0\); the series gives the midpoint \(\pi\) at both. Just before the jump the partial sums overshoot by about 8.9% of the jump size \(2\pi\), so \(\max p_n \approx 2\pi + 0.089\cdot2\pi \approx 6.85\). Interactive 2 shows this with the sawtooth preset.</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 3.10</span>Practice problems</h2></div>
+<div id="qz"></div>
+
+<div class="prose"><h2 id="summary"><span class="sec">Summary</span>Key equations</h2></div>
+<div class="keyeq">
+  <div><h4>Series</h4>
+    $$f = \sum a_ke^{-ik\omega_0t},\quad a_k = \frac1\tau\int_0^\tau fe^{ik\omega_0t}dt$$
+    $$\omega_0 = 2\pi/\tau,\quad a_{-k} = \overline{a_k}\ (\text{real } f)$$</div>
+  <div><h4>Forms</h4>
+    $$\alpha_k = a_k + a_{-k},\quad \beta_k = i(a_{-k} - a_k)$$
+    $$\gamma_k = \sqrt{\alpha_k^2+\beta_k^2},\quad \psi_k = \angle(\alpha_k + i\beta_k)$$</div>
+  <div><h4>Power</h4>
+    $$\|f\|^2 = \sum|a_k|^2 = a_0^2 + \tfrac12\sum(\alpha_k^2+\beta_k^2)$$
+    $$\|f - p_n\|^2 = \sum_{|k|&gt;n}|a_k|^2$$</div>
+  <div><h4>Properties</h4>
+    $$f(t-T)\to a_ke^{ik\omega_0T},\quad f'\to -ik\omega_0a_k$$
+    $$e^{-in\omega_0t}f\to a_{k-n},\quad \bar f\to\overline{a_{-k}}$$</div>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script>
+(function () {
+  const { C, add, mul, scale, abs, arg, num, str, polar } = CX;
+  const PI = Math.PI;
+  const W = GH.WAVES;
+  const NICE = { square: "Square wave (±1, τ = 2π)", triangle: "Triangle (τ = 1)", vee: "V-shape (τ = 1)", saw: "Sawtooth t on [0, 2π)", saw1: "Sawtooth t on [0, 1)",
+    pulse: "Even pulse, δ = π/3", halfsin: "Half-wave rectified sine", halfcos: "Half cosine", exp: "e^(−t) on [0, 2π)", tsq: "t² on [0, 1)" };
+  const opts = W.map(w => `<option value="${w.name}">${NICE[w.name] || w.name}</option>`).join("");
+  document.getElementById("wW").innerHTML = opts;
+  document.getElementById("pW").innerHTML = W.filter(w => w.name !== "exp").map(w => `<option value="${w.name}">${NICE[w.name]}</option>`).join("");
+  document.getElementById("pW").value = "triangle";
+  const wave = name => W.find(w => w.name === name);
+  const period = (w, t) => ((t % w.tau) + w.tau) % w.tau;
+  const synth = (coef, w0, n, t) => { let s = C(0); for (let k = -n; k <= n; k++) s = add(s, mul(coef(k), polar(1, -k * w0 * t))); return s; };
+
+  // ---------- Interactive 1: harmonics ----------
+  UI.wire("#lab1", () => {
+    const a0 = UI.val("h0"), al = [1, 2, 3].map(k => UI.val("ha" + k)), be = [1, 2, 3].map(k => UI.val("hb" + k));
+    const t = UI.linspace(0, 4 * PI, 500);
+    const y = t.map(v => a0 + [0, 1, 2].reduce((s, j) => s + al[j] * Math.cos((j + 1) * v) + be[j] * Math.sin((j + 1) * v), 0));
+    UI.plot("#plot1", { xlabel: "t", ylabel: "f(t)", xlim: [0, 4 * PI], ylim: [-5, 5], h: 300, series: [{ x: t, y, c: 1, width: 2.5 }], hlines: [{ y: a0, label: "a₀" }] });
+    const rows = [[0, num(a0, 3), "", "", num(a0, 3)]];
+    let pw = a0 * a0;
+    [0, 1, 2].forEach(j => {
+      const ak = C(al[j] / 2, be[j] / 2), g = Math.hypot(al[j], be[j]);
+      pw += (al[j] ** 2 + be[j] ** 2) / 2;
+      rows.push([j + 1, str(ak, 3), str(CX.conj(ak), 3), g ? num(g, 3) : "0", g ? `${num(Math.atan2(be[j], al[j]) / PI, 3)}π` : "—"]);
+    });
+    UI.table("#tab1", ["k", "aₖ = (αₖ + iβₖ)/2", "a₋ₖ", "γₖ", "ψₖ"], rows.map((r, i) => i ? r : [0, r[1], "", "", ""]));
+    UI.readout("#ro1", [["‖f‖² by Parseval", pw, "a₀² + ½Σ(αₖ² + βₖ²)"], ["max |f|", Math.max(...y.map(Math.abs))]]);
+    UI.live("#lab1", `‖f‖² = ${num(pw, 4)}`);
+  });
+
+  // ---------- Interactive 2: partial sums ----------
+  UI.wire("#lab2", () => {
+    const w = wave(document.getElementById("wW").value), n = UI.val("wN"), w0 = 2 * PI / w.tau, A = 1;
+    const coef = k => w.a(k, A);
+    const t = UI.linspace(-0.0001, 2 * w.tau, 900);
+    const fy = t.map(v => w.f(period(w, v), A)), py = t.map(v => synth(coef, w0, n, v).re);
+    UI.plot("#plot2", { xlabel: "t", ylabel: "value", xlim: [0, 2 * w.tau], h: 300, legend: "tr", legendWidth: 120,
+      series: [{ x: t, y: fy, c: 6, label: "f" }, { x: t, y: py, c: 1, width: 2.5, label: `p_${n}` }] });
+    const K = 20, ks = Array.from({ length: 2 * K + 1 }, (_, i) => i - K);
+    const keep = ks.filter(k => Math.abs(k) <= n), drop = ks.filter(k => Math.abs(k) > n);
+    UI.plot("#spec2", { xlabel: "k", ylabel: "|a_k|", xlim: [-K - 1, K + 1], h: 260, ylim: [0, Math.max(...ks.map(k => abs(coef(k)))) * 1.1],
+      stems: [{ x: keep, y: keep.map(k => abs(coef(k))), c: 1 }, { x: drop, y: drop.map(k => abs(coef(k))), c: 6 }] });
+    const n2 = w.n2(A);
+    let kept = 0; for (let k = -n; k <= n; k++) kept += abs(coef(k)) ** 2;
+    const pmax = Math.max(...py), fmax = Math.max(...fy);
+    UI.readout("#ro2", [["‖f‖²", n2], ["Σ_{|k|≤n} |aₖ|²", kept], ["error ‖f − pₙ‖²", Math.max(0, n2 - kept), `${num(100 * Math.max(0, n2 - kept) / n2, 3)}% of the power`],
+      ["max pₙ vs max f", `${num(pmax, 4)} vs ${num(fmax, 4)}`]]);
+    const ak = document.getElementById("ak2");
+    ak.innerHTML = `\\(${w.ak}\\)`;
+    UI.whenMath(() => UI.typeset(ak));
+    UI.live("#lab2", `error² = ${num(Math.max(0, n2 - kept), 3)}`);
+  });
+
+  // ---------- Interactive 3: properties ----------
+  UI.wire("#lab3", () => {
+    const w = wave(document.getElementById("pW").value), op = UI.seg("pOp"), T = UI.val("pT") * w.tau, n = UI.val("pn"), w0 = 2 * PI / w.tau;
+    const a = k => w.a(k, 1);
+    const b = {
+      shift: k => mul(a(k), polar(1, k * w0 * T)),
+      mod: k => a(k - n),
+      deriv: k => mul(C(0, -k * w0), a(k)),
+      cosmod: k => scale(add(a(k - n), a(k + n)), 0.5),
+    }[op];
+    const N = 60, t = UI.linspace(0, 2 * w.tau, 700);
+    const fy = t.map(v => w.f(period(w, v), 1)), gy = t.map(v => synth(b, w0, N, v).re);
+    const lim = Math.max(1, ...gy.map(Math.abs), ...fy.map(Math.abs)) * 1.05;
+    UI.plot("#plot3", { xlabel: "t", ylabel: "value", xlim: [0, 2 * w.tau], ylim: [-lim, lim], h: 280, legend: "tr", legendWidth: 90,
+      series: [{ x: t, y: fy, c: 6, label: "f" }, { x: t, y: gy, c: 4, width: 2.5, label: "g" }] });
+    const K = 12, ks = Array.from({ length: 2 * K + 1 }, (_, i) => i - K);
+    UI.plot("#spec3", { xlabel: "k", ylabel: "magnitude", xlim: [-K - 1, K + 1], h: 260, legend: "tr", legendWidth: 90,
+      stems: [{ x: ks.map(k => k - 0.18), y: ks.map(k => abs(a(k))), c: 6, label: "|aₖ|" }, { x: ks.map(k => k + 0.18), y: ks.map(k => abs(b(k))), c: 4, label: "|bₖ|" }] });
+    const rule = { shift: `bₖ = aₖ e^{ikω₀T}, T = ${num(T, 3)}`, mod: `bₖ = a_{k−${n}} (g = e^{−i${n}ω₀t} f)`, deriv: "bₖ = −ikω₀ aₖ", cosmod: `bₖ = ½(a_{k−${n}} + a_{k+${n}}) (g = cos(${n}ω₀t) f)` }[op];
+    UI.readout("#ro3", [["rule", rule], ["b₁", str(b(1), 3), `a₁ = ${str(a(1), 3)}`], ["b₋₁", str(b(-1), 3), `a₋₁ = ${str(a(-1), 3)}`], ["b₂", str(b(2), 3), `a₂ = ${str(a(2), 3)}`]]);
+    UI.live("#lab3", { shift: "phases change, magnitudes don't", mod: "spectrum slides", deriv: "high k amplified", cosmod: "two half copies" }[op]);
+  });
+
+  // ---------- Interactive 4: leakage ----------
+  UI.wire("#lab4", () => {
+    const bf = UI.val("lb"), tau = 2 * PI;
+    const coef = k => CX.fsCoef(t => Math.cos(bf * t), tau, k, [], 60);
+    const t = UI.linspace(0, 2 * tau, 800), ext = t.map(v => Math.cos(bf * (v % tau))), raw = t.map(v => (v < tau ? Math.cos(bf * v) : NaN));
+    UI.plot("#plot4", { xlabel: "t", ylabel: "value", xlim: [0, 2 * tau], ylim: [-1.2, 1.2], h: 260,
+      series: [{ x: t, y: ext, c: 6 }, { x: t, y: raw, c: 4, width: 2.5 }], vlines: [{ x: tau, label: "window edge" }] });
+    const K = 12, ks = Array.from({ length: 2 * K + 1 }, (_, i) => i - K), mags = ks.map(k => abs(coef(k)));
+    UI.plot("#spec4", { xlabel: "k", ylabel: "|a_k|", xlim: [-K - 1, K + 1], ylim: [0, 0.55], h: 260, stems: [{ x: ks, y: mags, c: 4 }] });
+    const top = mags.reduce((s, m) => s + m * m, 0), near = ks.reduce((s, k, i) => s + (Math.abs(Math.abs(k) - bf) <= 0.5 ? mags[i] ** 2 : 0), 0);
+    UI.readout("#ro4", [["fits the window?", Math.abs(bf - Math.round(bf)) < 1e-9 ? "yes: whole cycles" : "no: the extension jumps"], ["power within ½ of ±b", top ? `${num(100 * near / top, 3)}%` : "—"]]);
+    UI.live("#lab4", Math.abs(bf - Math.round(bf)) < 1e-9 ? "no leakage" : "leakage");
+  });
+
+  QZ.mount("#qz", { topics: ["fs-trig", "fs-identity", "fs-period", "fs-wave", "fs-props", "fs-concepts"], title: "Fourier series: problem generator" });
+})();
+</script>
+</body>
+</html>
