@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>State Space · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="state-space">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 8 · Exam 2</div>
+  <h1>State Space</h1>
+  <p class="lead">A transfer function describes a system from input to output. A state-space model describes what happens inside: a vector of states, such as positions and velocities or capacitor voltages and inductor currents, that evolves by a first-order matrix ODE. This lesson solves \(\dot x = Ax + Bu\) with the matrix exponential, links eigenvalues to poles and stability, computes \(G(s) = C(sI-A)^{-1}B + D\), and turns ODEs and mass–spring–damper systems into state-space form.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#model">The state-space model</a></li>
+    <li><a href="#exp">The matrix exponential</a></li>
+    <li><a href="#eig">Eigenvalues, poles and stability</a></li>
+    <li><a href="#tf">The transfer function</a></li>
+    <li><a href="#real">Realizations: from an ODE to state space</a></li>
+    <li><a href="#msd">Mass–spring–damper systems</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+  </ol></nav>
+
+  <h2 id="model"><span class="sec">Section 8.1</span>The state-space model</h2>
+  <p>A linear, time-invariant <b class="term">state-space system</b> is</p>
+  $$\dot x = Ax + Bu,\qquad y = Cx + Du,$$
+  <p>where \(x(t)\in\mathbb R^n\) is the <b>state</b>, \(u\) the input and \(y\) the output. \(A\) is \(n\times n\), \(B\) is \(n\times1\), \(C\) is \(1\times n\) and \(D\) is a scalar (for one input and one output). The state summarizes the past: knowing \(x(t_0)\) and the input after \(t_0\) determines everything after \(t_0\). MATLAB stores the system as <code>ss(A,B,C,D)</code>, and Simulink builds it from integrators.</p>
+
+  <h2 id="exp"><span class="sec">Section 8.2</span>The matrix exponential</h2>
+  <p>The scalar equation \(\dot x = ax\) has solution \(e^{at}x(0)\). The matrix version uses the <b class="term">matrix exponential</b></p>
+  $$e^{At} = I + At + \frac{(At)^2}{2!} + \frac{(At)^3}{3!} + \cdots,\qquad \frac{d}{dt}e^{At} = Ae^{At},\qquad e^{A\cdot0} = I.$$
+  <p>Transforming \(\dot x = Ax\) gives \(sX - x(0) = AX\), so \(X(s) = (sI - A)^{-1}x(0)\) and</p>
+  $$e^{At} = \mathcal L^{-1}\big\{(sI - A)^{-1}\big\}.$$
+  <p>With an input, the solution is the free response plus a convolution:</p>
+  $$x(t) = e^{At}x(0) + \int_0^te^{A(t-\sigma)}Bu(\sigma)\,d\sigma.$$
+  <p>Example: \(A = \begin{bmatrix}0 &amp; 1\\ -2 &amp; -3\end{bmatrix}\). Then \((sI - A)^{-1} = \frac{1}{s^2+3s+2}\begin{bmatrix}s+3 &amp; 1\\ -2 &amp; s\end{bmatrix}\), and inverting each entry by partial fractions gives</p>
+  $$e^{At} = \begin{bmatrix}2e^{-t} - e^{-2t} &amp; e^{-t} - e^{-2t}\\ -2e^{-t} + 2e^{-2t} &amp; -e^{-t} + 2e^{-2t}\end{bmatrix}.$$
+  <p>If \(A = P\Lambda P^{-1}\) is diagonalizable, then \(e^{At} = Pe^{\Lambda t}P^{-1}\). Every entry is a combination of \(e^{\lambda_kt}\), one for each eigenvalue. A rotation \(A = \begin{bmatrix}0&amp;-\omega\\ \omega&amp;0\end{bmatrix}\) gives \(e^{At} = \begin{bmatrix}\cos\omega t&amp;-\sin\omega t\\ \sin\omega t&amp;\cos\omega t\end{bmatrix}\), the rotation matrices of the notes' Section 5.2.</p>
+
+  <h2 id="eig"><span class="sec">Section 8.3</span>Eigenvalues, poles and stability</h2>
+  <p>\((sI - A)^{-1} = \frac{\operatorname{adj}(sI - A)}{\det(sI - A)}\), so the only possible poles are the roots of the <b>characteristic polynomial</b> \(\det(sI - A)\): the <b>eigenvalues</b> of \(A\). For a \(2\times2\) matrix, \(\det(sI - A) = s^2 - (\operatorname{tr}A)s + \det A\). The system is <b class="term">stable</b> (\(e^{At}\to0\) for every initial state) exactly when every eigenvalue satisfies \(\Re\lambda &lt; 0\). For \(2\times2\) that is \(\operatorname{tr}A &lt; 0\) and \(\det A &gt; 0\).</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Phase portrait of ẋ = Ax</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="a11">a₁₁ <output for="a11"></output></label><input type="range" id="a11" min="-4" max="4" step="0.25" value="0" data-dec="2"></div>
+    <div class="ctl"><label for="a12">a₁₂ <output for="a12"></output></label><input type="range" id="a12" min="-4" max="4" step="0.25" value="1" data-dec="2"></div>
+    <div class="ctl"><label for="a21">a₂₁ <output for="a21"></output></label><input type="range" id="a21" min="-4" max="4" step="0.25" value="-2" data-dec="2"></div>
+    <div class="ctl"><label for="a22">a₂₂ <output for="a22"></output></label><input type="range" id="a22" min="-4" max="4" step="0.25" value="-0.5" data-dec="2"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"a11":0,"a12":1,"a21":-2,"a22":-0.5}'>stable spiral</button>
+      <button data-preset='{"a11":0,"a12":1,"a21":-2,"a22":-3}'>stable node</button>
+      <button data-preset='{"a11":0,"a12":-1,"a21":1,"a22":0}'>center (rotation)</button>
+      <button data-preset='{"a11":1,"a12":0,"a21":0,"a22":-1}'>saddle</button>
+      <button data-preset='{"a11":0.25,"a12":1,"a21":-1,"a22":0.25}'>unstable spiral</button>
+    </div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="pp1"></div><figcaption>Trajectories x(t) = e<sup>At</sup>x(0) from eight starting points (dots), for 0 ≤ t ≤ 6.</figcaption></figure>
+    <figure><div id="plane1"></div><figcaption>Eigenvalues of A in the s-plane.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="tf"><span class="sec">Section 8.4</span>The transfer function</h2>
+  <p>With \(x(0) = 0\), transforming gives \(sX = AX + BU\), so \(X = (sI - A)^{-1}BU\) and \(Y = CX + DU\):</p>
+  $$G(s) = C(sI - A)^{-1}B + D,\qquad g(t) = Ce^{At}B + D\delta(t).$$
+  <p>\(D\) is the direct term: \(G(\infty) = D\), and \(G\) is strictly proper exactly when \(D = 0\). The DC gain is \(G(0) = D - CA^{-1}B\). Every pole of \(G\) is an eigenvalue of \(A\). (An eigenvalue can cancel against a zero and fail to appear as a pole, but it is still in \(e^{At}\).) In MATLAB: <code>[num,den] = ss2tf(A,B,C,D)</code>, or <code>tf(ss(A,B,C,D))</code>.</p>
+
+  <h2 id="real"><span class="sec">Section 8.5</span>Realizations: from an ODE to state space</h2>
+  <p>Going the other way, a state-space model with \(C(sI-A)^{-1}B + D = G(s)\) is a <b class="term">realization</b> of \(G\). For an ODE, choose the output and its derivatives as states. For \(\ddot y + a_1\dot y + a_0y = bu\), take \(x_1 = y\), \(x_2 = \dot y\):</p>
+  $$\dot x = \begin{bmatrix}0 &amp; 1\\ -a_0 &amp; -a_1\end{bmatrix}x + \begin{bmatrix}0\\ b\end{bmatrix}u,\qquad y = \begin{bmatrix}1 &amp; 0\end{bmatrix}x.$$
+  <p>This <b>companion form</b> has \(\det(sI - A) = s^2 + a_1s + a_0\). In general, for \(G(s) = \frac{b_{n-1}s^{n-1} + \cdots + b_0}{s^n + a_{n-1}s^{n-1} + \cdots + a_0} + D\), the controllable canonical realization is</p>
+  $$A = \begin{bmatrix}0&amp;1&amp;&amp;\\&amp;\ddots&amp;\ddots&amp;\\&amp;&amp;0&amp;1\\-a_0&amp;-a_1&amp;\cdots&amp;-a_{n-1}\end{bmatrix},\quad B = \begin{bmatrix}0\\ \vdots\\ 0\\ 1\end{bmatrix},\quad C = \begin{bmatrix}b_0&amp;b_1&amp;\cdots&amp;b_{n-1}\end{bmatrix},\quad D.$$
+  <p>Realizations are not unique: any change of state coordinates \(\tilde x = Tx\) gives \((TAT^{-1}, TB, CT^{-1}, D)\) with the same \(G\). MATLAB's <code>[A,B,C,D] = tf2ss(num,den)</code> returns one.</p>
+
+  <h2 id="msd"><span class="sec">Section 8.6</span>Mass–spring–damper systems</h2>
+  <p>A system of masses, springs and dampers with position vector \(q\) obeys</p>
+  $$M\ddot q + \Phi\dot q + Kq = bu,$$
+  <p>with mass matrix \(M\), damping matrix \(\Phi\) and stiffness matrix \(K\), all symmetric and positive (semi)definite. With state \(x = \begin{bmatrix}q\\ \dot q\end{bmatrix}\),</p>
+  $$\dot x = \begin{bmatrix}0 &amp; I\\ -M^{-1}K &amp; -M^{-1}\Phi\end{bmatrix}x + \begin{bmatrix}0\\ M^{-1}b\end{bmatrix}u.$$
+  <p>When \(M &gt; 0\), \(K &gt; 0\) and \(\Phi &gt; 0\) the system is stable. The energy \(\tfrac12\dot q^TM\dot q + \tfrac12q^TKq\) decreases at the rate \(\dot q^T\Phi\dot q\). With no damping (\(\Phi = 0\)), the eigenvalues lie on the imaginary axis and the masses oscillate at the natural frequencies \(\omega\), where \(\omega^2\) are the eigenvalues of \(M^{-1}K\). For one mass this is the familiar \(\begin{bmatrix}0&amp;1\\-k/m&amp;-c/m\end{bmatrix}\).</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">The matrix exponential of a mass–spring–damper</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="sm">m <output for="sm"></output></label><input type="range" id="sm" min="0.25" max="4" step="0.25" value="1" data-dec="2"></div>
+    <div class="ctl"><label for="sc">c <output for="sc"></output></label><input type="range" id="sc" min="0" max="6" step="0.1" value="0.6" data-dec="1"></div>
+    <div class="ctl"><label for="sk">k <output for="sk"></output></label><input type="range" id="sk" min="0.25" max="10" step="0.25" value="4" data-dec="2"></div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="tex2" class="prose" style="max-width:none"></div></figure>
+    <figure><div id="plot2"></div><figcaption>The four entries of e<sup>At</sup> for A = [0 1; −k/m −c/m]. The first column is the motion from x(0) = [1, 0] (released from y = 1 at rest); the second is from x(0) = [0, 1] (kicked from y = 0).</figcaption></figure></div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 8.7</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 8.1 · G(s) from (A,B,C,D)</button><button>Ex 8.2 · e^{At}</button><button>Ex 8.3 · Free response</button><button>Ex 8.4 · Realization</button><button>Ex 8.5 · Stability</button></div>
+  <div class="panel">
+    <p>\(A = \begin{bmatrix}-1 &amp; 2\\ 0 &amp; -3\end{bmatrix}\), \(B = \begin{bmatrix}0\\1\end{bmatrix}\), \(C = \begin{bmatrix}1 &amp; 1\end{bmatrix}\), \(D = 0\). Find \(G(s)\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\det(sI - A) = (s+1)(s+3)\). \((sI-A)^{-1}B = \frac{1}{(s+1)(s+3)}\begin{bmatrix}s+3 &amp; 2\\ 0 &amp; s+1\end{bmatrix}\begin{bmatrix}0\\1\end{bmatrix} = \frac{1}{(s+1)(s+3)}\begin{bmatrix}2\\ s+1\end{bmatrix}\).</p>
+    $$G(s) = \frac{2 + s + 1}{(s+1)(s+3)} = \frac{s+3}{(s+1)(s+3)} = \frac{1}{s+1}.$$
+    <p>The eigenvalue \(-3\) cancels: it is not a pole of \(G\), but it still appears in \(e^{At}\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Find \(e^{At}\) for \(A = \begin{bmatrix}-2 &amp; 1\\ 0 &amp; -2\end{bmatrix}\).</p>
+    <details><summary>Solution</summary>
+    <p>\((sI - A)^{-1} = \begin{bmatrix}\frac1{s+2} &amp; \frac1{(s+2)^2}\\ 0 &amp; \frac1{s+2}\end{bmatrix}\), so \(e^{At} = \begin{bmatrix}e^{-2t} &amp; te^{-2t}\\ 0 &amp; e^{-2t}\end{bmatrix}\). The repeated eigenvalue with only one eigenvector produces \(te^{-2t}\), just as a repeated pole does.</p></details>
+  </div>
+  <div class="panel">
+    <p>For \(A = \begin{bmatrix}0 &amp; 1\\ -2 &amp; -3\end{bmatrix}\) and \(x(0) = \begin{bmatrix}1\\ 0\end{bmatrix}\), find \(x(t)\).</p>
+    <details><summary>Solution</summary>
+    <p>\(x(t) = e^{At}x(0)\) is the first column of \(e^{At}\) (Section 8.2): \(x_1 = 2e^{-t} - e^{-2t}\), \(x_2 = -2e^{-t} + 2e^{-2t}\). Check \(\dot x_1 = x_2\) ✓ and \(x(0) = (1, 0)\) ✓.</p></details>
+  </div>
+  <div class="panel">
+    <p>Give a state-space realization of \(G(s) = \dfrac{3s + 1}{s^2 + 4s + 5}\).</p>
+    <details><summary>Solution</summary>
+    <p>Controllable canonical form: \(A = \begin{bmatrix}0 &amp; 1\\ -5 &amp; -4\end{bmatrix}\), \(B = \begin{bmatrix}0\\1\end{bmatrix}\), \(C = \begin{bmatrix}1 &amp; 3\end{bmatrix}\), \(D = 0\). Check: \((sI - A)^{-1}B = \frac{1}{s^2+4s+5}\begin{bmatrix}1\\ s\end{bmatrix}\), so \(C(sI-A)^{-1}B = \frac{1 + 3s}{s^2+4s+5}\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>Is \(\dot x = \begin{bmatrix}1 &amp; 2\\ -3 &amp; -4\end{bmatrix}x\) stable?</p>
+    <details><summary>Solution</summary>
+    <p>\(\operatorname{tr}A = -3 &lt; 0\) and \(\det A = -4 + 6 = 2 &gt; 0\), so yes. The eigenvalues are the roots of \(s^2 + 3s + 2\), namely \(-1\) and \(-2\). The positive entry \(a_{11} = 1\) does not matter; only the eigenvalues do.</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 8.8</span>Practice problems</h2></div>
+<div id="qz"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/sys.js"></script>
+<script>
+(function () {
+  const { C, num, str } = CX;
+  // exact 2x2 matrix exponential: e^{At} = e^{st}[ c(t) I + d(t)(A - sI) ], s = tr/2, q² = s² - det
+  function expm2(A, t) {
+    const s = (A[0][0] + A[1][1]) / 2, det = A[0][0] * A[1][1] - A[0][1] * A[1][0], q2 = s * s - det;
+    let c, d;
+    if (Math.abs(q2) < 1e-12) { c = 1; d = t; }
+    else if (q2 > 0) { const q = Math.sqrt(q2); c = Math.cosh(q * t); d = Math.sinh(q * t) / q; }
+    else { const q = Math.sqrt(-q2); c = Math.cos(q * t); d = Math.sin(q * t) / q; }
+    const e = Math.exp(s * t);
+    return [[e * (c + d * (A[0][0] - s)), e * d * A[0][1]], [e * d * A[1][0], e * (c + d * (A[1][1] - s))]];
+  }
+  window.expm2 = expm2;
+  const eig2 = A => CX.roots([1, -(A[0][0] + A[1][1]), A[0][0] * A[1][1] - A[0][1] * A[1][0]]);
+
+  // ---------- Interactive 1: phase portrait ----------
+  const pl1 = UI.cplane("#plane1", { R: 5, w: 340, h: 340 });
+  UI.wire("#lab1", () => {
+    const A = [[UI.val("a11"), UI.val("a12")], [UI.val("a21"), UI.val("a22")]];
+    const ev = eig2(A), tr = A[0][0] + A[1][1], det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    pl1.redraw({ points: ev.map(z => ({ z, c: 4, r: 6 })), polys: [{ pts: [C(0, -10), C(0, 10)], c: 6, dash: true }] });
+    const series = [], starts = [];
+    for (let k = 0; k < 8; k++) {
+      const th = 2 * Math.PI * k / 8 + 0.2, x0 = [2.6 * Math.cos(th), 2.6 * Math.sin(th)];
+      const ts = UI.linspace(0, 6, 300), xs = [], ys = [];
+      ts.forEach(t => { const E = expm2(A, t); const x = E[0][0] * x0[0] + E[0][1] * x0[1], y = E[1][0] * x0[0] + E[1][1] * x0[1]; if (Math.abs(x) < 50 && Math.abs(y) < 50) { xs.push(x); ys.push(y); } });
+      series.push({ x: xs, y: ys, c: (k % 2) ? 1 : 2, width: 1.8 });
+      starts.push({ x: x0[0], y: x0[1], c: 4, r: 4 });
+    }
+    UI.plot("#pp1", { xlabel: "x₁", ylabel: "x₂", xlim: [-3.5, 3.5], ylim: [-3.5, 3.5], w: 380, h: 380, series, points: starts });
+    const re = ev.map(z => z.re), cx = Math.abs(ev[0].im) > 1e-9;
+    const kind = cx ? (Math.abs(re[0]) < 1e-9 ? "center (pure rotation)" : re[0] < 0 ? "stable spiral" : "unstable spiral")
+      : (re[0] * re[1] < 0 ? "saddle (unstable)" : re[0] < 0 && re[1] < 0 ? "stable node" : re[0] > 0 && re[1] > 0 ? "unstable node" : "degenerate (zero eigenvalue)");
+    UI.readout("#ro1", [["eigenvalues", ev.map(z => str(z, 3)).join(",  ")], ["tr A, det A", `${num(tr, 3)}, ${num(det, 3)}`], ["type", kind],
+      ["stable?", ev.every(z => z.re < -1e-9) ? "yes (tr < 0 and det > 0)" : "no"]]);
+    UI.live("#lab1", kind);
+  });
+
+  // ---------- Interactive 2: e^{At} for MSD ----------
+  UI.wire("#lab2", () => {
+    const m = UI.val("sm"), c = UI.val("sc"), k = UI.val("sk"), A = [[0, 1], [-k / m, -c / m]];
+    const ev = eig2(A), T = Math.min(30, Math.max(6, c > 0.05 ? 8 * 2 * m / c : 15)), t = UI.linspace(0, T, 500);
+    const E = t.map(v => expm2(A, v));
+    UI.plot("#plot2", { xlabel: "t", ylabel: "entries of e^{At}", xlim: [0, T], h: 320, legend: "tr", legendWidth: 120,
+      series: [{ x: t, y: E.map(e => e[0][0]), c: 1, width: 2.4, label: "(1,1): y" }, { x: t, y: E.map(e => e[1][0]), c: 2, label: "(2,1): ẏ" },
+        { x: t, y: E.map(e => e[0][1]), c: 4, width: 2.4, label: "(1,2): y" }, { x: t, y: E.map(e => e[1][1]), c: 3, label: "(2,2): ẏ" }] });
+    const el = document.getElementById("tex2");
+    el.innerHTML = `$$A = \\begin{bmatrix}0 & 1\\\\ ${num(-k / m, 3)} & ${num(-c / m, 3)}\\end{bmatrix},\\qquad \\det(sI - A) = s^2 + ${num(c / m, 3)}s + ${num(k / m, 3)}$$`;
+    UI.whenMath(() => UI.typeset(el));
+    UI.readout("#ro2", [["eigenvalues", ev.map(z => str(z, 3)).join(",  ")], ["ωn = √(k/m)", Math.sqrt(k / m)], ["ζ", c / (2 * Math.sqrt(m * k))]]);
+    UI.live("#lab2", `λ = ${str(ev[0], 3)}`);
+  });
+
+  QZ.mount("#qz", { topics: ["ss-tf", "ss-exp", "ss-realize"], title: "State space: problem generator" });
+})();
+</script>
+</body>
+</html>

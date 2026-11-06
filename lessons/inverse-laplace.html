@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partial Fractions &amp; Differential Equations · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="inverse-laplace">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 6 · Exam 2</div>
+  <h1>Partial Fractions &amp; Differential Equations</h1>
+  <p class="lead">Transforming a problem is half the job; getting back to the time domain is the other half. For rational transforms, which cover every linear ODE with constant coefficients, the inverse comes from a partial fraction expansion. This lesson covers poles and zeros, the cover-up method for distinct real poles, complex poles and Lemma 1 of the notes, repeated poles, the direct term, MATLAB's <code>residue</code>, and solving ODEs with initial conditions.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#rational">Rational functions, poles and zeros</a></li>
+    <li><a href="#coverup">Distinct poles: the cover-up method</a></li>
+    <li><a href="#complex">Complex poles</a></li>
+    <li><a href="#repeated">Repeated poles</a></li>
+    <li><a href="#proper">Proper functions: the direct term</a></li>
+    <li><a href="#ode">Solving differential equations</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+  </ol></nav>
+
+  <h2 id="rational"><span class="sec">Section 6.1</span>Rational functions, poles and zeros</h2>
+  <p>\(G(s) = n(s)/d(s)\) with polynomials \(n\) and \(d\) (no common roots) is a <b class="term">rational function</b>. Its <b class="term">zeros</b> are the roots of \(n\), and its <b class="term">poles</b> are the roots of \(d\), where \(|G| = \infty\). For example</p>
+  $$G(s) = \frac{(s-6)(s^2 - 2s + 2)}{(s+2)(s+4)(s^2+2s+5)}$$
+  <p>has zeros \(\{6,\ 1\pm i\}\) and poles \(\{-2,\ -4,\ -1\pm2i\}\). \(G\) is <b>proper</b> if \(\deg n \le \deg d\) and <b>strictly proper</b> if \(\deg n &lt; \deg d\). Real-coefficient polynomials have complex roots in conjugate pairs.</p>
+
+  <h2 id="coverup"><span class="sec">Section 6.2</span>Distinct poles: the cover-up method</h2>
+  <p>If \(G\) is strictly proper with distinct poles \(\lambda_1,\dots,\lambda_\nu\), it splits into simple fractions, each the transform of an exponential:</p>
+  $$G(s) = \sum_{k=1}^{\nu}\frac{a_k}{s-\lambda_k},\qquad a_j = \big[G(s)(s-\lambda_j)\big]_{s=\lambda_j},\qquad g(t) = \sum_{k=1}^\nu a_ke^{\lambda_kt}.$$
+  <p>Multiplying by \(s - \lambda_j\) "covers up" that factor of the denominator; evaluating at \(\lambda_j\) kills every other term. For \(G(s) = \frac{6(s+3)}{(s+1)(s+2)(s+4)}\):</p>
+  $$a_1 = \left.\frac{6(s+3)}{(s+2)(s+4)}\right|_{s=-1} = 4,\quad a_2 = \left.\frac{6(s+3)}{(s+1)(s+4)}\right|_{s=-2} = -3,\quad a_3 = \left.\frac{6(s+3)}{(s+1)(s+2)}\right|_{s=-4} = -1,$$
+  <p>so \(g(t) = 4e^{-t} - 3e^{-2t} - e^{-4t}\). The numbers \(a_k\) are the <b class="term">residues</b>. In MATLAB, <code>[r,p,k] = residue(num,den)</code> returns them (<code>r</code>), the poles (<code>p</code>) and any direct term (<code>k</code>), with polynomials entered as coefficient vectors, highest power first, and products built with <code>conv</code>.</p>
+
+  <h2 id="complex"><span class="sec">Section 6.3</span>Complex poles</h2>
+  <p>Cover-up works unchanged at complex poles, and the residues at conjugate poles are conjugates. The notes' <b>Lemma 1</b> turns each conjugate pair into real functions:</p>
+  $$\frac{\gamma}{s - a - i\omega} + \frac{\bar\gamma}{s - a + i\omega}\;\longrightarrow\; 2\Re(\gamma)\,e^{at}\cos\omega t - 2\Im(\gamma)\,e^{at}\sin\omega t.$$
+  <p>Example: \(G(s) = \frac{20}{s(s^2+2s+5)}\) has poles \(0, -1\pm2i\). Cover-up gives \(a_1 = 20/5 = 4\) and \(\gamma = \left.\frac{20}{s(s+1+2i)}\right|_{s=-1+2i} = \frac{20}{(-1+2i)(4i)} = -2 + i\). So</p>
+  $$g(t) = 4 + 2(-2)e^{-t}\cos2t - 2(1)e^{-t}\sin2t = 4 - 4e^{-t}\cos2t - 2e^{-t}\sin2t.$$
+  <p>An alternative avoids complex arithmetic: complete the square and match \(\frac{B(s-a) + C\omega}{(s-a)^2+\omega^2} \to e^{at}(B\cos\omega t + C\sin\omega t)\). Either way, the real part \(a\) of the pole sets the decay rate and \(\omega\) sets the frequency.</p>
+
+  <h2 id="repeated"><span class="sec">Section 6.4</span>Repeated poles</h2>
+  <p>A pole \(\lambda\) of multiplicity \(m\) contributes \(m\) terms, \(\frac{c_m}{(s-\lambda)^m} + \dots + \frac{c_1}{s-\lambda}\), which invert to \(c_k\frac{t^{k-1}}{(k-1)!}e^{\lambda t}\). The top coefficient comes from cover-up with the whole power, \(c_m = [(s-\lambda)^mG(s)]_{s=\lambda}\). For the rest, either</p>
+  <ul>
+    <li>use derivatives: \(c_{m-j} = \frac1{j!}\frac{d^j}{ds^j}\big[(s-\lambda)^mG(s)\big]_{s=\lambda}\); or</li>
+    <li>do as the notes do: subtract the term just found, simplify (the factor \(s-\lambda\) cancels), and cover up again.</li>
+  </ul>
+  <p>For \(G(s) = \frac{1}{s(s+1)^3}\): \([sG]_{0} = 1\), \([(s+1)^3G]_{-1} = -1\), then \(-1\) and \(-1\) for the lower powers, so \(g(t) = 1 - \tfrac{t^2}{2}e^{-t} - te^{-t} - e^{-t}\).</p>
+
+  <h2 id="proper"><span class="sec">Section 6.5</span>Proper functions: the direct term</h2>
+  <p>If \(\deg n = \deg d\), first pull out the constant \(k = G(\infty)\), the ratio of the leading coefficients (or divide the polynomials). The remainder is strictly proper. The constant transforms back to an impulse, \(k\delta(t)\):</p>
+  $$\frac{2s^2+3s+4}{s^2+3s+2} = 2 + \frac{3}{s+1} - \frac{6}{s+2} \;\longrightarrow\; g(t) = 2\delta(t) + 3e^{-t} - 6e^{-2t}.$$
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Partial fractions, like MATLAB's residue</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="pN">num (MATLAB vector, conv(), or a polynomial in s)</label><input type="text" id="pN" value="[12 48]" spellcheck="false"></div>
+    <div class="ctl"><label for="pD">den</label><input type="text" id="pD" value="conv([1 2 5],[1 2 2])" spellcheck="false"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"pN":"6*(s+3)","pD":"(s+1)(s+2)(s+4)"}'>real poles</button>
+      <button data-preset='{"pN":"[20]","pD":"[1 2 5 0]"}'>complex pair</button>
+      <button data-preset='{"pN":"[1]","pD":"s*(s+1)^3"}'>repeated</button>
+      <button data-preset='{"pN":"[2 3 4]","pD":"[1 3 2]"}'>direct term</button>
+      <button data-preset='{"pN":"[12 48]","pD":"conv([1 2 5],[1 2 2])"}'>notes' 4th-order</button>
+    </div>
+    <div class="err" id="err1" style="color:var(--bad)"></div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views">
+    <figure><div id="tex1" class="prose" style="max-width:none"></div></figure>
+    <div class="two-up">
+      <figure><div id="plane1"></div><figcaption>Poles (pink) and zeros (teal) in the s-plane.</figcaption></figure>
+      <figure><div id="plot1"></div><figcaption>g(t) = 𝓛⁻¹{G} (any δ(t) term is not drawn).</figcaption></figure>
+    </div>
+    <div id="tab1"></div>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="ode"><span class="sec">Section 6.6</span>Solving differential equations</h2>
+  <p>The recipe: (1) transform both sides, using the derivative rule so the initial conditions enter; (2) solve the algebraic equation for \(Y(s)\); (3) expand in partial fractions; (4) invert term by term. For</p>
+  $$\ddot y + 3\dot y + 2y = 2,\qquad y(0) = 2,\quad \dot y(0) = -10,$$
+  <p>step 1 gives \(s^2Y - 2s + 10 + 3(sY - 2) + 2Y = 2/s\). So \(Y(s) = \frac{2s^2 - 4s + 2}{s(s+1)(s+2)}\), and cover-up gives</p>
+  $$Y(s) = \frac1s - \frac{8}{s+1} + \frac{9}{s+2},\qquad y(t) = 1 - 8e^{-t} + 9e^{-2t}.$$
+  <p>Check: \(y(0) = 2\) ✓, \(\dot y(0) = 8 - 18 = -10\) ✓, and \(y(\infty) = 1\) matches the steady state \(2y = 2\) ✓. The roots of the characteristic polynomial \(s^2 + 3s + 2\) are the poles that set the shape of the transient. Interactive 2 shows how they move as the coefficients change.</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">ÿ + aẏ + by = c with initial conditions</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="oa">a (damping) <output for="oa"></output></label><input type="range" id="oa" min="0" max="8" step="0.1" value="3" data-dec="1"></div>
+    <div class="ctl"><label for="ob">b (stiffness) <output for="ob"></output></label><input type="range" id="ob" min="0.5" max="20" step="0.5" value="2" data-dec="1"></div>
+    <div class="ctl"><label for="oc">c (constant forcing) <output for="oc"></output></label><input type="range" id="oc" min="-10" max="10" step="0.5" value="2" data-dec="1"></div>
+    <div class="ctl"><label for="o0">y(0) <output for="o0"></output></label><input type="range" id="o0" min="-5" max="5" step="0.5" value="2" data-dec="1"></div>
+    <div class="ctl"><label for="o1">ẏ(0) <output for="o1"></output></label><input type="range" id="o1" min="-15" max="15" step="0.5" value="-10" data-dec="1"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"oa":3,"ob":2,"oc":2,"o0":2,"o1":-10}'>notes' example</button>
+      <button data-preset='{"oa":0.6,"ob":9,"oc":9,"o0":0,"o1":0}'>underdamped</button>
+      <button data-preset='{"oa":4,"ob":4,"oc":4,"o0":0,"o1":0}'>critically damped</button>
+      <button data-preset='{"oa":0,"ob":4,"oc":0,"o0":1,"o1":0}'>no damping</button>
+    </div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views">
+    <figure><div id="tex2" class="prose" style="max-width:none"></div></figure>
+    <div class="two-up">
+      <figure><div id="plane2"></div><figcaption>Roots of s² + as + b.</figcaption></figure>
+      <figure><div id="plot2"></div><figcaption>y(t), with the steady state c/b dashed.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 6.7</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 6.1 · Three real poles</button><button>Ex 6.2 · Complex poles</button><button>Ex 6.3 · Repeated pole</button><button>Ex 6.4 · Direct term</button><button>Ex 6.5 · An ODE</button></div>
+  <div class="panel">
+    <p>Invert \(G(s) = \dfrac{s^2 + 4}{s(s+1)(s-2)}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(a_1 = [sG]_0 = \frac{4}{(1)(-2)} = -2\); \(a_2 = [(s+1)G]_{-1} = \frac{5}{(-1)(-3)} = \frac53\); \(a_3 = [(s-2)G]_{2} = \frac{8}{(2)(3)} = \frac43\). Check: \(a_1 + a_2 + a_3 = 1\), the ratio of the leading coefficients. ✓</p>
+    $$g(t) = -2 + \tfrac53e^{-t} + \tfrac43e^{2t}.$$</details>
+  </div>
+  <div class="panel">
+    <p>Invert \(G(s) = \dfrac{4s^2 - 8s + 8}{s^2 + 4s + 20}\).</p>
+    <details><summary>Solution</summary>
+    <p>Same degree, so \(k = 4\). The poles are \(-2 \pm 4i\). Cover-up at \(-2 + 4i\): \(\gamma = \left.\frac{4s^2 - 8s + 8}{s + 2 + 4i}\right|_{s=-2+4i} = \frac{-24 - 96i}{8i} = -12 + 3i\). By Lemma 1:</p>
+    $$g(t) = 4\delta(t) - 24e^{-2t}\cos4t - 6e^{-2t}\sin4t.$$
+    <p>(Numerator at \(-2+4i\): \(4(-12 - 16i) - 8(-2 + 4i) + 8 = -24 - 96i\).)</p></details>
+  </div>
+  <div class="panel">
+    <p>Invert \(G(s) = \dfrac{s + 3}{(s+1)^2(s+2)}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(d = [(s+2)G]_{-2} = \frac{1}{1} = 1\). \(h(s) = (s+1)^2G = \frac{s+3}{s+2}\): \(c_2 = h(-1) = 2\), \(c_1 = h'(-1) = \frac{(s+2) - (s+3)}{(s+2)^2}\big|_{-1} = -1\).</p>
+    $$g(t) = 2te^{-t} - e^{-t} + e^{-2t}.$$
+    <p>Check \(g(0) = 0\) (strictly proper with relative degree 2 means \(g(0) = 0\)). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>Find the impulse response of \(G(s) = \dfrac{s + 5}{s + 2}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(G = 1 + \frac{3}{s+2}\), so \(g(t) = \delta(t) + 3e^{-2t}\). The \(\delta\) appears because the numerator and denominator have the same degree: part of the input passes straight through.</p></details>
+  </div>
+  <div class="panel">
+    <p>Solve \(\ddot y + 2\dot y + 5y = 0\), \(y(0) = 1\), \(\dot y(0) = 1\).</p>
+    <details><summary>Solution</summary>
+    <p>\(s^2Y - s - 1 + 2(sY - 1) + 5Y = 0\), so \(Y = \frac{s + 3}{s^2 + 2s + 5} = \frac{(s+1) + 2}{(s+1)^2 + 4}\). Matching the damped-sinusoid pairs:</p>
+    $$y(t) = e^{-t}\cos2t + e^{-t}\sin2t.$$
+    <p>Check \(\dot y(0) = -1 + 2 = 1\). ✓</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 6.8</span>Practice problems</h2></div>
+<div id="qz"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/sys.js"></script>
+<script>
+(function () {
+  const { C, num, str, abs } = CX;
+  const typeset = el => UI.whenMath(() => UI.typeset(el));
+  let p1 = null, p1R = 0;
+  // ---------- Interactive 1 ----------
+  UI.wire("#lab1", () => {
+    const err = document.getElementById("err1");
+    let n, d, pf;
+    try { n = SYS.parseVec(document.getElementById("pN").value); d = SYS.parseVec(document.getElementById("pD").value); pf = CX.residues(n, d); err.textContent = ""; }
+    catch (e) { err.textContent = "Could not read num/den, or the degree of num exceeds den."; return; }
+    const ps = SYS.poles(d), zs = SYS.zeros(n);
+    const R = Math.max(3, Math.ceil(Math.max(...ps.concat(zs).map(abs), 1) * 1.2));
+    if (!p1 || p1R !== R) { p1 = UI.cplane("#plane1", { R, w: 360, h: 360 }); p1R = R; }
+    p1.redraw({ points: [...ps.map(p => ({ z: p, c: 4, r: 6 })), ...zs.map(z => ({ z, c: 1, r: 5 }))] });
+    const el = document.getElementById("tex1");
+    el.innerHTML = `$$G(s) = ${SYS.tfTex(n, d)}\\qquad g(t) = ${SYS.realTex(pf)}$$`;
+    typeset(el);
+    const g = t => CX.invLaplaceAt(pf, t), slow = Math.min(...ps.map(p => Math.abs(p.re)).filter(x => x > 1e-6), 1);
+    const T = Math.min(30, Math.max(4, 6 / slow)), t = UI.linspace(0, T, 500);
+    UI.plot("#plot1", { xlabel: "t", ylabel: "g(t)", xlim: [0, T], h: 360, series: [{ x: t, y: t.map(g), c: 4, width: 2.5 }] });
+    UI.table("#tab1", ["MATLAB r (residue)", "p (pole)", "power j in r/(s−p)^j"], pf.terms.map(T => [str(T.c, 5), str(T.p, 5), T.j]));
+    UI.readout("#ro1", [["direct term k", str(pf.k, 5) || "0"], ["poles", ps.length], ["stable?", SYS.stable(d) ? "yes: all poles in ℜs < 0" : "no"]]);
+    UI.live("#lab1", `${pf.terms.length} terms`);
+  });
+
+  // ---------- Interactive 2 ----------
+  const p2 = UI.cplane("#plane2", { R: 6, w: 360, h: 360 });
+  UI.wire("#lab2", () => {
+    const a = UI.val("oa"), b = UI.val("ob"), c = UI.val("oc"), y0 = UI.val("o0"), y1 = UI.val("o1");
+    // Y = (y0 s^2 + (y1 + a y0) s + c) / (s (s^2 + a s + b))
+    const n = [y0, y1 + a * y0, c], d = [1, a, b, 0];
+    let pf; try { pf = CX.residues(n, d); } catch (e) { return; }
+    const rs = CX.roots([1, a, b]);
+    p2.redraw({ points: rs.map(z => ({ z, c: 4, r: 6 })) });
+    const disc = a * a - 4 * b, kind = Math.abs(disc) < 1e-9 ? "critically damped (repeated real root)" : disc > 0 ? "overdamped (two real roots)" : a === 0 ? "undamped (roots on the imaginary axis)" : "underdamped (complex roots)";
+    const T = Math.min(25, Math.max(5, a > 0.05 ? 10 / a : 15)), t = UI.linspace(0, T, 600);
+    UI.plot("#plot2", { xlabel: "t", ylabel: "y(t)", xlim: [0, T], h: 360, series: [{ x: t, y: t.map(v => CX.invLaplaceAt(pf, v)), c: 4, width: 2.5 }], hlines: [{ y: c / b, label: "c/b" }] });
+    const el = document.getElementById("tex2");
+    el.innerHTML = `$$Y(s) = ${SYS.tfTex(n.map(v => +v.toFixed(3)), [1, +a.toFixed(3), +b.toFixed(3), 0])}\\qquad y(t) = ${SYS.realTex(pf)}$$`;
+    typeset(el);
+    UI.readout("#ro2", [["roots", rs.map(r => str(r, 3)).join(",  ")], ["type", kind], ["y(∞)", a > 0 ? c / b : "no limit (undamped)"]]);
+    UI.live("#lab2", kind.split(" ")[0]);
+  });
+
+  QZ.mount("#qz", { topics: ["pf-real", "pf-complex", "pf-repeated", "pf-proper", "pf-ode"], title: "Partial fractions & ODEs: problem generator" });
+})();
+</script>
+</body>
+</html>

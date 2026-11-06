@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Laplace Transform · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="laplace">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 5 · Exam 2</div>
+  <h1>The Laplace Transform</h1>
+  <p class="lead">Fourier series handle periodic signals. Systems that start at \(t = 0\), grow, decay or are switched on need a different tool: the Laplace transform. It turns derivatives into multiplication by \(s\) and convolution into multiplication, so a differential equation becomes algebra. This lesson builds the table of transform pairs and the properties you will use in every Exam 2 problem.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#def">Definition and region of convergence</a></li>
+    <li><a href="#pairs">The basic pairs</a></li>
+    <li><a href="#shift">Multiplication by \(e^{at}\)</a></li>
+    <li><a href="#deriv">Derivatives and integrals</a></li>
+    <li><a href="#conv">Convolution</a></li>
+    <li><a href="#delay">Delays, pulses and the delta function</a></li>
+    <li><a href="#table">Table of pairs and properties</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+  </ol></nav>
+
+  <h2 id="def"><span class="sec">Section 5.1</span>Definition and region of convergence</h2>
+  <p>A function \(g(t)\) on \([0,\infty)\) is of <b class="term">exponential order</b> if \(|g(t)| \le me^{\gamma t}\) for some constants \(m, \gamma\). Constants, exponentials, sinusoids and polynomials all qualify; \(e^{t^2}\) does not. For such a \(g\) the <b class="term">Laplace transform</b> is</p>
+  $$G(s) = (\mathcal Lg)(s) = \int_0^\infty e^{-st}g(t)\,dt,\qquad s = \sigma + i\omega \in \mathbb C.$$
+  <p>The integral converges in the half-plane \(\Re s &gt; \gamma\), the <b>region of convergence</b>, because there \(|e^{-st}g(t)| \le me^{(\gamma-\sigma)t}\) decays. Capital letters denote transforms: \(G = \mathcal Lg\), \(U = \mathcal Lu\), \(Y = \mathcal Ly\). The transform only looks at \(t \ge 0\), and \(g\) and \(G\) determine each other uniquely, so the inverse transform \(g = \mathcal L^{-1}G\) is well defined.</p>
+  <p>The transform is <b>linear</b>, \(\mathcal L(\alpha g + \beta h) = \alpha G + \beta H\), because the integral is. That is what lets us build transforms of complicated signals from a short table.</p>
+
+  <h2 id="pairs"><span class="sec">Section 5.2</span>The basic pairs</h2>
+  <p>Everything starts from the exponential. For any complex \(a\) and \(\Re s &gt; \Re a\),</p>
+  $$\mathcal L\{e^{at}\} = \int_0^\infty e^{(a-s)t}\,dt = \frac{1}{s-a}.$$
+  <p>With \(a = 0\) this gives the unit step, \(\mathcal L\{1_+(t)\} = 1/s\). Writing sinusoids with Euler's formula and using linearity gives</p>
+  $$\mathcal L\{\cos\omega t\} = \frac{1}{2}\left(\frac1{s-i\omega} + \frac1{s+i\omega}\right) = \frac{s}{s^2+\omega^2},\qquad \mathcal L\{\sin\omega t\} = \frac{\omega}{s^2+\omega^2}.$$
+  <p>Integration by parts and induction give the powers, \(\mathcal L\{t^n\} = n!/s^{n+1}\), and \(\cos(a+b)\) gives a phase-shifted sinusoid, \(\mathcal L\{\cos(\omega t + \phi)\} = \frac{s\cos\phi - \omega\sin\phi}{s^2+\omega^2}\).</p>
+  <p>Notice where the <b>poles</b> are (the values of \(s\) where \(G\) blows up). \(e^{at}\) has a pole at \(a\); \(\cos\omega t\) and \(\sin\omega t\) have poles at \(\pm i\omega\). The real part of a pole says how fast the signal grows or decays; the imaginary part says how fast it oscillates. Interactive 1 makes this concrete.</p>
+
+  <h2 id="shift"><span class="sec">Section 5.3</span>Multiplication by \(e^{at}\)</h2>
+  <p>Multiplying a signal by \(e^{at}\) shifts its transform:</p>
+  $$\mathcal L\{e^{at}g(t)\} = \int_0^\infty e^{-(s-a)t}g(t)\,dt = G(s-a).$$
+  <p>Replace every \(s\) by \(s - a\). This immediately gives the damped sinusoids and the repeated-pole pairs:</p>
+  $$\mathcal L\{e^{at}\cos\omega t\} = \frac{s-a}{(s-a)^2+\omega^2},\qquad \mathcal L\{e^{at}\sin\omega t\} = \frac{\omega}{(s-a)^2+\omega^2},\qquad \mathcal L\{t^ne^{at}\} = \frac{n!}{(s-a)^{n+1}}.$$
+  <p>For example, \(g = 2e^{-3t} + 6e^{3t}\cos2t - 3e^{-2t}\sin4t\) has \(G(s) = \frac{2}{s+3} + \frac{6(s-3)}{(s-3)^2+4} - \frac{12}{(s+2)^2+16}\).</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Pole location and the signal it makes</span><span class="live"></span></div>
+  <div class="controls">
+    <p class="drag-hint">Drag the pole λ = a + iω (its conjugate follows). The signal is g(t) = e<sup>at</sup>cos ωt, whose transform (s − a)/((s − a)² + ω²) has poles at a ± iω.</p>
+    <div class="presets"><span>Try</span>
+      <button data-p="-0.5,3">decaying oscillation</button><button data-p="0,2">pure cosine (on the axis)</button>
+      <button data-p="0.3,4">growing oscillation</button><button data-p="-1,0">pure decay e^(−t)</button><button data-p="0.4,0">growth e^(0.4t)</button>
+    </div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="plane1"></div><figcaption>The s-plane. The dashed line is ℜs = a; the region of convergence is everything to its right.</figcaption></figure>
+    <figure><div id="plot1"></div><figcaption>g(t) = e<sup>at</sup>cos ωt and its envelope ±e<sup>at</sup>.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="deriv"><span class="sec">Section 5.4</span>Derivatives and integrals</h2>
+  <p>Integration by parts gives the rule that makes the Laplace transform useful for differential equations:</p>
+  $$\mathcal L\{\dot g\} = sG(s) - g(0),\qquad \mathcal L\{\ddot g\} = s^2G(s) - sg(0) - \dot g(0),$$
+  $$\mathcal L\{g^{(n)}\} = s^nG(s) - s^{n-1}g(0) - s^{n-2}\dot g(0) - \cdots - g^{(n-1)}(0).$$
+  <p>Differentiation is multiplication by \(s\), and the initial conditions appear automatically. Integration is division by \(s\):</p>
+  $$\mathcal L\left\{\int_0^t g(x)\,dx\right\} = \frac{G(s)}{s}.$$
+  <p>Check with \(g = \sin\omega t\): \(\int_0^t\sin\omega x\,dx = \frac{1 - \cos\omega t}{\omega}\), whose transform \(\frac1{\omega s} - \frac{s}{\omega(s^2+\omega^2)} = \frac{\omega}{s(s^2+\omega^2)}\) is indeed \(G(s)/s\).</p>
+
+  <h2 id="conv"><span class="sec">Section 5.5</span>Convolution</h2>
+  <p>The <b class="term">convolution</b> of two signals on \([0,\infty)\) is</p>
+  $$(g\otimes u)(t) = \int_0^t g(t-\sigma)u(\sigma)\,d\sigma = \int_0^t g(\sigma)u(t-\sigma)\,d\sigma,$$
+  <p>and its transform is the product: \(\mathcal L\{g\otimes u\} = G(s)U(s)\). Convolving is hard; multiplying is easy. This is the reason a linear time-invariant system is described by a transfer function (Lesson 7): its output is the convolution of the input with the impulse response. For example, \(e^{-t}\otimes e^{-2t} = \int_0^t e^{-(t-\sigma)}e^{-2\sigma}d\sigma = e^{-t} - e^{-2t}\), and indeed \(\frac1{s+1}\cdot\frac1{s+2} = \frac1{s+1} - \frac1{s+2}\).</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Convolution, one instant at a time</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="cA">g(t) = e<sup>−at</sup>, a = <output for="cA"></output></label><input type="range" id="cA" min="0.2" max="4" step="0.1" value="1" data-dec="1"></div>
+    <div class="ctl inline"><span>Input u</span>
+      <div class="seg" id="cU" data-value="step"><button data-value="step" aria-pressed="true">step</button><button data-value="pulse" aria-pressed="false">pulse [0, 1]</button><button data-value="exp" aria-pressed="false">e^(−2t)</button><button data-value="sin" aria-pressed="false">sin 2t</button></div></div>
+    <div class="ctl"><label for="cT">Time t <output for="cT"></output></label><input type="range" id="cT" min="0" max="6" step="0.05" value="1.5" data-dec="2"></div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="plot2a"></div><figcaption>u(σ) (blue), the flipped and shifted g(t − σ) (teal), and their product (pink, shaded). The shaded area is (g ⊗ u)(t).</figcaption></figure>
+    <figure><div id="plot2b"></div><figcaption>The whole output y = g ⊗ u, computed by inverting G(s)U(s), with the current t marked.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="delay"><span class="sec">Section 5.6</span>Delays, pulses and the delta function</h2>
+  <p>Delaying a signal by \(t_0 \ge 0\) and switching it on at \(t_0\) multiplies its transform by \(e^{-st_0}\):</p>
+  $$\mathcal L\{g(t-t_0)1_+(t-t_0)\} = e^{-st_0}G(s).$$
+  <p>The rule needs the step: the delayed signal must be zero on \([0,t_0)\). Without it, \(e^{-(t-t_0)} = e^{t_0}e^{-t}\) simply has transform \(e^{t_0}/(s+1)\), not \(e^{-st_0}/(s+1)\). A pulse of height 1 on \([0,t_0]\) is \(1_+(t) - 1_+(t-t_0)\), so its transform is \(\frac{1 - e^{-st_0}}{s}\).</p>
+  <p>The <b class="term">Dirac delta</b> \(\delta(t)\) is the limit of pulses of height \(n\) on \([0, 1/n]\): zero except at the origin, with area one. Its key property is \(\int h(t)\delta(t)\,dt = h(0)\), which gives</p>
+  $$\mathcal L\{\delta\} = 1,\qquad \mathcal L\{\delta(t - t_0)\} = e^{-st_0},\qquad g\otimes\delta = g.$$
+</div>
+
+<div class="prose"><h2 id="table"><span class="sec">Section 5.7</span>Table of pairs and properties</h2></div>
+<div class="keyeq">
+  <div><h4>Pairs</h4>
+    $$\delta(t)\to1,\quad 1\to\frac1s,\quad t^n\to\frac{n!}{s^{n+1}},\quad e^{at}\to\frac1{s-a}$$
+    $$\cos\omega t\to\frac{s}{s^2+\omega^2},\quad \sin\omega t\to\frac{\omega}{s^2+\omega^2}$$
+    $$t^ne^{at}\to\frac{n!}{(s-a)^{n+1}}$$
+    $$e^{at}\cos\omega t\to\frac{s-a}{(s-a)^2+\omega^2},\quad e^{at}\sin\omega t\to\frac{\omega}{(s-a)^2+\omega^2}$$</div>
+  <div><h4>Properties</h4>
+    $$\alpha g + \beta h \to \alpha G + \beta H,\qquad e^{at}g \to G(s-a)$$
+    $$\dot g\to sG - g(0),\quad \ddot g \to s^2G - sg(0) - \dot g(0)$$
+    $$\int_0^t g \to \frac{G}{s},\qquad g\otimes u \to GU$$
+    $$g(t-t_0)1_+(t-t_0)\to e^{-st_0}G(s)$$</div>
+</div>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 5.8</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 5.1 · Linearity</button><button>Ex 5.2 · Shift rule</button><button>Ex 5.3 · A pulse</button><button>Ex 5.4 · Derivative rule</button><button>Ex 5.5 · Convolution</button></div>
+  <div class="panel">
+    <p>Find the Laplace transform of \(g(t) = 5 - 2e^{-3t} + 4\cos2t - \sin5t\).</p>
+    <details><summary>Solution</summary>
+    $$G(s) = \frac5s - \frac{2}{s+3} + \frac{4s}{s^2+4} - \frac{5}{s^2+25}.$$
+    <p>Note the \(\omega = 5\) in the numerator of the sine term. Forgetting it is the most common slip.</p></details>
+  </div>
+  <div class="panel">
+    <p>Find \(\mathcal L\{t^2e^{-3t}\}\) and \(\mathcal L\{e^{2t}\cos(3t + \pi/4)\}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\mathcal L\{t^2\} = 2/s^3\), so \(\mathcal L\{t^2e^{-3t}\} = \frac{2}{(s+3)^3}\).</p>
+    <p>\(\mathcal L\{\cos(3t + \pi/4)\} = \frac{s\cos\frac\pi4 - 3\sin\frac\pi4}{s^2+9} = \frac{\sqrt2}{2}\cdot\frac{s - 3}{s^2+9}\). Replace \(s\) by \(s-2\): \(\frac{\sqrt2}{2}\cdot\frac{s-5}{(s-2)^2+9}\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Find the transform of the pulse \(g = 3\) on \([1, 4]\), zero elsewhere.</p>
+    <details><summary>Solution</summary>
+    <p>\(g = 3\cdot1_+(t-1) - 3\cdot1_+(t-4)\). Each step is a delayed \(1/s\), so</p>
+    $$G(s) = \frac{3(e^{-s} - e^{-4s})}{s}.$$
+    <p>Directly: \(\int_1^4 3e^{-st}dt = \frac{3}{s}(e^{-s} - e^{-4s})\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>\(y\) satisfies \(\ddot y + 4\dot y + 3y = 0\) with \(y(0) = 1\), \(\dot y(0) = 2\). Find \(Y(s)\).</p>
+    <details><summary>Solution</summary>
+    $$s^2Y - s - 2 + 4(sY - 1) + 3Y = 0 \;\Rightarrow\; Y(s) = \frac{s + 6}{s^2 + 4s + 3} = \frac{s+6}{(s+1)(s+3)}.$$
+    <p>Lesson 6 inverts this: \(y = \tfrac52e^{-t} - \tfrac32e^{-3t}\). Check \(y(0) = 1\) ✓ and \(\dot y(0) = -\tfrac52 + \tfrac92 = 2\) ✓.</p></details>
+  </div>
+  <div class="panel">
+    <p>Compute \(e^{-t}\otimes\sin t\) using transforms.</p>
+    <details><summary>Solution</summary>
+    $$\frac{1}{s+1}\cdot\frac{1}{s^2+1} = \frac{1/2}{s+1} + \frac{-\tfrac12 s + \tfrac12}{s^2+1}\;\Rightarrow\; (e^{-t}\otimes\sin t)(t) = \tfrac12\left(e^{-t} - \cos t + \sin t\right).$$
+    <p>At \(t = 0\) this is 0, as a convolution must be.</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 5.9</span>Practice problems</h2></div>
+<div id="qz"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script>
+(function () {
+  const { C, num } = CX;
+  // ---------- Interactive 1 ----------
+  let lam = C(-0.5, 3);
+  const lab1 = document.getElementById("lab1");
+  const pl = UI.cplane("#plane1", { R: 5, w: 360, h: 360, onDrag(i, z) { if (i === 0) { lam = C(Math.round(z.re * 10) / 10, Math.max(0, Math.round(Math.abs(z.im) * 10) / 10)); draw1(); } } });
+  function draw1() {
+    const a = lam.re, w = lam.im;
+    pl.redraw({ points: [{ z: lam, c: 4, drag: true, label: "λ" }, { z: C(a, -w), c: 4, label: "λ̄" }],
+      polys: [{ pts: [C(a, -10), C(a, 10)], c: 6, dash: true }] });
+    const T = 10, t = UI.linspace(0, T, 600), env = t.map(v => Math.exp(a * v));
+    const g = t.map(v => Math.exp(a * v) * Math.cos(w * v)), lim = Math.min(20, Math.max(1.2, ...env));
+    UI.plot("#plot1", { xlabel: "t", ylabel: "g(t)", xlim: [0, T], ylim: [-lim, lim], h: 360,
+      series: [{ x: t, y: env, c: 6, dash: true }, { x: t, y: env.map(v => -v), c: 6, dash: true }, { x: t, y: g, c: 4, width: 2.5 }] });
+    const kind = a < -1e-9 ? "decays (stable)" : a > 1e-9 ? "grows (unstable)" : "neither grows nor decays";
+    UI.readout("#ro1", [["G(s)", w ? `(s ${a < 0 ? "+" : "−"} ${num(Math.abs(a))}) / ((s ${a < 0 ? "+" : "−"} ${num(Math.abs(a))})² + ${num(w * w)})` : `1/(s ${a < 0 ? "+" : "−"} ${num(Math.abs(a))})`],
+      ["ROC", `ℜs > ${num(a)}`], ["envelope", `e^(${num(a)}t): ${kind}`], ["oscillation", w ? `${num(w)} rad/s, period ${num(2 * Math.PI / w, 3)}` : "none (real pole)"]]);
+    UI.live("#lab1", `λ = ${CX.str(lam, 3)}`);
+  }
+  lab1.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { const [x, y] = b.dataset.p.split(",").map(Number); lam = C(x, y); draw1(); }));
+  draw1();
+
+  // ---------- Interactive 2 ----------
+  UI.wire("#lab2", () => {
+    const a = UI.val("cA"), typ = UI.seg("cU"), t0 = UI.val("cT");
+    const u = { step: s => (s >= 0 ? 1 : 0), pulse: s => (s >= 0 && s <= 1 ? 1 : 0), exp: s => (s >= 0 ? Math.exp(-2 * s) : 0), sin: s => (s >= 0 ? Math.sin(2 * s) : 0) }[typ];
+    const g = s => (s >= 0 ? Math.exp(-a * s) : 0);
+    // exact output
+    const y = {
+      step: t => (1 - Math.exp(-a * t)) / a,
+      pulse: t => (t <= 1 ? (1 - Math.exp(-a * t)) / a : (Math.exp(-a * (t - 1)) - Math.exp(-a * t)) / a),
+      exp: t => (Math.abs(a - 2) < 1e-9 ? t * Math.exp(-2 * t) : (Math.exp(-2 * t) - Math.exp(-a * t)) / (a - 2)),
+      sin: t => (2 * Math.exp(-a * t) + a * Math.sin(2 * t) - 2 * Math.cos(2 * t)) / (a * a + 4),
+    }[typ];
+    const T = 6, sg = UI.linspace(-0.5, T, 700);
+    const prod = sg.map(s => (s >= 0 && s <= t0 ? g(t0 - s) * u(s) : 0));
+    UI.plot("#plot2a", { xlabel: "σ", ylabel: "value", xlim: [-0.5, T], ylim: [-1.1, 1.2], h: 300,
+      series: [{ x: sg, y: prod, c: 4, fill: true }, { x: sg, y: sg.map(u), c: 2, width: 2 }, { x: sg, y: sg.map(s => g(t0 - s)), c: 1, width: 2 }], vlines: [{ x: t0, label: "σ = t" }] });
+    const tt = UI.linspace(0, T, 400);
+    UI.plot("#plot2b", { xlabel: "t", ylabel: "y(t)", xlim: [0, T], h: 300, series: [{ x: tt, y: tt.map(y), c: 4, width: 2.5 }], points: [{ x: t0, y: y(t0), c: 4 }] });
+    const area = CX.integrate(s => g(t0 - s) * u(s), 0, t0, 300).re;
+    const Ytex = { step: `1/(s(s+${num(a)}))`, pulse: `(1 − e^(−s))/(s(s+${num(a)}))`, exp: `1/((s+${num(a)})(s+2))`, sin: `2/((s+${num(a)})(s²+4))` }[typ];
+    UI.readout("#ro2", [["shaded area", area, "numerical ∫ g(t−σ)u(σ)dσ"], ["y(t) from Laplace", y(t0)], ["Y(s) = G(s)U(s)", Ytex]]);
+    UI.live("#lab2", `y(${num(t0, 3)}) = ${num(y(t0), 4)}`);
+  });
+
+  QZ.mount("#qz", { topics: ["lp-pairs", "lp-props"], title: "Laplace transform: problem generator" });
+})();
+</script>
+</body>
+</html>

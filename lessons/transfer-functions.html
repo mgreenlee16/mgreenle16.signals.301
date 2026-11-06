@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transfer Functions, Circuits &amp; Stability · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="transfer-functions">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 7 · Exam 2</div>
+  <h1>Transfer Functions, Circuits &amp; Stability</h1>
+  <p class="lead">A linear time-invariant system is completely described by one function, its transfer function \(G(s) = Y(s)/U(s)\). This lesson finds transfer functions from differential equations, RLC circuits and impedance networks. It explains the impulse response and stability, uses the final value theorem to predict where outputs settle, and applies all of it to the mass–spring–damper.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#tf">Transfer functions and the impulse response</a></li>
+    <li><a href="#ode">From a differential equation</a></li>
+    <li><a href="#rlc">An RLC circuit</a></li>
+    <li><a href="#imp">Impedance</a></li>
+    <li><a href="#stab">Stability</a></li>
+    <li><a href="#fvt">The final value theorem</a></li>
+    <li><a href="#msd">The mass–spring–damper</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+  </ol></nav>
+
+  <h2 id="tf"><span class="sec">Section 7.1</span>Transfer functions and the impulse response</h2>
+  <p>A <b>system</b> maps an input \(u(t)\) to an output \(y(t)\). If it is linear and time invariant and starts at rest (all initial conditions zero), then</p>
+  $$Y(s) = G(s)U(s),\qquad y(t) = (g\otimes u)(t) = \int_0^t g(t-\sigma)u(\sigma)\,d\sigma.$$
+  <p>\(G\) is the <b class="term">transfer function</b> and \(g = \mathcal L^{-1}G\) is the <b class="term">impulse response</b>: the output when \(u = \delta\), since then \(U = 1\) and \(y = g\otimes\delta = g\). The step response is the output for \(u = 1_+\), with \(Y = G(s)/s\).</p>
+
+  <h2 id="ode"><span class="sec">Section 7.2</span>From a differential equation</h2>
+  <p>Set every initial condition to zero and transform; each derivative becomes a power of \(s\). For \(y^{(3)} + 8\ddot y - 3\dot y + 2y = 4u\):</p>
+  $$(s^3 + 8s^2 - 3s + 2)Y = 4U\quad\Rightarrow\quad G(s) = \frac{4}{s^3 + 8s^2 - 3s + 2}.$$
+  <p>Derivatives of the input go in the numerator: \(\ddot y + a_1\dot y + a_0y = b_1\dot u + b_0u\) gives \(G = \frac{b_1s + b_0}{s^2 + a_1s + a_0}\). The poles of \(G\) are the roots of the characteristic polynomial of the ODE.</p>
+
+  <h2 id="rlc"><span class="sec">Section 7.3</span>An RLC circuit</h2>
+  <p>The element laws are \(v = Ri\) (resistor, ohms), \(v = L\,di/dt\) (inductor, henrys) and \(i = C\,dv/dt\) (capacitor, farads). Kirchhoff's voltage law says the voltages around a loop sum to zero, and the current law says the currents into a node sum to zero. (The notes write \(i_o\) for current, to keep \(i\) for \(\sqrt{-1}\).)</p>
+  <p>For a source \(u\) driving \(R\), \(L\) and \(C\) in series, with output \(y\) the capacitor voltage, KVL with zero initial conditions gives \(\left(R + Ls + \frac{1}{Cs}\right)I_o = U\) and \(Y = I_o/(Cs)\). So</p>
+  $$G_C(s) = \frac{1}{LCs^2 + RCs + 1},\qquad G_R(s) = \frac{RCs}{LCs^2 + RCs + 1},\qquad G_L(s) = \frac{LCs^2}{LCs^2 + RCs + 1}$$
+  <p>for the output taken across \(C\), \(R\) or \(L\). With \(L = C = 1\), \(R = 0.2\) and a 12 V step, the capacitor voltage is \(12 - 12e^{-0.1t}\cos(\sqrt{0.99}\,t) - 1.206e^{-0.1t}\sin(\sqrt{0.99}\,t)\). It rings at about 1 rad/s and settles to 12 V on the time scale of \(e^{-0.1t}\). Struck by lightning (\(u = \delta\)), the capacitor sees at most 0.86 V. The rest of the impulse appears across the inductor, whose transfer function has the same degree top and bottom and so passes a \(\delta(t)\) straight through.</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Series RLC circuit</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="rR">R (Ω) <output for="rR"></output></label><input type="range" id="rR" min="0.05" max="6" step="0.05" value="0.2" data-dec="2"></div>
+    <div class="ctl"><label for="rL">L (H) <output for="rL"></output></label><input type="range" id="rL" min="0.1" max="4" step="0.1" value="1" data-dec="1"></div>
+    <div class="ctl"><label for="rC">C (F) <output for="rC"></output></label><input type="range" id="rC" min="0.05" max="4" step="0.05" value="1" data-dec="2"></div>
+    <div class="ctl inline"><span>Output across</span>
+      <div class="seg" id="rO" data-value="C"><button data-value="C" aria-pressed="true">C</button><button data-value="R" aria-pressed="false">R</button><button data-value="L" aria-pressed="false">L</button></div></div>
+    <div class="ctl inline"><span>Input</span>
+      <div class="seg" id="rU" data-value="step"><button data-value="step" aria-pressed="true">12 V step</button><button data-value="imp" aria-pressed="false">impulse δ(t)</button></div></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"rR":0.2,"rL":1,"rC":1}'>notes' circuit</button>
+      <button data-preset='{"rR":2,"rL":1,"rC":1}'>critically damped</button>
+      <button data-preset='{"rR":5,"rL":1,"rC":1}'>overdamped</button>
+    </div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="plot1"></div><figcaption>The output voltage y(t). A δ(t) in the output (inductor, impulse input) is not drawn.</figcaption></figure>
+    <figure><div id="plane1"></div><figcaption>Poles of G(s): roots of LCs² + RCs + 1.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="imp"><span class="sec">Section 7.4</span>Impedance</h2>
+  <p>The <b class="term">impedance</b> \(Z(s) = V(s)/I_o(s)\) of a passive network is its transfer function from current to voltage: \(Z_R = R\), \(Z_L = Ls\), \(Z_C = 1/(Cs)\). The admittance is \(1/Z\). Impedances combine like resistors:</p>
+  $$Z_{\text{series}} = Z_1 + Z_2 + \cdots,\qquad Z_{\text{parallel}} = \left(\frac1{Z_1} + \frac1{Z_2} + \cdots\right)^{-1} = \frac{Z_1Z_2}{Z_1 + Z_2}\ (\text{two}).$$
+  <p>A source driving \(Z_1\) and \(Z_2\) in series is a <b>voltage divider</b>: the voltage across \(Z_2\) has \(G = \frac{Z_2}{Z_1 + Z_2}\). Example from the notes: \(Z_1 = R_1 \parallel L\) and \(Z_2 = R_2\parallel C\) give \(Z_1 = \frac{R_1Ls}{Ls + R_1}\), \(Z_2 = \frac{R_2}{R_2Cs + 1}\), and</p>
+  $$G(s) = \frac{R_2Ls + R_1R_2}{R_1R_2LCs^2 + (R_1 + R_2)Ls + R_1R_2}.$$
+  <p>Two intuition checks: at DC (\(s = 0\)) capacitors are open circuits and inductors are short circuits; at very high frequency it is the reverse. Here \(G(0) = 1\), because the inductor shorts out \(R_1\).</p>
+
+  <h2 id="stab"><span class="sec">Section 7.5</span>Stability</h2>
+  <p>A transfer function is <b class="term">stable</b> if all its poles lie in the open left half-plane \(\Re\lambda &lt; 0\). Then every term \(t^ke^{\lambda t}\) of the impulse response decays, \(\int_0^\infty|g|\,dt &lt; \infty\), and bounded inputs give bounded outputs. A single pole with \(\Re\lambda \ge 0\) breaks stability, including poles on the imaginary axis: \(1/(s^2+1)\) is not stable even though its impulse response \(\sin t\) stays bounded, because driving it at its resonant frequency makes the output grow without bound.</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Move the poles, watch the response</span><span class="live"></span></div>
+  <div class="controls">
+    <p class="drag-hint">Drag the complex pole (pink, conjugate follows) and the real pole (blue). G(s) = K/((s − p)((s − a)² + ω²)) with K chosen so that G(0) = 1 when that is possible.</p>
+    <div class="ctl inline"><span>Show</span>
+      <div class="seg" id="sR" data-value="step"><button data-value="step" aria-pressed="true">step response</button><button data-value="imp" aria-pressed="false">impulse response</button></div></div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="plane2"></div><figcaption>Drag the poles. The left half-plane is stable.</figcaption></figure>
+    <figure><div id="plot2"></div><figcaption>The response, with the final value G(0)·1 dashed when it exists.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="fvt"><span class="sec">Section 7.6</span>The final value theorem</h2>
+  <p><b>Theorem.</b> If \(G\) is stable and \(u(t) = u_0\) (a constant for \(t \ge 0\)), then</p>
+  $$\lim_{t\to\infty}y(t) = G(0)\,u_0.$$
+  <p>Proof: \(Y = G(s)u_0/s = \frac{G(0)u_0}{s} + \Psi(s)\), where \(\Psi\) has only the (stable) poles of \(G\). So \(y = G(0)u_0 + \psi(t)\) with \(\psi \to 0\). The hypothesis matters. For \(G = \frac{2}{(s-1)(s+1)}\) a unit step gives \(y = e^t + e^{-t} - 2 \to \infty\), and one stable pole is not enough. For \(G = \frac{1}{s^2+1}\), \(y = 1 - \cos t\) oscillates forever. In both cases "\(G(0)u_0\)" is a meaningless number. <b>Always check stability first.</b></p>
+  <p>For the RLC circuit \(G_C(0) = 1\), so the capacitor charges to the source voltage, while \(G_R(0) = G_L(0) = 0\): at steady state no current flows.</p>
+
+  <h2 id="msd"><span class="sec">Section 7.7</span>The mass–spring–damper</h2>
+  <p>A mass \(m\) on a spring (constant \(k\), force \(-ky\)) and damper (coefficient \(c\), force \(-c\dot y\)) pushed by a force \(u\) obeys Newton's law \(m\ddot y = u - ky - c\dot y\):</p>
+  $$m\ddot y + c\dot y + ky = u,\qquad G(s) = \frac{Y}{U} = \frac{1}{ms^2 + cs + k}.$$
+  <p>With \(m, c, k &gt; 0\) the poles are in the left half-plane, so a constant force \(u_0\) gives \(y(\infty) = G(0)u_0 = u_0/k\): the spring stretches until it balances the force. The velocity \(v = \dot y\) has \(V/U = sG(s)\), which is zero at \(s = 0\), so \(v(\infty) = 0\). Write \(ms^2 + cs + k = m(s^2 + 2\zeta\omega_ns + \omega_n^2)\), with <b>natural frequency</b> \(\omega_n = \sqrt{k/m}\) and <b>damping ratio</b> \(\zeta = \frac{c}{2\sqrt{mk}}\). Then \(\zeta &lt; 1\) means it oscillates at \(\omega_n\sqrt{1-\zeta^2}\) while decaying like \(e^{-\zeta\omega_nt}\); \(\zeta = 1\) is critical damping; \(\zeta &gt; 1\) means it creeps in without oscillating.</p>
+</div>
+
+<section class="lab" id="lab3">
+  <div class="lab-head"><span class="num">Interactive 3</span><span class="title">Mass–spring–damper step response</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="mm">m (kg) <output for="mm"></output></label><input type="range" id="mm" min="0.2" max="5" step="0.1" value="1" data-dec="1"></div>
+    <div class="ctl"><label for="mc">c (N·s/m) <output for="mc"></output></label><input type="range" id="mc" min="0" max="10" step="0.1" value="1" data-dec="1"></div>
+    <div class="ctl"><label for="mk">k (N/m) <output for="mk"></output></label><input type="range" id="mk" min="0.5" max="20" step="0.5" value="4" data-dec="1"></div>
+    <div class="ctl"><label for="mu">force u₀ (N) <output for="mu"></output></label><input type="range" id="mu" min="-10" max="10" step="0.5" value="4" data-dec="1"></div>
+    <div id="ro3" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot3"></div><figcaption>Position y(t) (pink) and velocity ẏ(t) (teal) from rest, with y(∞) = u₀/k dashed.</figcaption></figure></div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 7.8</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 7.1 · From an ODE</button><button>Ex 7.2 · Parallel RLC</button><button>Ex 7.3 · Final value?</button><button>Ex 7.4 · Mass–spring–damper</button><button>Ex 7.5 · Step response</button></div>
+  <div class="panel">
+    <p>Find \(G\), its poles and zeros, and its DC gain for \(\ddot y + 5\dot y + 6y = 2\dot u - 4u\).</p>
+    <details><summary>Solution</summary>
+    <p>\(G(s) = \frac{2s - 4}{s^2 + 5s + 6} = \frac{2(s-2)}{(s+2)(s+3)}\). Zero at 2, poles at \(-2, -3\): stable. \(G(0) = -4/6 = -\tfrac23\). (A zero in the right half-plane does not affect stability.)</p></details>
+  </div>
+  <div class="panel">
+    <p>A current source drives \(R = 2\), \(L = 1\) and \(C = \tfrac14\) in parallel. Find the impedance \(Z(s)\) and its poles.</p>
+    <details><summary>Solution</summary>
+    $$Z(s) = \left(\frac12 + \frac1s + \frac s4\right)^{-1} = \frac{4s}{s^2 + 2s + 4}.$$
+    <p>Poles: \(-1 \pm i\sqrt3\). \(Z(0) = 0\): at DC the inductor shorts everything.</p></details>
+  </div>
+  <div class="panel">
+    <p>For a unit step input, find \(y(\infty)\) (if it exists) for (a) \(G = \frac{s+4}{(s+1)(s^2+2s+2)}\), (b) \(G = \frac{s+4}{(s+1)(s^2 - 2s + 2)}\), (c) \(G = \frac{3}{s(s+2)}\).</p>
+    <details><summary>Solution</summary>
+    <p>(a) Poles \(-1, -1\pm i\): stable, so \(y(\infty) = G(0) = 4/2 = 2\).</p>
+    <p>(b) Poles \(1\pm i\) are unstable: no final value (growing oscillation).</p>
+    <p>(c) The pole at 0 is not in the open left half-plane, so the theorem does not apply. Indeed \(Y = \frac{3}{s^2(s+2)}\) contains \(\frac{3/2}{s^2}\), so \(y\) grows like \(\tfrac32t\).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(2\ddot y + 4\dot y + 18y = u\) with \(u = 9\) N from rest. Find \(\omega_n\), \(\zeta\), the poles, the oscillation frequency and \(y(\infty)\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\omega_n = \sqrt{18/2} = 3\), \(\zeta = \frac{4}{2\sqrt{36}} = \tfrac13\). The poles are roots of \(2s^2 + 4s + 18\): \(s = -1 \pm i\sqrt8\). It oscillates at \(\sqrt8 \approx 2.83\) rad/s \(= \omega_n\sqrt{1-\zeta^2}\), decays like \(e^{-t}\), and settles at \(y(\infty) = 9/18 = 0.5\) m.</p></details>
+  </div>
+  <div class="panel">
+    <p>Find the step response of \(G(s) = \frac{6}{(s+1)(s+3)}\) with \(u = 2\).</p>
+    <details><summary>Solution</summary>
+    <p>\(Y = \frac{12}{s(s+1)(s+3)} = \frac4s - \frac6{s+1} + \frac2{s+3}\), so \(y(t) = 4 - 6e^{-t} + 2e^{-3t}\). Check: \(y(0) = 0\) ✓ and \(y(\infty) = G(0)\cdot2 = 4\) ✓.</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 7.9</span>Practice problems</h2></div>
+<div id="qz"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/sys.js"></script>
+<script>
+(function () {
+  const { C, num, str, abs } = CX;
+  // ---------- Interactive 1: RLC ----------
+  const pl1 = UI.cplane("#plane1", { R: 4, w: 360, h: 360 });
+  UI.wire("#lab1", () => {
+    const R = UI.val("rR"), L = UI.val("rL"), Cv = UI.val("rC"), out = UI.seg("rO"), inp = UI.seg("rU");
+    const d = [L * Cv, R * Cv, 1], n = { C: [1], R: [R * Cv, 0], L: [L * Cv, 0, 0] }[out];
+    const rs = CX.roots(d);
+    pl1.redraw({ points: rs.map(z => ({ z, c: 4, r: 6 })) });
+    const V0 = 12, f = inp === "step" ? SYS.respStep(n, d, V0) : t => { const pf = CX.residues(n, d); return CX.invLaplaceAt(pf, t); };
+    const decay = Math.min(...rs.map(r => -r.re)), T = Math.min(80, Math.max(5, 7 / Math.max(decay, 0.05)));
+    const t = UI.linspace(0, T, 800), y = t.map(f);
+    UI.plot("#plot1", { xlabel: "t (s)", ylabel: "y (V)", xlim: [0, T], h: 340, series: [{ x: t, y, c: 4, width: 2.2 }],
+      hlines: inp === "step" ? [{ y: out === "C" ? V0 : 0, label: "G(0)·12" }] : [] });
+    const wn = 1 / Math.sqrt(L * Cv), zeta = R / 2 * Math.sqrt(Cv / L);
+    UI.readout("#ro1", [["G(s)", `${{ C: "1", R: `${num(R * Cv, 3)}s`, L: `${num(L * Cv, 3)}s²` }[out]} / (${num(L * Cv, 3)}s² + ${num(R * Cv, 3)}s + 1)`],
+      ["poles", rs.map(r => str(r, 3)).join(",  ")], ["ωn = 1/√(LC), ζ = (R/2)√(C/L)", `${num(wn, 3)} rad/s, ${num(zeta, 3)}`],
+      [inp === "step" ? "y(∞) = G(0)·12" : "peak |y|", inp === "step" ? (out === "C" ? 12 : 0) : Math.max(...y.map(Math.abs)), inp === "imp" && out === "L" ? "plus δ(t) not drawn" : ""]]);
+    UI.live("#lab1", zeta < 1 ? "underdamped" : zeta === 1 ? "critical" : "overdamped");
+  });
+
+  // ---------- Interactive 2: pole explorer ----------
+  let cp = C(-0.5, 2), rp = C(-1.5, 0);
+  const lab2 = document.getElementById("lab2");
+  const pl2 = UI.cplane("#plane2", { R: 4, w: 360, h: 360, onDrag(i, z) {
+    const sn = v => Math.round(v * 10) / 10;
+    if (i === 0) cp = C(sn(z.re), Math.max(0, sn(Math.abs(z.im)))); else if (i === 2) rp = C(sn(z.re), 0);
+    draw2();
+  } });
+  function draw2() {
+    const a = cp.re, w = cp.im, p = rp.re;
+    const d = CX.conv([1, -p], [1, -2 * a, a * a + w * w]).map(c => c.re);
+    const d0 = d[d.length - 1], K = Math.abs(d0) > 1e-9 ? d0 : 1, n = [K];
+    pl2.redraw({ points: [{ z: cp, c: 4, drag: true }, { z: C(a, -w), c: 4 }, { z: rp, c: 2, drag: true }],
+      polys: [{ pts: [C(0, -10), C(0, 10)], c: 6, dash: true }] });
+    const mode = UI.seg("sR"), T = 12, t = UI.linspace(0, T, 600);
+    let f;
+    try { f = mode === "step" ? SYS.respStep(n, d) : SYS.respImpulse(n, d); } catch (e) { return; }
+    const y = t.map(f).map(v => Math.max(-50, Math.min(50, v)));
+    const stable = a < 0 && p < 0;
+    UI.plot("#plot2", { xlabel: "t", ylabel: mode === "step" ? "step response" : "impulse response", xlim: [0, T], ylim: [Math.max(-6, Math.min(-0.5, ...y) * 1.1), Math.min(6, Math.max(1.5, ...y) * 1.1)], h: 360,
+      series: [{ x: t, y, c: 4, width: 2.5 }], hlines: mode === "step" && stable ? [{ y: 1, label: "G(0) = 1" }] : [] });
+    UI.readout("#ro2", [["poles", `${str(cp, 2)}, ${str(C(a, -w), 2)}, ${num(p, 2)}`], ["stable?", stable ? "yes" : "no: a pole has ℜλ ≥ 0"],
+      ["final value", mode === "step" ? (stable ? "G(0) = 1" : "does not exist") : stable ? "g(t) → 0" : "g(t) does not decay"]]);
+    UI.live("#lab2", stable ? "stable" : "unstable");
+  }
+  UI.wire(lab2, draw2);
+
+  // ---------- Interactive 3: MSD ----------
+  UI.wire("#lab3", () => {
+    const m = UI.val("mm"), c = UI.val("mc"), k = UI.val("mk"), u0 = UI.val("mu");
+    const d = [m, c, k], ys = SYS.respStep([1], d, u0), vs = SYS.respStep([1, 0], d, u0);
+    const wn = Math.sqrt(k / m), zeta = c / (2 * Math.sqrt(m * k)), rs = CX.roots(d);
+    const T = Math.min(60, Math.max(6, c > 0.05 ? 8 / (zeta * wn) : 20)), t = UI.linspace(0, T, 700);
+    UI.plot("#plot3", { xlabel: "t (s)", ylabel: "y (m), ẏ (m/s)", xlim: [0, T], h: 320, legend: "tr", legendWidth: 110,
+      series: [{ x: t, y: t.map(ys), c: 4, width: 2.5, label: "position" }, { x: t, y: t.map(vs), c: 1, label: "velocity" }], hlines: [{ y: u0 / k, label: "u₀/k" }] });
+    UI.readout("#ro3", [["ωn = √(k/m)", `${num(wn, 3)} rad/s`], ["ζ = c/(2√(mk))", zeta, zeta < 1 ? (c ? "underdamped" : "undamped") : zeta === 1 ? "critical" : "overdamped"],
+      ["poles", rs.map(r => str(r, 3)).join(",  ")], ["y(∞) = u₀/k", c > 0 ? u0 / k : "none (oscillates forever)"]]);
+    UI.live("#lab3", `ζ = ${num(zeta, 3)}`);
+  });
+
+  QZ.mount("#qz", { topics: ["tf-ode", "tf-stability", "tf-circuit", "tf-msd", "tf-response"], title: "Transfer functions: problem generator" });
+})();
+</script>
+</body>
+</html>

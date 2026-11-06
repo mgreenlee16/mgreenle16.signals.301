@@ -374,3 +374,6 @@ svg .ring { fill: none; stroke-width: 1.4; }
 .calc .inputs label.grow input { width: 100%; }
 table.data th { text-transform: none; letter-spacing: 0; }
 .keyeq.wide { grid-template-columns: repeat(auto-fit, minmax(min(100%, 470px), 1fr)); }
+svg.cplane, svg.plot { overflow: hidden; }
+.lab .views.two-up { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+@media (max-width: 1000px) { .lab .views.two-up { grid-template-columns: 1fr; } }

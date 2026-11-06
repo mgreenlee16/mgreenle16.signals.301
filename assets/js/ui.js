@@ -28,8 +28,18 @@
       blurb: "Trigonometric polynomials and sampling, the DFT matrix F_ν and its inverse, MATLAB's ifft ordering, Nyquist and aliasing, the FFT, and reading frequencies off a spectrum.",
       tags: ["4 interactives", "worked examples", "problem generator"] },
     { part: "Exam 2 · Laplace transforms, transfer functions and state space", exam: 2 },
-    { soon: true, exam: 2, title: "Exam 2 lessons",
-      blurb: "Coming closer to Exam 2: Laplace transforms, partial fractions, transfer functions and stability, and state space, built from the Exam 2 lecture material." },
+    { slug: "laplace", n: 5, exam: 2, title: "The Laplace Transform",
+      blurb: "Definition and region of convergence, the table of pairs, linearity, multiplication by eᵃᵗ, derivatives and integrals, convolution, the delay rule and the delta function.",
+      tags: ["2 interactives", "worked examples", "problem generator"] },
+    { slug: "inverse-laplace", n: 6, exam: 2, title: "Partial Fractions & Differential Equations",
+      blurb: "Poles and zeros, cover-up for real, complex and repeated poles, the direct term and δ(t), MATLAB's residue, and solving ODEs with initial conditions.",
+      tags: ["2 interactives", "worked examples", "problem generator"] },
+    { slug: "transfer-functions", n: 7, exam: 2, title: "Transfer Functions, Circuits & Stability",
+      blurb: "Transfer functions and impulse responses, RLC circuits and impedance, stability, the final value theorem, and the mass–spring–damper.",
+      tags: ["3 interactives", "worked examples", "problem generator"] },
+    { slug: "state-space", n: 8, exam: 2, title: "State Space",
+      blurb: "ẋ = Ax + Bu, y = Cx + Du; the matrix exponential, eigenvalues and stability, G(s) = C(sI − A)⁻¹B + D, and writing ODEs in state-space form.",
+      tags: ["2 interactives", "worked examples", "problem generator"] },
     { part: "Final · Frequency response, filters and the Fourier transform", exam: 3 },
     { soon: true, exam: 3, title: "Final exam lessons",
       blurb: "Coming closer to the final: sinusoid response, Bode plots and filters, and the Fourier transform." },
@@ -38,10 +48,12 @@
     { slug: "complex", kicker: "Exam 1", title: "Complex Calculator", blurb: "Evaluate any complex expression: rectangular and polar forms, conjugate, all n-th roots, plotted on the complex plane." },
     { slug: "fourier", kicker: "Exam 1", title: "Fourier Series Calculator", blurb: "Type f(t) (piecewise with if()), pick τ: get aₖ, αₖ, βₖ, γₖ, ψₖ, ‖f‖², truncation error, the partial sum and the spectrum." },
     { slug: "dft", kicker: "Exam 1", title: "DFT / FFT Calculator", blurb: "MATLAB-style fft and ifft of any list, with the harmonic held in each slot, or sample a function at ν points." },
+    { slug: "laplace", kicker: "Exam 2", title: "Partial Fractions & Inverse Laplace", blurb: "Enter num and den in MATLAB order: poles, residues like MATLAB's residue, the direct term, g(t) in real form, and a plot." },
+    { slug: "system", kicker: "Exam 2", title: "Transfer Function Analyzer", blurb: "Enter G(s): poles and zeros on the s-plane, stability, G(0), and the impulse and step responses." },
   ];
   const EXAMS = [
     { slug: "exam1", n: 1, title: "Exam 1 Review", blurb: "Learning objectives checklist, formula sheet, exam-style worked problems and a timed practice exam generator for Chapters 1–3." },
-    { slug: "exam2", n: 2, soon: true, title: "Exam 2 Review", blurb: "Coming closer to the exam. Laplace transforms, partial fractions, transfer functions, circuits, stability, state space and mass–spring–damper systems." },
+    { slug: "exam2", n: 2, title: "Exam 2 Review", blurb: "Objectives checklist, Laplace table and formula sheet, exam-style problems and a practice exam generator. Covers Laplace transforms, partial fractions, transfer functions, circuits, stability, state space and mass–spring–damper systems." },
     { slug: "final", n: 3, soon: true, title: "Final Exam Review", blurb: "Coming closer to the exam. Cumulative review: frequency response, Bode plots, filters and the Fourier transform, plus everything from Exams 1 and 2." },
   ];
   const GLYPH = {
@@ -49,6 +61,10 @@
     "inner-products": '<line x1="30" y1="54" x2="160" y2="54" class="axisl"/><line x1="40" y1="54" x2="150" y2="54" class="sig1"/><line x1="40" y1="54" x2="120" y2="10" class="sig2"/><line x1="120" y1="10" x2="120" y2="54" class="dashl axisl"/><text x="124" y="12" class="small">f</text><text x="150" y="48" class="small">g</text><text x="60" y="48" class="small">proj</text>',
     "fourier-series": '<path d="M10 46 L10 18 L50 18 L50 46 L90 46 L90 18 L130 18 L130 46 L170 46" class="axisl" style="fill:none"/><path d="M10 32 C14 14,22 14,30 18 S44 22,50 32 S56 50,70 46 S86 46,90 32 S96 14,110 18 S126 22,130 32 S136 50,150 46 S166 46,170 32" class="sig2" style="fill:none"/><text x="12" y="62" class="small">p₅(t) → f(t)</text>',
     dft: '<line x1="10" y1="54" x2="170" y2="54" class="axisl"/>' + [14, 34, 54, 74, 94, 114, 134, 154].map((x, i) => { const h = [6, 30, 8, 4, 4, 8, 30, 6][i]; return `<line x1="${x}" y1="54" x2="${x}" y2="${54 - h}" class="sig1"/><circle cx="${x}" cy="${54 - h}" r="3" class="accfill"/>`; }).join("") + '<text x="60" y="12" class="small">|fft(x)|² peaks</text>',
+    laplace: '<line x1="90" y1="4" x2="90" y2="60" class="axisl"/><line x1="10" y1="32" x2="170" y2="32" class="axisl"/><rect x="100" y="4" width="70" height="56" class="okfill"/><text x="62" y="18" class="label hot">×</text><text x="62" y="54" class="label hot">×</text><text x="40" y="38" class="label hot">×</text><text x="112" y="20" class="small">ℜs &gt; γ</text>',
+    "inverse-laplace": '<line x1="10" y1="32" x2="170" y2="32" class="axisl"/><path d="M10 50 C30 4,46 4,60 30 S90 58,110 36 S150 26,170 32" class="sig2" style="fill:none"/><text x="96" y="14" class="small">Σ rₖ e^(pₖt)</text>',
+    "transfer-functions": '<rect x="62" y="16" width="56" height="32" rx="5" class="box"/><text x="76" y="37" class="label">G(s)</text><line x1="10" y1="32" x2="62" y2="32" class="sig1"/><line x1="118" y1="32" x2="170" y2="32" class="sig2"/><text x="14" y="26" class="small">U(s)</text><text x="140" y="26" class="small">Y(s)</text>',
+    "state-space": '<rect x="14" y="20" width="44" height="24" class="box"/><text x="20" y="36" class="small">∫ dt</text><line x1="58" y1="32" x2="92" y2="32" class="axisl"/><path d="M92 32 l12 -10 l8 20 l8 -20 l8 20 l8 -20 l8 20 l6 -10" class="sig1" style="fill:none"/><rect x="150" y="18" width="22" height="28" class="okfill"/><text x="16" y="60" class="small">ẋ = Ax + Bu</text>',
   };
 
   // ---------- chrome ----------
@@ -119,11 +135,13 @@
     const list = LESSONS.filter(l => l.slug && !l.soon);
     const i = list.findIndex(l => l.slug === slug);
     if (i < 0) return;
-    const prev = list[i - 1], next = list[i + 1];
+    const prev = list[i - 1];
+    let next = list[i + 1];
+    if (next && next.exam !== list[i].exam) next = { review: `exam${list[i].exam}` };
     const nav = document.createElement("nav");
     nav.className = "pager";
     nav.innerHTML = `<span>${prev ? `<a href="${prev.slug}.html">← ${prev.n}. ${prev.title}</a>` : `<a href="${ROOT}index.html#lessons">← All lessons</a>`}</span>
-      <span>${next ? `<a href="${next.slug}.html">${next.n}. ${next.title} →</a>` : `<a href="${ROOT}exams/exam1.html">Exam 1 review →</a>`}</span>`;
+      <span>${next && next.review ? `<a href="${ROOT}exams/${next.review}.html">Exam ${next.review.slice(4)} review →</a>` : next ? `<a href="${next.slug}.html">${next.n}. ${next.title} →</a>` : `<a href="${ROOT}exams/exam2.html">Exam 2 review →</a>`}</span>`;
     document.querySelector("main").append(nav);
   }
   // ---------- math ----------

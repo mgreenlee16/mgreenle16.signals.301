@@ -427,7 +427,16 @@
       kdir = q[0]; num = r;
     }
     const lead = den[0];
-    const groups = poles || clusterRoots(roots(den));
+    const groups = poles || clusterRoots(roots(den), 2e-3).map(g => {
+      if (g.m < 2) return g;
+      // a root of multiplicity m is a simple root of the (m-1)-th derivative: polish it with Newton
+      let d = den; for (let i = 1; i < g.m; i++) d = polyDeriv(d);
+      const d1 = polyDeriv(d);
+      let z = g.p;
+      for (let it = 0; it < 50; it++) { const dz = div(polyval(d, z), polyval(d1, z)); z = sub(z, dz); if (abs(dz) < 1e-15) break; }
+      const snap = v => (Math.abs(v - Math.round(v * 1e9) / 1e9) < 1e-12 ? Math.round(v * 1e9) / 1e9 : v);
+      return { p: C(snap(z.re), Math.abs(z.im) < 1e-10 ? 0 : snap(z.im)), m: g.m };
+    });
     const terms = [];
     groups.forEach(({ p, m }) => {
       // h(s) = (s-p)^m G(s) = num(s) / (lead · Π_{other poles} (s-q)^{mq})
