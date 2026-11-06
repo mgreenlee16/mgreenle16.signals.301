@@ -11,7 +11,9 @@
 <div class="prose">
   <div class="eyebrow">Practice</div>
   <h1>Endless practice</h1>
-  <p class="lead">Every problem type from the Exam 1 lessons in one place. Pick the topics you want (all are on by default), solve, check, read the worked solution, and get a new problem. Your accuracy on the last 20 attempts of each topic is shown below, so you can see what still needs work.</p>
+  <p class="lead">Every problem type on the site in one place. Choose an exam, pick the topics you want (all are on by default), then solve, check, read the worked solution, and get a new problem. Your accuracy on the last 20 attempts of each topic is shown below, so you can see what still needs work.</p>
+  <div class="ctl inline" style="font-family:var(--sans);margin:1rem 0"><span>Exam&nbsp;</span>
+    <div class="seg" id="ex" data-value="1"><button data-value="1" aria-pressed="true">Exam 1</button><button data-value="2" aria-pressed="false">Exam 2</button><button data-value="3" aria-pressed="false">Final material</button><button data-value="0" aria-pressed="false">Everything</button></div></div>
   <div class="note"><b>Entering answers</b>Type numbers or expressions: <code>-3/2</code>, <code>sqrt(2)/2</code>, <code>pi/4</code>, <code>2-3i</code>, <code>e^(-pi/2)</code>, <code>2^(1/10)*e^(i*pi/20)</code>. Angles are in radians and any angle equal modulo 2π is accepted. About three significant figures is enough. Press Enter to check.</div>
 </div>
 <div id="qz"></div>
@@ -25,11 +27,27 @@
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/quiz.js"></script>
 <script src="assets/js/gen-exam1.js"></script>
+<script src="assets/js/gen-exam2.js"></script>
+<script src="assets/js/gen-final.js"></script>
 <script>
 (function () {
-  const ids = QZ.ORDER.filter(id => QZ.TOPICS[id].exam === 1);
-  const m = QZ.mastery("#mast", ids);
-  QZ.mount("#qz", { topics: ids, title: "Exam 1 · all topics", groupBy: true, onAnswer: () => m.render() });
+  const seg = document.getElementById("ex");
+  const titles = { 1: "Exam 1 · all topics", 2: "Exam 2 · all topics", 3: "Final material · all topics", 0: "Whole course" };
+  let m;
+  function go() {
+    const ex = +seg.dataset.value;
+    const ids = QZ.ORDER.filter(id => !ex || QZ.TOPICS[id].exam === ex);
+    m = QZ.mastery("#mast", ids);
+    QZ.mount("#qz", { topics: ids, title: titles[ex], groupBy: true, onAnswer: () => m.render() });
+    UI.store.set("practiceExam", String(ex));
+  }
+  const saved = UI.store.get("practiceExam", "1");
+  seg.querySelectorAll("button").forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.value === saved ? "true" : "false");
+    b.addEventListener("click", () => { seg.dataset.value = b.dataset.value; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); go(); });
+  });
+  seg.dataset.value = saved;
+  go();
   document.getElementById("reset").addEventListener("click", () => {
     if (!confirm("Erase your saved practice record on this device?")) return;
     try { Object.keys(localStorage).filter(k => k.startsWith("sg.qz.")).forEach(k => localStorage.removeItem(k)); } catch (e) { /* storage unavailable */ }

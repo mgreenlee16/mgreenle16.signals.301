@@ -41,8 +41,15 @@
       blurb: "ẋ = Ax + Bu, y = Cx + Du; the matrix exponential, eigenvalues and stability, G(s) = C(sI − A)⁻¹B + D, and writing ODEs in state-space form.",
       tags: ["2 interactives", "worked examples", "problem generator"] },
     { part: "Final · Frequency response, filters and the Fourier transform", exam: 3 },
-    { soon: true, exam: 3, title: "Final exam lessons",
-      blurb: "Coming closer to the final: sinusoid response, Bode plots and filters, and the Fourier transform." },
+    { slug: "bode", n: 9, exam: 3, title: "Sinusoid Response & Bode Plots",
+      blurb: "Steady-state response |G(iω)|cos(ωt + φ), stability, Bode plots by hand from straight-line asymptotes, natural frequency, damping ratio and resonance.",
+      tags: ["3 interactives", "worked examples", "problem generator"] },
+    { slug: "filters", n: 10, exam: 3, title: "Filters: Ideal, Butterworth & All-Pass",
+      blurb: "Ideal low-, high- and band-pass filters, low-pass, high-pass and band-pass Butterworth filters and their poles, choosing the order, and all-pass Blaschke products.",
+      tags: ["3 interactives", "worked examples", "problem generator"] },
+    { slug: "fourier-transform", n: 11, exam: 3, title: "The Fourier Transform & Uncertainty",
+      blurb: "Definition and inverse, pairs and properties, the link to the Laplace transform, Parseval, ideal filters in time, Nyquist sampling, and σ_g σ_G ≥ ½.",
+      tags: ["2 interactives", "worked examples", "problem generator"] },
   ];
   const TOOLS = [
     { slug: "complex", kicker: "Exam 1", title: "Complex Calculator", blurb: "Evaluate any complex expression: rectangular and polar forms, conjugate, all n-th roots, plotted on the complex plane." },
@@ -54,7 +61,7 @@
   const EXAMS = [
     { slug: "exam1", n: 1, title: "Exam 1 Review", blurb: "Learning objectives checklist, formula sheet, exam-style worked problems and a timed practice exam generator for Chapters 1–3." },
     { slug: "exam2", n: 2, title: "Exam 2 Review", blurb: "Objectives checklist, Laplace table and formula sheet, exam-style problems and a practice exam generator. Covers Laplace transforms, partial fractions, transfer functions, circuits, stability, state space and mass–spring–damper systems." },
-    { slug: "final", n: 3, soon: true, title: "Final Exam Review", blurb: "Coming closer to the exam. Cumulative review: frequency response, Bode plots, filters and the Fourier transform, plus everything from Exams 1 and 2." },
+    { slug: "final", n: 3, title: "Final Exam Review", blurb: "Objectives, formula sheet, exam-style problems and a cumulative practice exam generator. New material: frequency response, Bode plots, filters and the Fourier transform, plus everything from Exams 1 and 2." },
   ];
   const GLYPH = {
     complex: '<line x1="90" y1="4" x2="90" y2="60" class="axisl"/><line x1="30" y1="32" x2="150" y2="32" class="axisl"/><circle cx="90" cy="32" r="22" class="fan"/><line x1="90" y1="32" x2="122" y2="12" class="sig2"/><circle cx="122" cy="12" r="3.5" class="accfill"/><line x1="90" y1="32" x2="122" y2="52" class="sig1 dashl"/><text x="126" y="12" class="small">z</text><text x="126" y="58" class="small">z̄</text>',
@@ -65,6 +72,9 @@
     "inverse-laplace": '<line x1="10" y1="32" x2="170" y2="32" class="axisl"/><path d="M10 50 C30 4,46 4,60 30 S90 58,110 36 S150 26,170 32" class="sig2" style="fill:none"/><text x="96" y="14" class="small">Σ rₖ e^(pₖt)</text>',
     "transfer-functions": '<rect x="62" y="16" width="56" height="32" rx="5" class="box"/><text x="76" y="37" class="label">G(s)</text><line x1="10" y1="32" x2="62" y2="32" class="sig1"/><line x1="118" y1="32" x2="170" y2="32" class="sig2"/><text x="14" y="26" class="small">U(s)</text><text x="140" y="26" class="small">Y(s)</text>',
     "state-space": '<rect x="14" y="20" width="44" height="24" class="box"/><text x="20" y="36" class="small">∫ dt</text><line x1="58" y1="32" x2="92" y2="32" class="axisl"/><path d="M92 32 l12 -10 l8 20 l8 -20 l8 20 l8 -20 l8 20 l6 -10" class="sig1" style="fill:none"/><rect x="150" y="18" width="22" height="28" class="okfill"/><text x="16" y="60" class="small">ẋ = Ax + Bu</text>',
+    bode: '<line x1="10" y1="54" x2="170" y2="54" class="axisl"/><path d="M10 20 L80 20 Q96 20 104 30 L160 58" class="sig2" style="fill:none"/><path d="M10 20 L90 20 L160 58" class="sig1 dashl" style="fill:none"/><text x="20" y="14" class="small">20 log|G(iω)|</text><text x="112" y="24" class="small">−40 dB/dec</text>',
+    filters: '<line x1="10" y1="54" x2="170" y2="54" class="axisl"/><path d="M10 14 H70 V54" class="sig1 dashl" style="fill:none"/><path d="M10 14 C50 14,62 16,70 30 S90 54,120 54 H170" class="sig2" style="fill:none"/><text x="96" y="20" class="small">Butterworth</text>',
+    "fourier-transform": '<line x1="10" y1="54" x2="170" y2="54" class="axisl"/><path d="M10 54 C40 54,60 8,90 8 S140 54,170 54" class="sig2" style="fill:none"/><path d="M10 54 C70 54,80 30,90 30 S110 54,170 54" class="sig1" style="fill:none"/><text x="14" y="16" class="small">σ_g σ_G ≥ ½</text>',
   };
 
   // ---------- chrome ----------
@@ -141,7 +151,7 @@
     const nav = document.createElement("nav");
     nav.className = "pager";
     nav.innerHTML = `<span>${prev ? `<a href="${prev.slug}.html">← ${prev.n}. ${prev.title}</a>` : `<a href="${ROOT}index.html#lessons">← All lessons</a>`}</span>
-      <span>${next && next.review ? `<a href="${ROOT}exams/${next.review}.html">Exam ${next.review.slice(4)} review →</a>` : next ? `<a href="${next.slug}.html">${next.n}. ${next.title} →</a>` : `<a href="${ROOT}exams/exam2.html">Exam 2 review →</a>`}</span>`;
+      <span>${next && next.review ? `<a href="${ROOT}exams/${next.review}.html">${next.review === "final" ? "Final" : "Exam " + next.review.slice(4)} review →</a>` : next ? `<a href="${next.slug}.html">${next.n}. ${next.title} →</a>` : `<a href="${ROOT}exams/final.html">Final review →</a>`}</span>`;
     document.querySelector("main").append(nav);
   }
   // ---------- math ----------

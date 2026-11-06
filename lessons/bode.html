@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sinusoid Response &amp; Bode Plots · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="bode">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 9 · Final</div>
+  <h1>Sinusoid Response &amp; Bode Plots</h1>
+  <p class="lead">Drive a stable system with a sinusoid and, once the transient dies out, the output is a sinusoid at the same frequency, scaled by \(|G(i\omega)|\) and shifted by \(\angle G(i\omega)\). The function \(G(i\omega)\) is the system's frequency response, and the Bode plot is how engineers draw it. This lesson covers the steady-state response, sketching Bode plots from straight-line asymptotes, natural frequency and damping ratio, and resonance.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#ss">The steady-state response</a></li>
+    <li><a href="#sum">Sums of sinusoids and periodic inputs</a></li>
+    <li><a href="#bode">Bode plots</a></li>
+    <li><a href="#factors">Building a Bode plot from its factors</a></li>
+    <li><a href="#second">Natural frequency and damping ratio</a></li>
+    <li><a href="#res">Resonance</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+  </ol></nav>
+
+  <h2 id="ss"><span class="sec">Section 9.1</span>The steady-state response</h2>
+  <p>Let \(G\) be stable, so all its poles have \(\Re\lambda &lt; 0\), and apply \(u(t) = e^{i\omega t}\). Then \(Y(s) = \frac{G(s)}{s - i\omega} = \frac{G(i\omega)}{s - i\omega} + (\text{terms at the poles of } G)\). The pole terms decay, leaving the <b class="term">steady-state response</b> \(y_{ss}(t) = G(i\omega)e^{i\omega t}\). Taking real and imaginary parts, with \(G(i\omega) = |G(i\omega)|e^{i\phi(\omega)}\):</p>
+  $$u = \gamma\cos(\omega t + \varphi)\;\Rightarrow\; y_{ss} = \gamma|G(i\omega)|\cos\big(\omega t + \varphi + \phi(\omega)\big),$$
+  $$u = \gamma\sin(\omega t + \varphi)\;\Rightarrow\; y_{ss} = \gamma|G(i\omega)|\sin\big(\omega t + \varphi + \phi(\omega)\big).$$
+  <p>\(|G(i\omega)|\) is the <b>gain</b> and \(\phi(\omega) = \angle G(i\omega)\) the <b>phase shift</b>. A constant input \(a = a\cos(0t)\) gives \(G(0)a\), which is the final value theorem again. Stability is essential: if \(G\) has a pole with \(\Re\lambda\ge0\), its term never dies out and there is no steady state. For a real \(G\), \(G(-i\omega) = \overline{G(i\omega)}\), so we only need \(\omega \ge 0\).</p>
+  <p>To evaluate \(G(i\omega)\) by hand, work factor by factor: \(|G(i\omega)| = |K|\frac{\prod|i\omega - z_j|}{\prod|i\omega - p_k|}\) and \(\angle G(i\omega) = \angle K + \sum\angle(i\omega - z_j) - \sum\angle(i\omega - p_k)\), where \(|i\omega + a| = \sqrt{\omega^2 + a^2}\) and \(\angle(i\omega + a) = \arctan(\omega/a)\) for \(a &gt; 0\). Example from the notes: \(G(s) = \frac{15(s-4)}{(s+2)(s+3)}\) has \(G(0) = -10\), \(|G(i\omega)| = 10\sqrt{\frac{1 + \omega^2/16}{(1+\omega^2/4)(1 + \omega^2/9)}}\) and \(\phi(\omega) = \pi - \arctan\frac\omega4 - \arctan\frac\omega2 - \arctan\frac\omega3\). (The right-half-plane zero subtracts phase, and the negative gain adds \(\pi\).) For \(u = -2 + 6\cos5t\), \(y_{ss} = 20 + 18.35\cos(5t + 0.025)\).</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Transient and steady state</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl inline"><span>System</span>
+      <div class="seg" id="sG" data-value="lp"><button data-value="lp" aria-pressed="true">a/(s + a)</button><button data-value="res" aria-pressed="false">ωn²/(s² + 2ζωn s + ωn²)</button></div></div>
+    <div class="ctl"><label for="sa">a, or ωn <output for="sa"></output></label><input type="range" id="sa" min="0.2" max="5" step="0.1" value="1" data-dec="1"></div>
+    <div class="ctl"><label for="sz">ζ (second order) <output for="sz"></output></label><input type="range" id="sz" min="0.05" max="1" step="0.05" value="0.2" data-dec="2"></div>
+    <div class="ctl"><label for="sw">input frequency ω <output for="sw"></output></label><input type="range" id="sw" min="0.1" max="8" step="0.1" value="2" data-dec="1"></div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot1"></div><figcaption>Input cos ωt (gray), the actual output from rest (pink) and the steady state |G(iω)|cos(ωt + φ) (teal, dashed). The difference is the transient, made of the poles' e<sup>λt</sup> terms.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="sum"><span class="sec">Section 9.2</span>Sums of sinusoids and periodic inputs</h2>
+  <p>By linearity, each frequency passes through on its own:</p>
+  $$u = a + \sum_k\big(\alpha_k\cos(\omega_kt + \varphi_k) + \beta_k\sin(\omega_kt + \varphi_k)\big)\;\Rightarrow\; y_{ss} = G(0)a + \sum_k|G(i\omega_k)|\big(\alpha_k\cos(\omega_kt + \varphi_k + \phi_k) + \beta_k\sin(\omega_kt + \varphi_k + \phi_k)\big).$$
+  <p>A periodic input is a Fourier series \(u = \sum a_ke^{-ik\omega_0t}\), so the steady-state output is the Fourier series \(\sum a_kG(-ik\omega_0)e^{-ik\omega_0t}\) (the notes' sign convention puts \(-ik\omega_0\) in \(G\)). A square wave through a low-pass system loses its high harmonics and comes out rounded. Conversely, measuring the steady-state amplitude and phase at several frequencies recovers \(G(i\omega_k)\) experimentally. Section 8.2 of the notes fits \(m, c, k\) of a mass–spring–damper this way by least squares.</p>
+
+  <h2 id="bode"><span class="sec">Section 9.3</span>Bode plots</h2>
+  <p>The <b class="term">Bode plot</b> of \(G\) is two graphs against \(\log_{10}\omega\): the <b>magnitude</b> \(20\log_{10}|G(i\omega)|\) in decibels (dB), and the <b>phase</b> \(\angle G(i\omega)\). Logarithms turn products into sums, so the Bode plot of a product is the sum of the factors' plots. A factor of 10 in gain is \(+20\) dB, a factor of \(\sqrt2\) is about 3 dB, and a <b>decade</b> is a factor of 10 in frequency. In MATLAB: <code>bode(tf(num,den))</code>.</p>
+
+  <h2 id="factors"><span class="sec">Section 9.4</span>Building a Bode plot from its factors</h2>
+  <table class="data text"><thead><tr><th>Factor</th><th>Magnitude</th><th>Phase</th></tr></thead><tbody>
+    <tr><td>constant \(K\)</td><td>\(20\log|K|\), flat</td><td>0 (or \(\pi\) if \(K &lt; 0\))</td></tr>
+    <tr><td>\(s\) (zero at 0)</td><td>line of slope \(+20\) dB/decade through 0 dB at \(\omega = 1\)</td><td>\(+\pi/2\)</td></tr>
+    <tr><td>\(1/s\) (integrator)</td><td>slope \(-20\) dB/decade through 0 dB at \(\omega = 1\)</td><td>\(-\pi/2\)</td></tr>
+    <tr><td>\(\frac{p}{s+p}\) (stable pole)</td><td>0 dB for \(\omega \ll p\); \(-20\) dB/decade above the corner \(\omega = p\); \(-3\) dB at the corner</td><td>\(0 \to -\pi/2\), \(-\pi/4\) at the corner</td></tr>
+    <tr><td>\(\frac{s+z}{z}\) (left-half-plane zero)</td><td>0 dB, then \(+20\) dB/decade above \(\omega = z\)</td><td>\(0 \to +\pi/2\)</td></tr>
+    <tr><td>\(\frac{\omega_n^2}{s^2 + 2\zeta\omega_ns + \omega_n^2}\)</td><td>0 dB, then \(-40\) dB/decade above \(\omega_n\); \(-20\log(2\zeta)\) at \(\omega_n\)</td><td>\(0 \to -\pi\), \(-\pi/2\) at \(\omega_n\)</td></tr>
+  </tbody></table>
+  <p>To sketch: write \(G\) in <b>time-constant form</b>, \(G = K\frac{\prod(1 + s/z_j)}{\prod(1 + s/p_k)}\), so the low-frequency level is \(20\log|G(0)|\). Then walk up in frequency, bending the line by \(-20\) dB/decade at each pole and \(+20\) at each zero. A right-half-plane zero (\(s - z\)) has the same magnitude as \(s + z\) but the opposite phase. Interactive 2 draws the asymptotes on top of the exact curve.</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Bode plot with straight-line asymptotes</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="bN">num</label><input type="text" id="bN" value="100*(s+1)" spellcheck="false"></div>
+    <div class="ctl"><label for="bD">den</label><input type="text" id="bD" value="(s+10)(s+100)" spellcheck="false"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"bN":"10","bD":"s+10"}'>first-order low-pass</button>
+      <button data-preset='{"bN":"100*(s+1)","bD":"(s+10)(s+100)"}'>lead</button>
+      <button data-preset='{"bN":"-100*s","bD":"(s+1)(s+100)"}'>notes-style band-pass</button>
+      <button data-preset='{"bN":"100","bD":"s^2+2s+100"}'>light damping</button>
+      <button data-preset='{"bN":"s-2","bD":"s+2"}'>all-pass</button>
+    </div>
+    <div class="err" id="err2" style="color:var(--bad)"></div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views">
+    <figure><div id="mag2"></div><figcaption>Magnitude 20 log|G(iω)| (pink) and straight-line asymptote (gray, dashed).</figcaption></figure>
+    <figure><div id="ph2"></div><figcaption>Phase ∠G(iω) in degrees.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="second"><span class="sec">Section 9.5</span>Natural frequency and damping ratio</h2>
+  <p>A pair of complex poles is written in standard form</p>
+  $$G(s) = \frac{\omega_n^2}{s^2 + 2\zeta\omega_ns + \omega_n^2},\qquad \lambda = -\zeta\omega_n \pm i\omega_n\sqrt{1 - \zeta^2},\qquad |\lambda| = \omega_n,$$
+  <p>with <b class="term">natural frequency</b> \(\omega_n\) and <b class="term">damping ratio</b> \(\zeta\), stable when \(\zeta &gt; 0\). Setting \(\zeta = \cos\theta\) puts the poles at \(-\omega_ne^{\mp i\theta}\): the angle from the negative real axis measures how lightly damped the system is. To read \(\omega_n, \zeta\) from \(s^2 + bs + c\): \(\omega_n = \sqrt c\) and \(\zeta = b/(2\sqrt c)\). On the Bode plot the magnitude is about 0 dB well below \(\omega_n\), equals \(-20\log_{10}(2\zeta)\) at \(\omega_n\) (a peak of \(+34\) dB when \(\zeta = 0.01\)), and falls at \(-40\) dB/decade above. The phase passes \(-\pi/2\) at \(\omega_n\), and the smaller \(\zeta\), the more sharply it drops.</p>
+
+  <h2 id="res"><span class="sec">Section 9.6</span>Resonance</h2>
+  <p>The <b class="term">resonance frequency</b> \(\omega_r\) maximizes \(|G(i\omega)|\). For the standard second-order system, minimizing \(|\omega_n^2 - \omega^2 + 2i\zeta\omega_n\omega|^2 = (\omega^2 - \omega_n^2(1-2\zeta^2))^2 + 4\omega_n^4\zeta^2(1-\zeta^2)\) gives</p>
+  $$\omega_r = \omega_n\sqrt{1 - 2\zeta^2},\qquad |G(i\omega_r)| = \frac{1}{2\zeta\sqrt{1-\zeta^2}}\qquad\left(0 &lt; \zeta \le \tfrac{1}{\sqrt2}\right).$$
+  <p>For \(\zeta &gt; 1/\sqrt2\) the maximum is at \(\omega = 0\) and there is no resonance peak. \(\omega_r\) is slightly below \(\omega_n\), and close to it for small \(\zeta\). Lightly damped structures driven near \(\omega_r\) respond with huge amplitude. The notes' bus-suspension and mass–spring examples show how adding a tuned mass with \(k_2 = m_2\omega^2\) can cancel the steady-state response to a disturbance at frequency \(\omega\) entirely.</p>
+</div>
+
+<section class="lab" id="lab3">
+  <div class="lab-head"><span class="num">Interactive 3</span><span class="title">Damping ratio and resonance</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="rz">ζ <output for="rz"></output></label><input type="range" id="rz" min="0.02" max="1.5" step="0.01" value="0.2" data-dec="2"></div>
+    <div class="ctl"><label for="rw">ωn <output for="rw"></output></label><input type="range" id="rw" min="0.5" max="20" step="0.5" value="5" data-dec="1"></div>
+    <div id="ro3" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="mag3"></div><figcaption>|G(iω)| in dB for ζ = 0.05, 0.1, 0.2, 0.4, 0.7, 1 (gray) and your ζ (pink), with ωr marked.</figcaption></figure>
+    <figure><div id="pz3"></div><figcaption>Poles −ζωn ± iωn√(1 − ζ²) on the circle |λ| = ωn.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 9.7</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 9.1 · Steady state</button><button>Ex 9.2 · Sum of sinusoids</button><button>Ex 9.3 · Sketch a Bode plot</button><button>Ex 9.4 · ωn, ζ, resonance</button><button>Ex 9.5 · No steady state</button></div>
+  <div class="panel">
+    <p>\(G(s) = \frac{4}{s+2}\), \(u(t) = 3\cos(2t)\). Find \(y_{ss}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(G(2i) = \frac{4}{2 + 2i} = \frac{4}{2\sqrt2e^{i\pi/4}} = \sqrt2e^{-i\pi/4}\). So \(y_{ss} = 3\sqrt2\cos(2t - \pi/4)\). The input is at the corner frequency, so the gain is \(1/\sqrt2\) of the DC gain 2 and the phase lag is \(\pi/4\).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(G(s) = \frac{10}{(s+1)(s+10)}\), \(u(t) = 2 - 5\sin(10t)\). Find \(y_{ss}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(G(0) = 1\), so the constant gives 2. \(G(10i) = \frac{10}{(1 + 10i)(10 + 10i)}\): \(|G| = \frac{10}{\sqrt{101}\cdot10\sqrt2} = 0.0704\) and \(\angle G = -\arctan10 - \pi/4 = -2.256\) rad.</p>
+    $$y_{ss}(t) = 2 - 0.352\sin(10t - 2.256).$$</details>
+  </div>
+  <div class="panel">
+    <p>Sketch the magnitude Bode plot of \(G(s) = \frac{100(s+1)}{(s+10)(s+100)}\).</p>
+    <details><summary>Solution</summary>
+    <p>Time-constant form: \(G = \frac{100}{1000}\cdot\frac{1 + s}{(1 + s/10)(1 + s/100)}\), so \(|G(0)| = 0.1\), i.e. \(-20\) dB. The line is flat at \(-20\) dB up to \(\omega = 1\), rises at \(+20\) dB/decade to 0 dB at \(\omega = 10\), is flat at 0 dB to \(\omega = 100\), then falls at \(-20\) dB/decade. (Load the "lead" preset in Interactive 2.)</p></details>
+  </div>
+  <div class="panel">
+    <p>\(G(s) = \frac{25}{s^2 + 4s + 25}\). Find \(\omega_n\), \(\zeta\), the poles, \(\omega_r\), the peak gain, and \(|G(i\omega_n)|\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\omega_n = 5\), \(\zeta = 4/10 = 0.4\). Poles \(-2 \pm i\sqrt{21}\). \(\omega_r = 5\sqrt{1 - 0.32} = 4.12\), with peak \(\frac{1}{0.8\sqrt{0.84}} = 1.364\) (2.7 dB). At \(\omega_n\): \(1/(2\zeta) = 1.25\).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(G(s) = \frac{1}{s^2 + 4}\) is driven by \(\cos(t)\). What is the steady-state response?</p>
+    <details><summary>Solution</summary>
+    <p>\(G\) has poles \(\pm2i\), so it is not stable and the free oscillation at 2 rad/s never decays. The formula \(|G(i)|\cos(t + \angle G(i)) = \tfrac13\cos t\) is only part of the output: from rest, \(y = \tfrac13(\cos t - \cos 2t)\). Driven at \(\omega = 2\), the output would grow like \(t\sin2t\).</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 9.8</span>Practice problems</h2></div>
+<div id="qz"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/gen-final.js"></script>
+<script src="../assets/js/sys.js"></script>
+<script>
+(function () {
+  const { C, num, str, abs, arg } = CX;
+  const dB = x => 20 * Math.log10(Math.max(x, 1e-12));
+  const unwrapDeg = ph => { const out = []; let off = 0, prev = null; ph.forEach(p => { let v = p * 180 / Math.PI + off; if (prev !== null) { while (v - prev > 180) { v -= 360; off -= 360; } while (v - prev < -180) { v += 360; off += 360; } } out.push(v); prev = v; }); return out; };
+
+  // ---------- Interactive 1 ----------
+  UI.wire("#lab1", () => {
+    const kind = UI.seg("sG"), a = UI.val("sa"), z = UI.val("sz"), w = UI.val("sw");
+    const n = kind === "lp" ? [a] : [a * a], d = kind === "lp" ? [1, a] : [1, 2 * z * a, a * a];
+    const pf = CX.residues(CX.conv(n, [1, 0]).map(c => c.re), CX.conv(d, [1, 0, w * w]).map(c => c.re));
+    const G = SYS.freq(n, d, w), M = abs(G), ph = arg(G);
+    const T = Math.max(12, 6 * 2 * Math.PI / w), t = UI.linspace(0, Math.min(T, 40), 900);
+    UI.plot("#plot1", { xlabel: "t", ylabel: "signal", xlim: [0, t[t.length - 1]], h: 300,
+      series: [{ x: t, y: t.map(v => Math.cos(w * v)), c: 6 }, { x: t, y: t.map(v => CX.invLaplaceAt(pf, v)), c: 4, width: 2.4 }, { x: t, y: t.map(v => M * Math.cos(w * v + ph)), c: 1, dash: true, width: 2 }] });
+    UI.readout("#ro1", [["G(iω)", str(G, 4)], ["gain |G(iω)|", M, `${num(dB(M), 3)} dB`], ["phase φ", `${num(ph, 4)} rad`, `${num(ph * 180 / Math.PI, 4)}°`], ["y_ss", `${num(M, 3)} cos(${num(w, 3)}t ${ph < 0 ? "−" : "+"} ${num(Math.abs(ph), 3)})`]]);
+    UI.live("#lab1", `gain ${num(M, 3)}`);
+  });
+
+  // ---------- Interactive 2 ----------
+  function bodeDraw(n, d, magSel, phSel, extra = {}) {
+    const ps = SYS.poles(d), zs = SYS.zeros(n), corners = ps.concat(zs).map(abs).filter(x => x > 1e-9);
+    const lo = Math.pow(10, Math.floor(Math.log10(Math.min(...corners, 1)) - 1)), hi = Math.pow(10, Math.ceil(Math.log10(Math.max(...corners, 1)) + 1));
+    const w = UI.logspace(lo, hi, 500), G = w.map(v => SYS.freq(n, d, v));
+    const nt = SYS.trim(n), dt = SYS.trim(d);
+    const k = Math.abs(nt[0] / dt[0]);
+    const asym = w.map(v => dB(k * zs.reduce((p, z) => p * Math.max(v, abs(z)), 1) / ps.reduce((p, q) => p * Math.max(v, abs(q)), 1)));
+    const mag = G.map(g => dB(abs(g)));
+    UI.plot(magSel, { xlabel: "ω (rad/s)", ylabel: "dB", logx: true, xlim: [lo, hi], h: extra.h || 260, series: [{ x: w, y: asym, c: 6, dash: true }, { x: w, y: mag, c: 4, width: 2.5 }], vlines: extra.vlines || [] });
+    if (phSel) UI.plot(phSel, { xlabel: "ω (rad/s)", ylabel: "degrees", logx: true, xlim: [lo, hi], h: 220, series: [{ x: w, y: unwrapDeg(G.map(arg)), c: 2, width: 2.5 }] });
+    return { ps, zs, mag, w };
+  }
+  window.bodeDraw = bodeDraw;
+  UI.wire("#lab2", () => {
+    const err = document.getElementById("err2");
+    let n, d;
+    try { n = SYS.parseVec(document.getElementById("bN").value); d = SYS.parseVec(document.getElementById("bD").value); if (SYS.trim(n).length > SYS.trim(d).length) throw 0; err.textContent = ""; }
+    catch (e) { err.textContent = "Could not read num/den (num must not have higher degree than den)."; return; }
+    const r = bodeDraw(n, d, "#mag2", "#ph2");
+    const rel = SYS.trim(d).length - SYS.trim(n).length;
+    const g0 = SYS.evalG(n, d, C(1e-9));
+    UI.readout("#ro2", [["G(s)", `(${SYS.trim(n).map(x => num(x, 3)).join(" ")}) / (${SYS.trim(d).map(x => num(x, 3)).join(" ")})`], ["DC gain", abs(g0) < 1e6 ? `${num(abs(g0), 4)} (${num(dB(abs(g0)), 3)} dB)` : "∞ (pole at 0)"],
+      ["corner frequencies", r.ps.concat(r.zs).map(abs).filter(x => x > 1e-9).sort((a, b) => a - b).map(x => num(x, 3)).join(", ") || "none"], ["high-frequency slope", `${-20 * rel} dB/decade`], ["stable?", SYS.stable(d) ? "yes" : "no: the Bode plot is not a steady-state response"]]);
+    UI.live("#lab2", `${-20 * rel} dB/dec`);
+  });
+
+  // ---------- Interactive 3 ----------
+  const pz = UI.cplane("#pz3", { R: 22, w: 340, h: 340 });
+  UI.wire("#lab3", () => {
+    const z = UI.val("rz"), wn = UI.val("rw"), w = UI.logspace(wn / 100, wn * 100, 600);
+    const curve = zz => w.map(v => dB(1 / Math.hypot(1 - (v / wn) ** 2, 2 * zz * v / wn)));
+    const series = [0.05, 0.1, 0.2, 0.4, 0.7, 1].map(zz => ({ x: w, y: curve(zz), c: 6, width: 1 }));
+    series.push({ x: w, y: curve(z), c: 4, width: 3 });
+    const res = z <= 1 / Math.SQRT2, wr = res ? wn * Math.sqrt(1 - 2 * z * z) : 0, pk = res ? 1 / (2 * z * Math.sqrt(1 - z * z)) : 1;
+    UI.plot("#mag3", { xlabel: "ω", ylabel: "dB", logx: true, xlim: [wn / 100, wn * 100], ylim: [-80, 30], h: 340, series, vlines: res ? [{ x: wr, label: "ωr" }] : [] });
+    const ev = CX.roots([1, 2 * z * wn, wn * wn]);
+    pz.redraw({ points: ev.map(e => ({ z: e, c: 4, r: 6 })), circles: [{ r: wn, c: 6, dash: true }] });
+    UI.readout("#ro3", [["poles", ev.map(e => str(e, 3)).join(",  ")], ["ωr = ωn√(1 − 2ζ²)", res ? wr : "no peak (ζ > 1/√2)"], ["peak |G(iωr)|", res ? `${num(pk, 4)} (${num(dB(pk), 3)} dB)` : "1 at ω = 0"], ["|G(iωn)| = 1/(2ζ)", `${num(1 / (2 * z), 4)} (${num(dB(1 / (2 * z)), 3)} dB)`]]);
+    UI.live("#lab3", res ? `ωr = ${num(wr, 3)}` : "no resonance");
+  });
+
+  QZ.mount("#qz", { topics: ["fr-steady", "fr-bode", "fr-second"], title: "Sinusoid response & Bode: problem generator" });
+})();
+</script>
+</body>
+</html>

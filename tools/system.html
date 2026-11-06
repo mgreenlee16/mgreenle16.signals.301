@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transfer Function Analyzer · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="tools">
+<main>
+<div class="prose">
+  <div class="eyebrow">Calculator · Exam 2 &amp; Final</div>
+  <h1>Transfer Function Analyzer</h1>
+  <p class="lead">Enter \(G(s)\). See its poles and zeros, stability and DC gain, the impulse and step responses, the Bode plot, and the steady-state output for any sum of sinusoids.</p>
+</div>
+<section class="calc">
+  <div class="inputs">
+    <label class="grow">num<input type="text" id="sN" value="[25]" spellcheck="false"></label>
+    <label class="grow">den<input type="text" id="sD" value="[1 4 25]" spellcheck="false"></label>
+    <label>step size u₀<input type="text" id="sU" value="1"></label>
+  </div>
+  <div class="inputs" style="margin-top:.6rem">
+    <label class="grow">input for steady state: a + Σ (amplitude, ω, phase)<input type="text" id="sIn" value="2; 3, 5, 0; 1, 10, 0" spellcheck="false"></label>
+  </div>
+  <div class="presets" style="margin-top:.6rem"><span>Try</span>
+    <button data-p='["[25]","[1 4 25]"]'>ωn = 5, ζ = 0.4</button>
+    <button data-p='["15*(s-4)","(s+2)(s+3)"]'>notes' example (G(0) = −10)</button>
+    <button data-p='["[1]","[1 0.2 1]"]'>RLC, R = 0.2</button>
+    <button data-p='["[2]","(s-1)(s+1)"]'>unstable</button>
+    <button data-p='["[8]","[1 4 8 8]"]'>3rd-order Butterworth, ωc = 2</button>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="results" id="tex" style="overflow-x:auto"></div>
+  <div class="calc-grid results"><div id="ro" class="readout"></div><div id="pl"></div></div>
+  <div class="calc-grid results"><div id="pImp"></div><div id="pStep"></div></div>
+  <div class="calc-grid results"><div id="pMag"></div><div id="pPh"></div></div>
+</section>
+<div class="prose">
+  <p>Steady-state input format: the first number is the constant \(a\); each further group <code>A, ω, φ</code> adds \(A\cos(\omega t + \varphi)\). The output is \(G(0)a + \sum A|G(i\omega)|\cos(\omega t + \varphi + \angle G(i\omega))\), valid only if \(G\) is stable. See <a href="../lessons/transfer-functions.html">Lesson 7</a> and <a href="../lessons/bode.html">Lesson 9</a>.</p>
+  <p><a href="../index.html#tools">← All calculators</a></p>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/sys.js"></script>
+<script>
+(function () {
+  const { C, str, abs, arg, num } = CX;
+  const $ = id => document.getElementById(id), dB = x => 20 * Math.log10(Math.max(x, 1e-12));
+  let pl = null, plR = 0;
+  function run() {
+    let n, d, u0, terms;
+    try {
+      n = SYS.parseVec($("sN").value); d = SYS.parseVec($("sD").value); u0 = CX.evalC($("sU").value).re;
+      if (SYS.trim(n).length > SYS.trim(d).length) throw 0;
+      const parts = $("sIn").value.split(";").map(s => s.trim()).filter(Boolean);
+      terms = { a: parts.length ? CX.evalC(parts[0]).re : 0, s: parts.slice(1).map(p => p.split(",").map(x => CX.evalC(x).re)) };
+      $("err").textContent = "";
+    } catch (e) { $("err").textContent = "Check num, den and the input list."; return; }
+    const ps = SYS.poles(d), zs = SYS.zeros(n), stable = SYS.stable(d), g0 = SYS.evalG(n, d, C(1e-12));
+    $("tex").innerHTML = `$$G(s) = ${SYS.tfTex(n, d)}$$`; UI.whenMath(() => UI.typeset($("tex")));
+    let ssTxt = "—";
+    if (stable) {
+      const pieces = [num(g0.re * terms.a, 4)];
+      terms.s.forEach(([A, w, ph]) => { const G = SYS.freq(n, d, w || 0); pieces.push(`${num(A * abs(G), 4)} cos(${num(w, 4)}t ${arg(G) + (ph || 0) < 0 ? "−" : "+"} ${num(Math.abs(arg(G) + (ph || 0)), 4)})`); });
+      ssTxt = pieces.join(" + ");
+    }
+    const wn = SYS.trim(d).length === 3 ? Math.sqrt(SYS.trim(d)[2] / SYS.trim(d)[0]) : null;
+    UI.readout("#ro", [["poles", ps.map(p => str(p, 4)).join(",  ")], ["zeros", zs.map(z => str(z, 4)).join(",  ") || "none"],
+      ["stable?", stable ? "yes: all poles in ℜs < 0" : "no"], ["DC gain G(0)", abs(g0) < 1e8 ? `${num(g0.re, 5)} (${num(dB(abs(g0)), 4)} dB)` : "∞"],
+      ...(wn ? [["ωn, ζ (2nd order)", `${num(wn, 4)}, ${num(SYS.trim(d)[1] / (2 * wn * SYS.trim(d)[0]), 4)}`]] : []),
+      ["final value for step u₀", stable ? num(g0.re * u0, 5) : "does not exist"], ["steady-state output", ssTxt]]);
+    const R = Math.max(2, Math.ceil(Math.max(...ps.concat(zs).map(abs), 1) * 1.2));
+    if (!pl || plR !== R) { pl = UI.cplane("#pl", { R, w: 340, h: 340 }); plR = R; }
+    pl.redraw({ points: [...ps.map(p => ({ z: p, c: 4, r: 6 })), ...zs.map(z => ({ z, c: 1, r: 5 }))], polys: [{ pts: [C(0, -1e3), C(0, 1e3)], c: 6, dash: true }] });
+    const slow = Math.min(...ps.map(p => Math.abs(p.re)).filter(x => x > 1e-6), 1), T = Math.min(60, Math.max(4, 7 / slow)), t = UI.linspace(0, T, 700);
+    const clip = v => Math.max(-1e4, Math.min(1e4, v));
+    const fi = SYS.respImpulse(n, d), fs = SYS.respStep(n, d, u0);
+    UI.plot("#pImp", { xlabel: "t", ylabel: "impulse response", xlim: [0, T], h: 260, series: [{ x: t, y: t.map(v => clip(fi(v))), c: 4, width: 2.2 }] });
+    UI.plot("#pStep", { xlabel: "t", ylabel: "step response", xlim: [0, T], h: 260, series: [{ x: t, y: t.map(v => clip(fs(v))), c: 1, width: 2.2 }], hlines: stable ? [{ y: g0.re * u0, label: "G(0)u₀" }] : [] });
+    const corners = ps.concat(zs).map(abs).filter(x => x > 1e-9), lo = 10 ** Math.floor(Math.log10(Math.min(...corners, 1)) - 1), hi = 10 ** Math.ceil(Math.log10(Math.max(...corners, 1)) + 1);
+    const w = UI.logspace(lo, hi, 500), Gw = w.map(v => SYS.freq(n, d, v));
+    let off = 0, prev = null; const ph = Gw.map(g => { let v = arg(g) * 180 / Math.PI + off; if (prev !== null) { while (v - prev > 180) { v -= 360; off -= 360; } while (v - prev < -180) { v += 360; off += 360; } } prev = v; return v; });
+    UI.plot("#pMag", { xlabel: "ω (rad/s)", ylabel: "dB", logx: true, xlim: [lo, hi], h: 260, series: [{ x: w, y: Gw.map(g => dB(abs(g))), c: 4, width: 2.4 }] });
+    UI.plot("#pPh", { xlabel: "ω (rad/s)", ylabel: "phase (deg)", logx: true, xlim: [lo, hi], h: 260, series: [{ x: w, y: ph, c: 2, width: 2.4 }] });
+  }
+  ["sN", "sD", "sU", "sIn"].forEach(id => $(id).addEventListener("input", run));
+  document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { const [a, c] = JSON.parse(b.dataset.p); $("sN").value = a; $("sD").value = c; run(); }));
+  run();
+})();
+</script>
+</body>
+</html>

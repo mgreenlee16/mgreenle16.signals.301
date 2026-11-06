@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filters: Ideal, Butterworth &amp; All-Pass · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="filters">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 10 · Final</div>
+  <h1>Filters: Ideal, Butterworth &amp; All-Pass</h1>
+  <p class="lead">A filter is a system designed for its frequency response: pass some frequencies, block others. This lesson defines the ideal low-, high-, band-pass and band-stop filters and explains why they cannot be built. It then constructs the Butterworth filters that approximate them, shows how to choose the order and transform a low-pass design into the other types, and closes with all-pass filters, which change only the phase.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#ideal">Ideal filters</a></li>
+    <li><a href="#lp">Low-pass Butterworth filters</a></li>
+    <li><a href="#order">Choosing the order</a></li>
+    <li><a href="#hp">High-pass, band-pass and band-stop</a></li>
+    <li><a href="#use">Filtering a signal</a></li>
+    <li><a href="#allpass">All-pass filters</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+  </ol></nav>
+
+  <h2 id="ideal"><span class="sec">Section 10.1</span>Ideal filters</h2>
+  <p>An <b class="term">ideal low-pass filter</b> with cutoff \(\omega_c\) has \(G(i\omega) = 1\) for \(|\omega| &lt; \omega_c\) and \(0\) for \(|\omega| &gt; \omega_c\). An input \(u = \sum a_ke^{i\omega_kt}\) then has steady-state output \(\sum_{|\omega_k|&lt;\omega_c}a_ke^{i\omega_kt}\): the low frequencies pass untouched and the rest vanish. The <b>ideal high-pass</b> filter keeps \(|\omega| &gt; \omega_c\), the <b>band-pass</b> filter keeps \(a &lt; |\omega| &lt; b\), and the <b>band-stop</b> filter removes that band.</p>
+  <p>Ideal filters are not rational functions, so they have no finite-dimensional realization. Lesson 11 shows that the ideal low-pass impulse response is \(\frac{\sin\omega_ct}{\pi t}\), which is nonzero for \(t &lt; 0\): the filter would have to respond before the input arrives. Real filters trade sharpness for causality. A first-order low-pass \(\frac{\omega_c}{s + \omega_c}\) is the crudest approximation, the system \(\dot y = -\omega_cy + \omega_cu\).</p>
+
+  <h2 id="lp"><span class="sec">Section 10.2</span>Low-pass Butterworth filters</h2>
+  <p>The \(n\)-th order <b class="term">low-pass Butterworth filter</b> with cutoff \(\omega_c\) is</p>
+  $$G(s) = \frac{\omega_c^n}{d(s)},\qquad d(s) = \prod_{k=0}^{n-1}\big(s - \lambda_k\big),\qquad \lambda_k = i\omega_ce^{i(\pi + 2\pi k)/2n}.$$
+  <p>The poles are the left half of \(2n\) equally spaced points on the circle of radius \(\omega_c\). They start at angle \(\pi/2 + \pi/2n\) and are spaced \(\pi/n\) apart, so the filter is stable. Its magnitude is <b>maximally flat</b>:</p>
+  $$|G(i\omega)|^2 = \frac{1}{1 + (\omega/\omega_c)^{2n}},\qquad |G(0)| = 1,\qquad |G(i\omega_c)| = \tfrac{1}{\sqrt2}\ (-3\text{ dB}).$$
+  <p>Above the cutoff the magnitude falls at \(-20n\) dB/decade. Orders 1 and 2 are \(\frac{\omega_c}{s + \omega_c}\) and \(\frac{\omega_c^2}{s^2 + \sqrt2\omega_cs + \omega_c^2}\), the latter a second-order system with \(\zeta = 1/\sqrt2\), the largest damping with no resonance peak. MATLAB: <code>[num,den] = butter(n,wc,'s')</code>.</p>
+
+  <h2 id="order"><span class="sec">Section 10.3</span>Choosing the order</h2>
+  <p>To attenuate a frequency \(\omega_s &gt; \omega_c\) by at least \(A\) dB, require \(10\log_{10}\big(1 + (\omega_s/\omega_c)^{2n}\big) \ge A\):</p>
+  $$n \ge \frac{\log_{10}\big(10^{A/10} - 1\big)}{2\log_{10}(\omega_s/\omega_c)},$$
+  <p>rounded up. Higher order gives a sharper edge, but costs more poles (more circuitry or computation) and more phase lag near the cutoff.</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Butterworth filter designer</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl inline"><span>Type</span>
+      <div class="seg" id="fT" data-value="lp"><button data-value="lp" aria-pressed="true">low-pass</button><button data-value="hp" aria-pressed="false">high-pass</button><button data-value="bp" aria-pressed="false">band-pass</button><button data-value="bs" aria-pressed="false">band-stop</button></div></div>
+    <div class="ctl"><label for="fN">order n <output for="fN"></output></label><input type="range" id="fN" min="1" max="8" step="1" value="3" data-dec="0"></div>
+    <div class="ctl"><label for="fA">cutoff ωc, or lower edge a (log₁₀) <output for="fA"></output></label><input type="range" id="fA" min="-1" max="2" step="0.05" value="0" data-dec="2"></div>
+    <div class="ctl"><label for="fB">upper edge b (log₁₀, band filters) <output for="fB"></output></label><input type="range" id="fB" min="-1" max="2.5" step="0.05" value="1" data-dec="2"></div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="mag1"></div><figcaption>|G(iω)| in dB (pink) and the ideal filter (gray, dashed). The −3 dB line is dotted.</figcaption></figure>
+    <figure><div id="pz1"></div><figcaption>Poles. Low- and high-pass poles lie on the circle of radius ωc.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose">
+  <h2 id="hp"><span class="sec">Section 10.4</span>High-pass, band-pass and band-stop</h2>
+  <p>Every Butterworth filter comes from the unit-cutoff low-pass \(G_1(s)\) by substituting a function of \(s\):</p>
+  <ul>
+    <li><b>Low-pass, cutoff \(\omega_c\):</b> \(G_1(s/\omega_c)\).</li>
+    <li><b>High-pass:</b> \(H(s) = G_1(\omega_c/s) = \frac{s^n}{d(s)}\) with the same denominator, and \(|H(i\omega)|^2 = \frac{(\omega/\omega_c)^{2n}}{1 + (\omega/\omega_c)^{2n}}\).</li>
+    <li><b>Band-pass on \([a,b]\):</b> \(P(s) = G_1\big(m(s)\big)\) with \(m(s) = \frac{s^2 + ab}{s(b-a)}\). Its degree is \(2n\), it equals 1 at the center \(\sqrt{ab}\), and \(1/\sqrt2\) at \(a\) and \(b\). For \(n = 2\): \(P(s) = \frac{s^2(b-a)^2}{s^4 + \sqrt2(b-a)s^3 + (a^2+b^2)s^2 + \sqrt2ab(b-a)s + a^2b^2}\).</li>
+    <li><b>Band-stop on \([a,b]\):</b> \(G_1\big(1/m(s)\big)\), which is zero at \(\sqrt{ab}\).</li>
+  </ul>
+  <p>The substitution \(m\) maps the imaginary axis to itself, sending \(\pm a\) and \(\pm b\) to \(\pm1\). So the pass band of \(G_1\) becomes \([a,b]\), and stable poles stay stable.</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Filtering a three-tone signal</span><span class="live"></span></div>
+  <div class="controls">
+    <p class="drag-hint">Input u = cos t + cos 10t + cos 100t. Choose a Butterworth filter to keep one tone.</p>
+    <div class="ctl inline"><span>Filter</span>
+      <div class="seg" id="gT" data-value="lp"><button data-value="lp" aria-pressed="true">low-pass</button><button data-value="bp" aria-pressed="false">band-pass</button><button data-value="hp" aria-pressed="false">high-pass</button></div></div>
+    <div class="ctl"><label for="gN">order n <output for="gN"></output></label><input type="range" id="gN" min="1" max="6" step="1" value="2" data-dec="0"></div>
+    <div class="ctl"><label for="gC">cutoff ωc (low/high), or band [ωc/3, 3ωc] <output for="gC"></output></label><input type="range" id="gC" min="1" max="60" step="0.5" value="3" data-dec="1"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"gT":"lp","gN":4,"gC":3}'>keep cos t</button>
+      <button data-preset='{"gT":"bp","gN":3,"gC":10}'>keep cos 10t</button>
+      <button data-preset='{"gT":"hp","gN":4,"gC":30}'>keep cos 100t</button>
+    </div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot2"></div><figcaption>Input (gray) and steady-state output (pink) over 0 ≤ t ≤ 2π.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="use"><span class="sec">Section 10.5</span>Filtering a signal</h2>
+  <p>By Section 9.2, a stable filter driven by \(u = \sum\gamma_k\cos(\omega_kt)\) settles to \(y_{ss} = \sum\gamma_k|G(i\omega_k)|\cos(\omega_kt + \phi(\omega_k))\). Designing a filter means making \(|G(i\omega_k)| \approx 1\) for the components you want and \(\approx 0\) for the rest. Check the actual gains: a second-order low-pass with \(\omega_c = 3\) passes \(\cos t\) at gain 0.994, \(\cos10t\) at 0.09 and \(\cos100t\) at 0.0009. The pass-band phase shifts are not zero, so the waveform is slightly delayed.</p>
+
+  <h2 id="allpass"><span class="sec">Section 10.6</span>All-pass filters</h2>
+  <p>An <b class="term">all-pass filter</b> is a stable \(G\) with \(|G(i\omega)| = 1\) at every frequency. The building blocks are <b>Blaschke products</b></p>
+  $$B(s) = \gamma\prod_{j=1}^{n}\frac{s + \lambda_j}{s - \lambda_j} = \pm\frac{d(-s)}{d(s)},\qquad \Re\lambda_j &lt; 0,\ \gamma = \pm1,$$
+  <p>with the zeros the mirror images of the poles across the imaginary axis. For a real pole \(-a\), \(|i\omega - a| = |i\omega + a|\); complex poles come in conjugate pairs, and their factors cancel in magnitude pair by pair. So \(|B(i\omega)| = 1\). Example: \(B = \frac{(s-1)(s-2)(s-3-i)(s-3+i)}{(s+1)(s+2)(s+3+i)(s+3-i)}\). They pass every frequency at full strength but delay each by a different amount: \(\frac{s-a}{s+a}\) has phase \(\pi - 2\arctan(\omega/a)\). They are used to correct phase, and every stable rational \(G\) factors as a minimum-phase part times an all-pass part.</p>
+</div>
+
+<section class="lab" id="lab3">
+  <div class="lab-head"><span class="num">Interactive 3</span><span class="title">An all-pass filter</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="aa">pole −a, a = <output for="aa"></output></label><input type="range" id="aa" min="0.2" max="10" step="0.1" value="2" data-dec="1"></div>
+    <div class="ctl"><label for="aw">test frequency ω <output for="aw"></output></label><input type="range" id="aw" min="0.1" max="20" step="0.1" value="2" data-dec="1"></div>
+    <div id="ro3" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="ph3"></div><figcaption>Phase of B(iω) = (iω − a)/(iω + a) in degrees; |B(iω)| = 1 throughout.</figcaption></figure>
+    <figure><div id="t3"></div><figcaption>Input cos ωt (gray) and steady-state output cos(ωt + φ) (pink): same amplitude, shifted.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 10.7</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 10.1 · Third-order Butterworth</button><button>Ex 10.2 · Choose the order</button><button>Ex 10.3 · High-pass</button><button>Ex 10.4 · Ideal filter</button><button>Ex 10.5 · All-pass phase</button></div>
+  <div class="panel">
+    <p>Find the poles and transfer function of the third-order low-pass Butterworth filter with \(\omega_c = 2\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\lambda_k = 2ie^{i(\pi + 2\pi k)/6}\) for \(k = 0, 1, 2\): angles \(\pi/2 + \pi/6 = 2\pi/3\), \(\pi\), \(4\pi/3\). So the poles are \(-1 \pm i\sqrt3\) and \(-2\), and</p>
+    $$G(s) = \frac{8}{(s+2)(s^2 + 2s + 4)} = \frac{8}{s^3 + 4s^2 + 8s + 8}.$$
+    <p>Check \(|G(2i)|^2 = \frac{64}{|{-8i} - 16 + 16i + 8|^2} = \frac{64}{|{-8} + 8i|^2} = \frac{64}{128} = \tfrac12\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>A low-pass Butterworth filter with \(\omega_c = 100\) must reduce a 1000 rad/s tone by at least 50 dB. What order?</p>
+    <details><summary>Solution</summary>
+    <p>\(n \ge \frac{\log_{10}(10^5 - 1)}{2\log_{10}10} = 2.5\), so \(n = 3\) (at least 60 dB of attenuation, consistent with \(-20n\) dB per decade).</p></details>
+  </div>
+  <div class="panel">
+    <p>Give the second-order high-pass Butterworth filter with cutoff 5, and its gain at \(\omega = 1\).</p>
+    <details><summary>Solution</summary>
+    <p>\(H(s) = \frac{s^2}{s^2 + 5\sqrt2s + 25}\). \(|H(i)|^2 = \frac{(1/5)^4}{1 + (1/5)^4} = \frac{1}{626}\), so \(|H(i)| = 0.040\) (\(-28\) dB).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(u = 2 + 3\cos4t - \sin9t\) passes through an ideal low-pass filter with \(\omega_c = 5\). Find \(y_{ss}\) and its average power.</p>
+    <details><summary>Solution</summary>
+    <p>Frequencies 0 and 4 pass; 9 is removed: \(y_{ss} = 2 + 3\cos4t\). Power \(= 2^2 + 3^2/2 = 8.5\).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(u = \cos t\) passes through \(B(s) = \frac{1 - s}{1 + s}\). Find \(y_{ss}\).</p>
+    <details><summary>Solution</summary>
+    <p>\(B(i) = \frac{1 - i}{1 + i} = -i = e^{-i\pi/2}\), so \(y_{ss} = \cos(t - \pi/2) = \sin t\). The magnitude is 1 and the phase lag is a quarter period. (Here \(\gamma = -1\) in the Blaschke form, giving phase \(-2\arctan\omega\).)</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 10.8</span>Practice problems</h2></div>
+<div id="qz"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/gen-final.js"></script>
+<script src="../assets/js/sys.js"></script>
+<script>
+(function () {
+  const { C, num, str, abs, arg, add, sub, mul, div } = CX;
+  const PI = Math.PI, dB = x => 20 * Math.log10(Math.max(x, 1e-12));
+  const unitPoles = n => Array.from({ length: n }, (_, k) => mul(C(0, 1), CX.polar(1, (PI + 2 * PI * k) / (2 * n))));
+  // G1(m) = 1/Π(m - λk) for the unit-cutoff low-pass filter
+  const G1 = (lam, m) => lam.reduce((acc, l) => div(acc, sub(m, l)), C(1));
+  // frequency response and poles of each Butterworth type
+  function butter(type, n, a, b) {
+    const lam = unitPoles(n);
+    const mOf = {
+      lp: s => CX.scale(s, 1 / a), hp: s => div(C(a), s),
+      bp: s => div(add(mul(s, s), C(a * b)), CX.scale(s, b - a)), bs: s => div(CX.scale(s, b - a), add(mul(s, s), C(a * b))),
+    }[type];
+    const H = w => G1(lam, mOf(C(0, w)));
+    let poles;
+    if (type === "lp" || type === "hp") poles = lam.map(l => (type === "lp" ? CX.scale(l, a) : div(C(a), l)));
+    else poles = [].concat(...lam.map(l => (type === "bp" ? CX.roots([C(1), CX.scale(l, -(b - a)), C(a * b)]) : CX.roots([l, C(-(b - a)), CX.scale(l, a * b)]))));
+    return { H, poles };
+  }
+  window.butter = butter;
+
+  // ---------- Interactive 1 ----------
+  let pzR = 0, pz = null;
+  UI.wire("#lab1", () => {
+    const type = UI.seg("fT"), n = UI.val("fN");
+    let a = 10 ** UI.val("fA"), b = 10 ** UI.val("fB");
+    if ((type === "bp" || type === "bs") && b <= a * 1.05) b = a * 1.05;
+    const { H, poles } = butter(type, n, a, b);
+    const lo = Math.min(a, b) / 30, hi = Math.max(a, b) * 30, w = UI.logspace(lo, hi, 600);
+    const ideal = w.map(v => ({ lp: v < a, hp: v > a, bp: v > a && v < b, bs: v < a || v > b }[type] ? 0 : -80));
+    UI.plot("#mag1", { xlabel: "ω (rad/s)", ylabel: "dB", logx: true, xlim: [lo, hi], ylim: [-80, 5], h: 320,
+      series: [{ x: w, y: ideal, c: 6, dash: true }, { x: w, y: w.map(v => dB(abs(H(v)))), c: 4, width: 2.6 }], hlines: [{ y: -3, label: "−3 dB" }] });
+    const R = Math.max(2, Math.ceil(Math.max(...poles.map(abs)) * 1.2));
+    if (!pz || pzR !== R) { pz = UI.cplane("#pz1", { R, w: 340, h: 340 }); pzR = R; }
+    pz.redraw({ points: poles.map(p => ({ z: p, c: 4, r: 5 })), circles: type === "lp" || type === "hp" ? [{ r: a, c: 6, dash: true }] : [] });
+    const band = type === "bp" || type === "bs";
+    UI.readout("#ro1", [[band ? "band [a, b]" : "cutoff ωc", band ? `[${num(a, 3)}, ${num(b, 3)}]` : num(a, 3)], ["order / poles", `${n} / ${poles.length}`],
+      [band ? "|G| at √(ab)" : "|G(iωc)|", band ? num(abs(H(Math.sqrt(a * b))), 4) : num(abs(H(a)), 4)], ["roll-off", `${(band ? -20 : -20) * n} dB/decade`],
+      ["stable?", poles.every(p => p.re < 0) ? "yes" : "no"]]);
+    UI.live("#lab1", `${type.toUpperCase()} n = ${n}`);
+  });
+
+  // ---------- Interactive 2 ----------
+  UI.wire("#lab2", () => {
+    const type = UI.seg("gT"), n = UI.val("gN"), c = UI.val("gC");
+    const { H } = type === "bp" ? butter("bp", n, c / 3, c * 3) : butter(type, n, c, c);
+    const ws = [1, 10, 100], G = ws.map(w => H(w));
+    const t = UI.linspace(0, 2 * PI, 1500);
+    UI.plot("#plot2", { xlabel: "t", ylabel: "signal", xlim: [0, 2 * PI], ylim: [-3.2, 3.2], h: 300,
+      series: [{ x: t, y: t.map(v => ws.reduce((s, w) => s + Math.cos(w * v), 0)), c: 6, width: 1 }, { x: t, y: t.map(v => ws.reduce((s, w, i) => s + abs(G[i]) * Math.cos(w * v + arg(G[i])), 0)), c: 4, width: 2.4 }] });
+    UI.readout("#ro2", ws.map((w, i) => [`gain at ω = ${w}`, abs(G[i]), `phase ${num(arg(G[i]) * 180 / PI, 3)}°`]));
+    const best = G.map(abs).indexOf(Math.max(...G.map(abs)));
+    UI.live("#lab2", `mostly cos ${ws[best] === 1 ? "" : ws[best]}t`);
+  });
+
+  // ---------- Interactive 3 ----------
+  UI.wire("#lab3", () => {
+    const a = UI.val("aa"), w0 = UI.val("aw"), w = UI.logspace(0.01, 1000, 500);
+    const B = v => div(C(-a, v), C(a, v));
+    UI.plot("#ph3", { xlabel: "ω", ylabel: "phase (deg)", logx: true, xlim: [0.01, 1000], ylim: [0, 185], h: 300,
+      series: [{ x: w, y: w.map(v => (PI - 2 * Math.atan(v / a)) * 180 / PI), c: 4, width: 2.5 }], vlines: [{ x: a, label: "ω = a" }], points: [{ x: w0, y: (PI - 2 * Math.atan(w0 / a)) * 180 / PI, c: 4 }] });
+    const ph = arg(B(w0)), t = UI.linspace(0, 4 * PI / w0, 500);
+    UI.plot("#t3", { xlabel: "t", ylabel: "signal", xlim: [0, t[t.length - 1]], ylim: [-1.2, 1.2], h: 300,
+      series: [{ x: t, y: t.map(v => Math.cos(w0 * v)), c: 6 }, { x: t, y: t.map(v => Math.cos(w0 * v + ph)), c: 4, width: 2.4 }] });
+    UI.readout("#ro3", [["|B(iω)|", abs(B(w0))], ["phase", `${num(ph, 4)} rad`, `= π − 2 arctan(ω/a), ${num(ph * 180 / PI, 4)}°`]]);
+    UI.live("#lab3", `φ = ${num(ph * 180 / PI, 3)}°`);
+  });
+
+  QZ.mount("#qz", { topics: ["flt-butter", "flt-type", "flt-allpass"], title: "Filters: problem generator" });
+})();
+</script>
+</body>
+</html>

@@ -6,27 +6,26 @@ Live site (once GitHub Pages is enabled): `https://mgreenlee16.github.io/mgreenl
 
 ## Contents
 
-**Exam 1 (complete)**
+| Exam | Lessons (`lessons/`) | Review |
+| --- | --- | --- |
+| Exam 1 | `complex`, `inner-products`, `fourier-series`, `dft` | `exams/exam1.html` |
+| Exam 2 | `laplace`, `inverse-laplace`, `transfer-functions`, `state-space` | `exams/exam2.html` |
+| Final | `bode`, `filters`, `fourier-transform` | `exams/final.html` (new material or cumulative) |
 
-| Page | What's in it |
-| --- | --- |
-| `lessons/complex.html` | Complex arithmetic, polar form, powers and roots, logs and complex powers, phasors. 3 interactives. |
-| `lessons/inner-products.html` | Linear spaces, inner products on ℂⁿ and L²(0,τ), Cauchy–Schwarz, orthogonal expansions, Parseval, best approximation. 3 interactives. |
-| `lessons/fourier-series.html` | Coefficients, cosine–sine and harmonic forms, spectra, Parseval, truncation error, Gibbs, shift/modulation/derivative rules, leakage. 4 interactives. |
-| `lessons/dft.html` | Sampling, the DFT matrix, MATLAB `fft`/`ifft` ordering, Nyquist and aliasing, the FFT, reading spectra in Hz. 4 interactives. |
-| `exams/exam1.html` | Objectives checklist, formula sheet, common mistakes, four exam-style problems with solutions, practice-exam generator (optional 50-minute timer), progress by topic. |
-| `practice.html` | All 18 Exam 1 problem generators in one drill, with per-topic accuracy. |
-| `tools/complex.html`, `tools/fourier.html`, `tools/dft.html` | Complex calculator; Fourier series calculator (any piecewise f(t)); MATLAB-style fft/ifft calculator. |
+Each lesson has prose in the course notation, live interactive figures (31 in all), worked examples, and a problem generator. Altogether there are 44 generator topics, each producing endless exam-style problems with checked answers and worked solutions.
 
-**Exam 2 and Final:** shown as "coming soon". They will be added when that material is uploaded.
+- `practice.html`: every generator in one drill, filtered by exam, with per-topic accuracy.
+- `tools/`: `complex` (complex calculator), `fourier` (Fourier series of any piecewise f(t)), `dft` (MATLAB-style fft/ifft), `laplace` (partial fractions like MATLAB's `residue`, inverse Laplace), `system` (transfer-function analyzer: poles, stability, step/impulse responses, Bode plot, steady-state output).
 
 ## Conventions
 
-Notation follows the course notes (A. E. Frazho, *Notes on Signals and Systems*):
+Notation follows the course textbook (A. E. Frazho, *Notes on Signals and Systems*) and lecture notes:
 
 - f(t) = Σ aₖ e^(−ikω₀t), with aₖ = (1/τ)∫₀^τ f(t) e^(+ikω₀t) dt and ω₀ = 2π/τ
 - (f, g) = (1/τ)∫₀^τ f ḡ dt on L²(0, τ)
 - F_ν[j, k] = e^(−2πijk/ν), so `ifft(samples)` = [a₀, a₁, …, a₋₁]
+- G(s) = ∫₀^∞ e^(−st) g(t) dt; steady state y_ss = |G(iω)| cos(ωt + ∠G(iω))
+- Ĝ(ω) = ∫ e^(−iωt) g(t) dt, g(t) = (1/2π) ∫ e^(iωt) Ĝ(ω) dω
 
 Some lecture slides use e^(+jkω₀t). The lessons point out where this flips a sign.
 
@@ -38,6 +37,9 @@ assets/js/cx.js             complex arithmetic, expression parser, quadrature, F
 assets/js/ui.js             site chrome, controls, SVG plots, complex plane, site map
 assets/js/quiz.js           problem-generator engine (drill, practice exam, mastery)
 assets/js/gen-exam1.js      Exam 1 problem generators
+assets/js/gen-exam2.js      Exam 2 problem generators (Laplace, partial fractions, transfer functions, state space)
+assets/js/gen-final.js      Final problem generators (sinusoid response, Bode, filters, Fourier transform)
+assets/js/sys.js            transfer-function helpers (parsing, residues in real form, responses)
 assets/vendor/katex/        KaTeX 0.16.9 (MIT), served locally
 tests/validate.js           runs every generator thousands of times and checks the answers
 ```
@@ -57,9 +59,5 @@ For each generator this checks that answers are finite, that a rounded answer is
 1. Merge the working branch into `main`.
 2. In the repository, go to **Settings → Pages**, choose **Deploy from a branch**, then select `main` and `/ (root)`.
 3. The site appears at `https://mgreenlee16.github.io/mgreenle16.signals.301/` within a minute or two.
-
-## Adding Exam 2 and the Final
-
-Add lesson pages under `lessons/`, register new generators in a new `assets/js/gen-exam2.js` with `QZ.register(id, {title, exam: 2, group, lesson}, gen)`, and remove the `soon` flags for those entries in `LESSONS`, `TOOLS` and `EXAMS` in `assets/js/ui.js`.
 
 The practice problems are original problems in the style of the course's exams, not copies of them. This is a study aid, not an official course page.

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Final Exam Review · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="exams">
+<main>
+<div class="prose">
+  <div class="eyebrow">Final · Chapters 8–11, plus Exams 1 and 2</div>
+  <h1>Final Exam Review</h1>
+  <p class="lead">The final adds frequency response, Bode plots, filters and the Fourier transform (Chapters 8–11 of the notes) to everything from Exams 1 and 2. This page covers the new material in depth and links to the earlier reviews. Its practice-exam generator can draw from the new topics only or from the whole course.</p>
+  <div class="note"><b>Earlier material</b>Use the <a href="exam1.html">Exam 1 review</a> (complex numbers, inner products, Fourier series, DFT) and the <a href="exam2.html">Exam 2 review</a> (Laplace, partial fractions, transfer functions, state space) for their checklists and formula sheets. If your instructor posts an official final scope, compare it with the checklist below.</div>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#objectives">Learning objectives checklist</a></li>
+    <li><a href="#sheet">Formula sheet</a></li>
+    <li><a href="#mistakes">Common mistakes</a></li>
+    <li><a href="#problems">Exam-style problems</a></li>
+    <li><a href="#exam">Practice exam generator</a></li>
+    <li><a href="#progress">Your progress</a></li>
+  </ol></nav>
+
+  <h2 id="objectives"><span class="sec">Part 1</span>Learning objectives checklist</h2>
+  <h3>Sinusoid response and Bode plots <a href="../lessons/bode.html" style="font-size:.8rem">(Lesson 9)</a></h3>
+  <ul class="checklist ck" data-ck="B">
+    <li>Find the steady-state response of a stable \(G\) to constants, sinusoids and sums of sinusoids.</li>
+    <li>Explain why the steady state needs stability, and compute \(G(i\omega)\) factor by factor (magnitude and angle).</li>
+    <li>Sketch magnitude and phase Bode plots from corner frequencies and slopes; convert gains to dB.</li>
+    <li>Find \(\omega_n\), \(\zeta\), poles, the resonance frequency \(\omega_r\) and the peak gain of a second-order system.</li>
+  </ul>
+  <h3>Filters <a href="../lessons/filters.html" style="font-size:.8rem">(Lesson 10)</a></h3>
+  <ul class="checklist ck" data-ck="F">
+    <li>Describe ideal low-, high-, band-pass and band-stop filters and why they are not realizable.</li>
+    <li>Write the low-pass Butterworth filter, its poles and \(|G(i\omega)|^2 = 1/(1 + (\omega/\omega_c)^{2n})\).</li>
+    <li>Choose a Butterworth order for a required attenuation; build high-pass and band-pass filters by substitution.</li>
+    <li>Recognize all-pass filters (Blaschke products) and compute their phase.</li>
+  </ul>
+  <h3>Fourier transform <a href="../lessons/fourier-transform.html" style="font-size:.8rem">(Lesson 11)</a></h3>
+  <ul class="checklist ck" data-ck="X">
+    <li>Compute Fourier transforms of pulses, one- and two-sided exponentials and Gaussians, and invert rational transforms.</li>
+    <li>Use the shift, modulation, scaling, derivative and convolution properties and Parseval's identity.</li>
+    <li>Relate \(\hat G(\omega)\) to \(G(i\omega)\); explain the ideal filter's noncausal impulse response.</li>
+    <li>Apply the Nyquist rate \(T &lt; \pi/\omega_{\max}\) and predict alias frequencies.</li>
+    <li>State and apply the uncertainty principle \(\sigma_g\sigma_G \ge \tfrac12\).</li>
+  </ul>
+
+  <h2 id="sheet"><span class="sec">Part 2</span>Formula sheet</h2>
+</div>
+<div class="keyeq wide">
+  <div><h4>Steady state</h4>
+    $$u = \gamma\cos(\omega t + \varphi)\Rightarrow y_{ss} = \gamma|G(i\omega)|\cos(\omega t + \varphi + \angle G(i\omega))$$
+    $$|i\omega + a| = \sqrt{\omega^2 + a^2},\quad \angle(i\omega + a) = \arctan(\omega/a)\ (a&gt;0)$$</div>
+  <div><h4>Bode</h4>
+    $$\text{dB} = 20\log_{10}|G|,\quad \text{pole: } -20\text{ dB/dec},\ -\tfrac\pi2;\quad \text{zero: } +20,\ +\tfrac\pi2$$
+    $$\text{slope at high } \omega = -20(\#p - \#z)\text{ dB/dec}$$</div>
+  <div><h4>Second order</h4>
+    $$\frac{\omega_n^2}{s^2 + 2\zeta\omega_ns + \omega_n^2},\quad \lambda = -\zeta\omega_n \pm i\omega_n\sqrt{1-\zeta^2}$$
+    $$\omega_r = \omega_n\sqrt{1 - 2\zeta^2},\quad |G(i\omega_r)| = \frac{1}{2\zeta\sqrt{1-\zeta^2}},\quad |G(i\omega_n)| = \frac{1}{2\zeta}$$</div>
+  <div><h4>Butterworth</h4>
+    $$|G|^2 = \frac{1}{1 + (\omega/\omega_c)^{2n}},\quad \lambda_k = i\omega_ce^{i(\pi + 2\pi k)/2n}$$
+    $$\text{HP: } \tfrac{s^n}{d(s)},\quad \text{BP: } G_1\!\left(\tfrac{s^2 + ab}{s(b-a)}\right),\quad n \ge \tfrac{\log(10^{A/10} - 1)}{2\log(\omega_s/\omega_c)}$$</div>
+  <div><h4>Fourier transform</h4>
+    $$\hat G = \int e^{-i\omega t}g\,dt,\quad g = \tfrac1{2\pi}\int e^{i\omega t}\hat G\,d\omega$$
+    $$\text{pulse }[-\mu,\mu]\to\tfrac{2\sin\omega\mu}{\omega},\ e^{-a|t|}\to\tfrac{2a}{a^2+\omega^2},\ e^{-at^2}\to\sqrt{\tfrac\pi a}e^{-\omega^2/4a}$$
+    $$g(t - t_0)\to e^{-i\omega t_0}\hat G,\ e^{i\omega_0t}g\to\hat G(\omega - \omega_0),\ \dot g\to i\omega\hat G$$</div>
+  <div><h4>Energy, sampling, uncertainty</h4>
+    $$\int|g|^2dt = \tfrac{1}{2\pi}\int|\hat G|^2d\omega$$
+    $$T &lt; \pi/\omega_{\max}\ \ (F_s &gt; 2f_{\max}),\qquad \sigma_g\sigma_G \ge \tfrac12$$</div>
+</div>
+
+<div class="prose">
+  <h2 id="mistakes"><span class="sec">Part 3</span>Common mistakes</h2>
+  <ul>
+    <li><b>Unstable \(G\):</b> there is no steady state, and the Bode plot does not describe a measurable response.</li>
+    <li><b>Phase quadrant:</b> a negative gain adds \(\pi\); a right-half-plane zero subtracts phase instead of adding it.</li>
+    <li><b>dB:</b> magnitudes use \(20\log_{10}\), powers \(10\log_{10}\). A factor of 10 is 20 dB; \(1/\sqrt2\) is −3 dB.</li>
+    <li><b>Resonance:</b> \(\omega_r \ne \omega_n\), and there is no peak at all when \(\zeta &gt; 1/\sqrt2\).</li>
+    <li><b>Hz vs rad/s:</b> Nyquist is \(F_s &gt; 2f_{\max}\) in Hz, or \(T &lt; \pi/\omega_{\max}\) in rad/s.</li>
+    <li><b>The \(2\pi\) in Parseval and the inverse transform</b> (and \(\frac1{|a|}\) in scaling).</li>
+  </ul>
+
+  <h2 id="problems"><span class="sec">Part 4</span>Exam-style problems</h2>
+</div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Problems</span>
+    <button>1 · Steady state &amp; Bode</button><button>2 · Resonance</button><button>3 · Butterworth</button><button>4 · Fourier transform</button></div>
+  <div class="panel">
+    <p>\(G(s) = \dfrac{20}{(s+2)(s+10)}\).</p>
+    <p><b>(a)</b> Find \(y_{ss}\) for \(u = 3 + 2\cos2t\). <b>(b)</b> Sketch the asymptotic magnitude Bode plot. <b>(c)</b> Find \(20\log_{10}|G(10i)|\).</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(G(0) = 1\). \(G(2i) = \frac{20}{(2+2i)(10+2i)} = \frac{20}{16 + 24i}\): \(|G| = 0.693\), \(\angle G = -\arctan(24/16) = -0.983\). So \(y_{ss} = 3 + 1.387\cos(2t - 0.983)\).</p>
+    <p><b>(b)</b> 0 dB up to \(\omega = 2\), then \(-20\) dB/decade to \(\omega = 10\) (reaching about \(-14\) dB), then \(-40\) dB/decade.</p>
+    <p><b>(c)</b> \(|G(10i)| = \frac{20}{|2+10i||10+10i|} = \frac{20}{10.2\cdot14.14} = 0.139\), i.e. \(-17.2\) dB (the asymptote says \(-14\); each corner is about 3 dB below its asymptote nearby).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(G(s) = \dfrac{64}{s^2 + 4s + 64}\). Find \(\omega_n\), \(\zeta\), the poles, \(\omega_r\) and the peak gain in dB. What is \(y_{ss}\) for \(u = \cos(8t)\)?</p>
+    <details><summary>Solution</summary>
+    <p>\(\omega_n = 8\), \(\zeta = 4/16 = 0.25\), poles \(-2 \pm i\sqrt{60} \approx -2 \pm 7.75i\). \(\omega_r = 8\sqrt{1 - 0.125} = 7.48\), peak \(\frac{1}{0.5\sqrt{0.9375}} = 2.07\) (6.3 dB). At \(\omega = \omega_n = 8\): \(G(8i) = \frac{64}{32i} = -2i\), so \(y_{ss} = 2\cos(8t - \pi/2) = 2\sin8t\).</p></details>
+  </div>
+  <div class="panel">
+    <p><b>(a)</b> Give the second-order low-pass Butterworth filter with \(\omega_c = 10\) and its poles. <b>(b)</b> Its gain at \(\omega = 30\) in dB. <b>(c)</b> The smallest order that attenuates \(\omega = 50\) by 40 dB. <b>(d)</b> Find \(y_{ss}\) (approximately) for \(u = \cos2t + \cos50t\) through the filter from (a).</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(G = \frac{100}{s^2 + 10\sqrt2s + 100}\), poles \(10e^{\pm i3\pi/4} = -7.07 \pm 7.07i\).</p>
+    <p><b>(b)</b> \(1/\sqrt{1 + 3^4} = 0.110\), i.e. \(-19.1\) dB.</p>
+    <p><b>(c)</b> \(n \ge \frac{\log_{10}(10^4 - 1)}{2\log_{10}5} = 2.86\), so \(n = 3\).</p>
+    <p><b>(d)</b> \(|G(2i)| = 1/\sqrt{1 + 0.2^4} = 0.9992\) and \(|G(50i)| = 1/\sqrt{1 + 625} = 0.040\). So \(y_{ss} \approx \cos(2t - 0.29) + 0.04\cos(50t + \phi)\): the 50 rad/s component is reduced 25-fold. (\(G(2i) = \frac{100}{96 + 20\sqrt2\,i}\), so \(\angle G(2i) = -\arctan\frac{20\sqrt2}{96} = -0.29\).)</p></details>
+  </div>
+  <div class="panel">
+    <p><b>(a)</b> Find \(\hat G\) for \(g = e^{-3|t|}\). <b>(b)</b> Find the transform of \(g(t-2)\) and of \(\cos(5t)g(t)\). <b>(c)</b> Use Parseval to evaluate \(\int\frac{36}{(9 + \omega^2)^2}d\omega\). <b>(d)</b> What sampling rate is needed for a signal band-limited to 300 Hz? <b>(e)</b> A Gaussian pulse has \(\sigma_G = 4\) rad/s; what is its \(\sigma_g\)?</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(\frac{6}{9 + \omega^2}\). <b>(b)</b> \(e^{-2i\omega}\frac{6}{9+\omega^2}\), and \(\tfrac12\left[\frac{6}{9 + (\omega-5)^2} + \frac{6}{9 + (\omega+5)^2}\right]\).</p>
+    <p><b>(c)</b> \(\int|g|^2 = 2\int_0^\infty e^{-6t}dt = \tfrac13\), so the integral is \(2\pi\cdot\tfrac13 = \tfrac{2\pi}{3}\).</p>
+    <p><b>(d)</b> \(F_s &gt; 600\) Hz. <b>(e)</b> Gaussians achieve equality: \(\sigma_g = \frac{1}{2\cdot4} = 0.125\) s.</p></details>
+  </div>
+</div>
+
+<div class="prose">
+  <h2 id="exam"><span class="sec">Part 5</span>Practice exam generator</h2>
+  <div class="ctl inline" style="font-family:var(--sans)"><span>Draw problems from&nbsp;</span>
+    <div class="seg" id="pool" data-value="new"><button data-value="new" aria-pressed="true">Final material only</button><button data-value="all" aria-pressed="false">Whole course (cumulative)</button></div></div>
+</div>
+<div id="examF"></div>
+<div class="prose"><h2 id="progress"><span class="sec">Part 6</span>Your progress</h2></div>
+<div id="mast"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/gen-final.js"></script>
+<script>
+(function () {
+  document.querySelectorAll(".checklist.ck").forEach(ul => {
+    ul.querySelectorAll("li").forEach((li, i) => {
+      const key = "ck3." + ul.dataset.ck + i;
+      li.innerHTML = `<label><input type="checkbox"${UI.store.get(key, "") === "1" ? " checked" : ""}><span>${li.innerHTML}</span></label>`;
+      li.querySelector("input").addEventListener("change", e => UI.store.set(key, e.target.checked ? "1" : ""));
+    });
+  });
+  const fin = QZ.ORDER.filter(id => QZ.TOPICS[id].exam === 3);
+  const m = QZ.mastery("#mast", fin);
+  const seg = document.getElementById("pool");
+  const mount = () => QZ.exam("#examF", { topics: seg.dataset.value === "new" ? fin : fin.concat(fin, QZ.ORDER), count: 10, minutes: 120, onGrade: () => m.render() });
+  seg.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    seg.dataset.value = b.dataset.value;
+    seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    mount();
+  }));
+  mount();
+})();
+</script>
+</body>
+</html>

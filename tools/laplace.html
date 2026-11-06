@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partial Fractions Calculator · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="tools">
+<main>
+<div class="prose">
+  <div class="eyebrow">Calculator · Exam 2</div>
+  <h1>Partial Fractions &amp; Inverse Laplace</h1>
+  <p class="lead">Enter \(G(s) = \text{num}/\text{den}\) and get the poles, the residues exactly as MATLAB's <code>[r,p,k] = residue(num,den)</code> reports them, the inverse transform \(g(t)\) written with real exponentials, cosines and sines, and a plot.</p>
+</div>
+<section class="calc">
+  <div class="inputs">
+    <label class="grow">num<input type="text" id="tN" value="[12 48]" spellcheck="false"></label>
+    <label class="grow">den<input type="text" id="tD" value="conv([1 2 5],[1 2 2])" spellcheck="false"></label>
+  </div>
+  <div class="presets" style="margin-top:.6rem"><span>Try</span>
+    <button data-p='["6*(s+3)","(s+1)(s+2)(s+4)"]'>real poles</button>
+    <button data-p='["[20]","[1 2 5 0]"]'>complex pair</button>
+    <button data-p='["[1]","s*(s+1)^3"]'>repeated pole</button>
+    <button data-p='["[4 -8 8]","[1 4 20]"]'>direct term</button>
+    <button data-p='["[2 -4 2]","s*(s+1)*(s+2)"]'>ODE example</button>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="results" id="tex" style="overflow-x:auto"></div>
+  <div class="calc-grid results"><div><div id="ro" class="readout"></div><div id="tab"></div></div><div id="pl"></div></div>
+  <div class="results" id="pt"></div>
+</section>
+<div class="prose">
+  <h2>How to enter polynomials</h2>
+  <p>Use MATLAB coefficient vectors, highest power first (<code>[1 3 2]</code> is \(s^2 + 3s + 2\)), products with <code>conv([1 2],[1 3])</code>, or type a polynomial in \(s\) directly, such as <code>(s+1)(s^2+2s+5)</code>. The numerator may have the same degree as the denominator; the extra constant is the direct term \(k\), which becomes \(k\,\delta(t)\). The method is explained in <a href="../lessons/inverse-laplace.html">Lesson 6</a>.</p>
+  <p><a href="../index.html#tools">← All calculators</a></p>
+</div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/sys.js"></script>
+<script>
+(function () {
+  const { str, abs, num } = CX;
+  const $ = id => document.getElementById(id);
+  let pl = null, plR = 0;
+  function run() {
+    let n, d, pf;
+    try { n = SYS.parseVec($("tN").value); d = SYS.parseVec($("tD").value); pf = CX.residues(n, d); $("err").textContent = ""; }
+    catch (e) { $("err").textContent = "Could not read num/den, or deg num > deg den."; return; }
+    const ps = SYS.poles(d), zs = SYS.zeros(n);
+    $("tex").innerHTML = `$$G(s) = ${SYS.tfTex(n, d)}\\qquad\\Longrightarrow\\qquad g(t) = ${SYS.realTex(pf)}$$`;
+    UI.whenMath(() => UI.typeset($("tex")));
+    UI.readout("#ro", [["direct term k", str(pf.k, 6)], ["zeros", zs.map(z => str(z, 4)).join(", ") || "none"], ["stable?", SYS.stable(d) ? "yes" : "no"]]);
+    UI.table("#tab", ["r (residue)", "p (pole)", "term"], pf.terms.map(T => [str(T.c, 6), str(T.p, 6), T.j === 1 ? "r/(s − p)" : `r/(s − p)^${T.j}`]));
+    const R = Math.max(3, Math.ceil(Math.max(...ps.concat(zs).map(abs), 1) * 1.2));
+    if (!pl || plR !== R) { pl = UI.cplane("#pl", { R, w: 360, h: 360 }); plR = R; }
+    pl.redraw({ points: [...ps.map(p => ({ z: p, c: 4, r: 6 })), ...zs.map(z => ({ z, c: 1, r: 5 }))] });
+    const slow = Math.min(...ps.map(p => Math.abs(p.re)).filter(x => x > 1e-6), 1), T = Math.min(40, Math.max(4, 6 / slow)), t = UI.linspace(0, T, 600);
+    UI.plot("#pt", { xlabel: "t", ylabel: "g(t)", xlim: [0, T], h: 300, series: [{ x: t, y: t.map(v => CX.invLaplaceAt(pf, v)), c: 4, width: 2.5 }] });
+  }
+  ["tN", "tD"].forEach(id => $(id).addEventListener("input", run));
+  document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { const [a, c] = JSON.parse(b.dataset.p); $("tN").value = a; $("tD").value = c; run(); }));
+  run();
+})();
+</script>
+</body>
+</html>

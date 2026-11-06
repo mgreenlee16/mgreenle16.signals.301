@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam 2 Review · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="exams">
+<main>
+<div class="prose">
+  <div class="eyebrow">Exam 2 · Chapters 4–6 of the notes</div>
+  <h1>Exam 2 Review</h1>
+  <p class="lead">Exam 2 covers Laplace transforms, partial fractions and differential equations, transfer functions (circuits, impedance, stability, the final value theorem, mass–spring–damper systems) and state space. This page has an objectives checklist, a formula sheet with the Laplace table, common mistakes, four exam-style problems with full solutions, and a practice-exam generator.</p>
+  <div class="note"><b>About the scope</b>This page follows the Laplace-transform lecture notes and Chapters 4–6 of the textbook. If your instructor posts an official Exam 2 scope, compare it with the checklist below.</div>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#objectives">Learning objectives checklist</a></li>
+    <li><a href="#sheet">Formula sheet</a></li>
+    <li><a href="#mistakes">Common mistakes</a></li>
+    <li><a href="#problems">Exam-style problems</a></li>
+    <li><a href="#exam">Practice exam generator</a></li>
+    <li><a href="#progress">Your progress</a></li>
+  </ol></nav>
+
+  <h2 id="objectives"><span class="sec">Part 1</span>Learning objectives checklist</h2>
+  <p>Tick each item when you can do it without notes. Ticks are saved in this browser.</p>
+  <h3>Laplace transform <a href="../lessons/laplace.html" style="font-size:.8rem">(Lesson 5)</a></h3>
+  <ul class="checklist ck" data-ck="L">
+    <li>State the definition, exponential order and the region of convergence \(\Re s &gt; \gamma\).</li>
+    <li>Transform combinations of constants, \(t^n\), \(e^{at}\), sinusoids and damped sinusoids using the table and linearity.</li>
+    <li>Use the \(e^{at}\) shift, the derivative and integral rules, convolution and the delay rule (with its step function).</li>
+    <li>Use the delta function: \(\mathcal L\delta = 1\), \(g\otimes\delta = g\).</li>
+  </ul>
+  <h3>Partial fractions and ODEs <a href="../lessons/inverse-laplace.html" style="font-size:.8rem">(Lesson 6)</a></h3>
+  <ul class="checklist ck" data-ck="P">
+    <li>Find poles and zeros; tell proper from strictly proper.</li>
+    <li>Expand with distinct real poles (cover-up), complex poles (Lemma 1 or completing the square) and repeated poles.</li>
+    <li>Handle a direct term and the resulting \(\delta(t)\); read MATLAB's <code>residue</code> output.</li>
+    <li>Solve linear ODEs with initial conditions and check the answer at \(t = 0\) and \(t\to\infty\).</li>
+  </ul>
+  <h3>Transfer functions <a href="../lessons/transfer-functions.html" style="font-size:.8rem">(Lesson 7)</a></h3>
+  <ul class="checklist ck" data-ck="T">
+    <li>Find \(G(s)\) from an ODE; relate it to the impulse response and convolution.</li>
+    <li>Find transfer functions of RLC circuits from Kirchhoff's laws or impedances (series, parallel, divider).</li>
+    <li>Decide stability from the poles, and apply the final value theorem only when \(G\) is stable.</li>
+    <li>Analyze a mass–spring–damper: \(G\), poles, \(\omega_n\), \(\zeta\), final position, oscillation frequency.</li>
+  </ul>
+  <h3>State space <a href="../lessons/state-space.html" style="font-size:.8rem">(Lesson 8)</a></h3>
+  <ul class="checklist ck" data-ck="S">
+    <li>Compute \(e^{At} = \mathcal L^{-1}(sI - A)^{-1}\) and the free response \(e^{At}x(0)\).</li>
+    <li>Relate eigenvalues to poles; test stability with \(\operatorname{tr}A &lt; 0\), \(\det A &gt; 0\) for \(2\times2\).</li>
+    <li>Compute \(G(s) = C(sI-A)^{-1}B + D\) and \(G(0) = D - CA^{-1}B\).</li>
+    <li>Write an ODE or mass–spring–damper system in state-space (companion) form.</li>
+  </ul>
+
+  <h2 id="sheet"><span class="sec">Part 2</span>Formula sheet</h2>
+</div>
+<div class="keyeq wide">
+  <div><h4>Laplace pairs</h4>
+    $$\delta\to1,\ \ 1\to\tfrac1s,\ \ t^n\to\tfrac{n!}{s^{n+1}},\ \ e^{at}\to\tfrac1{s-a},\ \ t^ne^{at}\to\tfrac{n!}{(s-a)^{n+1}}$$
+    $$\cos\omega t\to\tfrac{s}{s^2+\omega^2},\quad \sin\omega t\to\tfrac{\omega}{s^2+\omega^2}$$
+    $$e^{at}\cos\omega t\to\tfrac{s-a}{(s-a)^2+\omega^2},\quad e^{at}\sin\omega t\to\tfrac{\omega}{(s-a)^2+\omega^2}$$</div>
+  <div><h4>Properties</h4>
+    $$e^{at}g\to G(s-a),\quad \dot g\to sG - g(0),\quad \ddot g\to s^2G - sg(0) - \dot g(0)$$
+    $$\textstyle\int_0^tg\to G/s,\quad g\otimes u\to GU,\quad g(t-t_0)1_+(t-t_0)\to e^{-st_0}G$$</div>
+  <div><h4>Partial fractions</h4>
+    $$a_j = [G(s)(s-\lambda_j)]_{s=\lambda_j},\qquad k = G(\infty)\to k\delta(t)$$
+    $$\tfrac{\gamma}{s-a-i\omega} + \tfrac{\bar\gamma}{s-a+i\omega}\to 2\Re\gamma\,e^{at}\cos\omega t - 2\Im\gamma\,e^{at}\sin\omega t$$
+    $$\tfrac{c}{(s-\lambda)^m}\to c\tfrac{t^{m-1}}{(m-1)!}e^{\lambda t}$$</div>
+  <div><h4>Transfer functions</h4>
+    $$Y = GU,\quad y = g\otimes u,\quad \text{stable}\iff \Re\lambda &lt; 0\ \forall\text{ poles}$$
+    $$\text{FVT: } y(\infty) = G(0)u_0\ \text{(stable } G\text{ only)}$$
+    $$Z_R = R,\ Z_L = Ls,\ Z_C = \tfrac1{Cs},\quad G = \tfrac{Z_2}{Z_1 + Z_2}$$
+    $$m\ddot y + c\dot y + ky = u:\ \omega_n = \sqrt{k/m},\ \zeta = \tfrac{c}{2\sqrt{mk}}$$</div>
+  <div><h4>State space</h4>
+    $$\dot x = Ax + Bu,\ y = Cx + Du,\quad e^{At} = \mathcal L^{-1}(sI-A)^{-1}$$
+    $$x(t) = e^{At}x(0) + \textstyle\int_0^te^{A(t-\sigma)}Bu\,d\sigma$$
+    $$G = C(sI-A)^{-1}B + D,\quad \det(sI - A) = s^2 - (\operatorname{tr}A)s + \det A$$</div>
+  <div><h4>2×2 inverse and companion form</h4>
+    $$\begin{bmatrix}a&amp;b\\c&amp;d\end{bmatrix}^{-1} = \tfrac{1}{ad-bc}\begin{bmatrix}d&amp;-b\\-c&amp;a\end{bmatrix}$$
+    $$\ddot y + a_1\dot y + a_0y = bu:\ A = \begin{bmatrix}0&amp;1\\-a_0&amp;-a_1\end{bmatrix},\ B = \begin{bmatrix}0\\b\end{bmatrix}$$</div>
+</div>
+
+<div class="prose">
+  <h2 id="mistakes"><span class="sec">Part 3</span>Common mistakes</h2>
+  <ul>
+    <li><b>Forgetting \(\omega\) in \(\sin\):</b> \(\mathcal L\{\sin5t\} = 5/(s^2+25)\), not \(1/(s^2+25)\).</li>
+    <li><b>Shift without a step:</b> \(e^{-st_0}G(s)\) is the transform of \(g(t-t_0)1_+(t-t_0)\) only.</li>
+    <li><b>Initial conditions:</b> \(\mathcal L\{\ddot y\} = s^2Y - sy(0) - \dot y(0)\). Watch the signs and include both terms.</li>
+    <li><b>Improper or same-degree \(G\):</b> pull out the direct term first; it becomes \(k\delta(t)\).</li>
+    <li><b>Complex residues:</b> \(\gamma\) gives \(+2\Re\gamma\cos\) and \(-2\Im\gamma\sin\). The minus sign is easy to drop.</li>
+    <li><b>Final value theorem without stability:</b> poles at 0, on the imaginary axis or in the right half-plane mean no final value.</li>
+    <li><b>Transfer functions assume zero initial conditions.</b> Free responses come from \(e^{At}x(0)\) or from the ODE with its initial conditions.</li>
+  </ul>
+
+  <h2 id="problems"><span class="sec">Part 4</span>Exam-style problems</h2>
+</div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Problems</span>
+    <button>1 · Laplace transforms</button><button>2 · Partial fractions &amp; ODE</button><button>3 · Circuits &amp; MSD</button><button>4 · State space</button></div>
+  <div class="panel">
+    <p><b>(a)</b> Find \(\mathcal L\{3e^{-2t}\cos4t - t^2e^{t} + 5\}\).</p>
+    <p><b>(b)</b> Find the transform of the pulse \(g = 2\) on \([1,3]\), zero elsewhere.</p>
+    <p><b>(c)</b> Use transforms to compute \(e^{-2t}\otimes e^{-5t}\).</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(\frac{3(s+2)}{(s+2)^2 + 16} - \frac{2}{(s-1)^3} + \frac5s\).</p>
+    <p><b>(b)</b> \(g = 2\cdot1_+(t-1) - 2\cdot1_+(t-3)\), so \(G = \frac{2(e^{-s} - e^{-3s})}{s}\).</p>
+    <p><b>(c)</b> \(\frac{1}{(s+2)(s+5)} = \frac{1/3}{s+2} - \frac{1/3}{s+5}\), so \(e^{-2t}\otimes e^{-5t} = \tfrac13(e^{-2t} - e^{-5t})\).</p></details>
+  </div>
+  <div class="panel">
+    <p><b>(a)</b> Invert \(G(s) = \dfrac{s^2 + 2s + 10}{s(s+1)(s+5)}\).</p>
+    <p><b>(b)</b> Invert \(G(s) = \dfrac{10}{s(s^2 + 2s + 5)}\) and write \(g\) with real functions.</p>
+    <p><b>(c)</b> Solve \(\ddot y + 4\dot y + 3y = 6\), \(y(0) = 0\), \(\dot y(0) = 2\).</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> Cover-up: \(a_0 = \frac{10}{5} = 2\), \(a_{-1} = \frac{9}{(-1)(4)} = -\frac94\), \(a_{-5} = \frac{25}{(-5)(-4)} = \frac54\). \(g = 2 - \tfrac94e^{-t} + \tfrac54e^{-5t}\). (Check: the residues sum to 1, the leading coefficient ratio.)</p>
+    <p><b>(b)</b> Poles \(0, -1\pm2i\). \(a_0 = 2\); \(\gamma = \left.\frac{10}{s(s+1+2i)}\right|_{-1+2i} = \frac{10}{(-1+2i)(4i)} = -1 + \tfrac12i\). Lemma 1: \(g = 2 - 2e^{-t}\cos2t - e^{-t}\sin2t\). Check \(g(0) = 0\). ✓</p>
+    <p><b>(c)</b> \((s^2 + 4s + 3)Y - 2 = 6/s\), so \(Y = \frac{2s + 6}{s(s+1)(s+3)} = \frac{2}{s(s+1)}\) (the \(s+3\) cancels!). Then \(y = 2 - 2e^{-t}\). Check: \(y(0) = 0\), \(\dot y(0) = 2\), \(y(\infty) = 6/3 = 2\). ✓</p></details>
+  </div>
+  <div class="panel">
+    <p>A series loop has a source \(u\), \(R = 2\,\Omega\), \(L = 1\) H and \(C = 0.2\) F; \(y\) is the capacitor voltage.</p>
+    <p><b>(a)</b> Find \(G(s)\), its poles, and whether it is stable. <b>(b)</b> Find \(y(t)\) for \(u = 10\) V from rest. <b>(c)</b> What is the final inductor voltage? <b>(d)</b> Find the input impedance \(Z(s)\).</p>
+    <p><b>(e)</b> A mass–spring–damper has \(m = 2\), \(c = 8\), \(k = 40\) and force \(u = 20\) N. Find \(y(\infty)\), \(\omega_n\), \(\zeta\) and the poles.</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(G = \frac{1}{LCs^2 + RCs + 1} = \frac{1}{0.2s^2 + 0.4s + 1} = \frac{5}{s^2 + 2s + 5}\); poles \(-1\pm2i\): stable.</p>
+    <p><b>(b)</b> \(Y = \frac{50}{s(s^2+2s+5)}\), which is 5 times Problem 2(b): \(y = 10 - 10e^{-t}\cos2t - 5e^{-t}\sin2t\).</p>
+    <p><b>(c)</b> \(G_L(0) = 0\), so 0 V (all 10 V end up across the capacitor).</p>
+    <p><b>(d)</b> \(Z = 2 + s + \frac{5}{s} = \frac{s^2 + 2s + 5}{s}\).</p>
+    <p><b>(e)</b> \(y(\infty) = 20/40 = 0.5\) m; \(\omega_n = \sqrt{20} \approx 4.47\); \(\zeta = \frac{8}{2\sqrt{80}} \approx 0.447\); poles of \(2s^2 + 8s + 40\): \(-2 \pm 4i\).</p></details>
+  </div>
+  <div class="panel">
+    <p>\(A = \begin{bmatrix}0 &amp; 1\\ -6 &amp; -5\end{bmatrix}\), \(B = \begin{bmatrix}0\\1\end{bmatrix}\), \(C = \begin{bmatrix}2 &amp; 1\end{bmatrix}\), \(D = 0\).</p>
+    <p><b>(a)</b> Eigenvalues and stability. <b>(b)</b> \(G(s)\). <b>(c)</b> \(x(t)\) for \(u = 0\), \(x(0) = (1, 0)\). <b>(d)</b> \(G(0)\).</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(\det(sI - A) = s^2 + 5s + 6 = (s+2)(s+3)\): eigenvalues \(-2, -3\); stable.</p>
+    <p><b>(b)</b> \(\operatorname{adj}(sI - A) = \begin{bmatrix}s+5 &amp; 1\\ -6 &amp; s\end{bmatrix}\), so \((sI-A)^{-1}B = \frac{1}{(s+2)(s+3)}\begin{bmatrix}1\\ s\end{bmatrix}\) and \(G = \frac{2 + s}{(s+2)(s+3)} = \frac{1}{s+3}\). The eigenvalue \(-2\) cancels.</p>
+    <p><b>(c)</b> First column of \((sI - A)^{-1}\): \(\frac{s+5}{(s+2)(s+3)} \to 3e^{-2t} - 2e^{-3t}\) and \(\frac{-6}{(s+2)(s+3)} \to -6e^{-2t} + 6e^{-3t}\). So \(x_1 = 3e^{-2t} - 2e^{-3t}\), \(x_2 = -6e^{-2t} + 6e^{-3t}\). (\(e^{-2t}\) appears even though \(-2\) is not a pole of \(G\).)</p>
+    <p><b>(d)</b> \(G(0) = \tfrac13\).</p></details>
+  </div>
+</div>
+
+<div class="prose">
+  <h2 id="exam"><span class="sec">Part 5</span>Practice exam generator</h2>
+  <p>Problems are drawn from all sixteen Exam 2 topics, graded together at the end, with worked solutions. Generate again for a new exam.</p>
+</div>
+<div id="exam2"></div>
+<div class="prose"><h2 id="progress"><span class="sec">Part 6</span>Your progress</h2></div>
+<div id="mast"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script>
+(function () {
+  document.querySelectorAll(".checklist.ck").forEach(ul => {
+    ul.querySelectorAll("li").forEach((li, i) => {
+      const key = "ck2." + ul.dataset.ck + i;
+      li.innerHTML = `<label><input type="checkbox"${UI.store.get(key, "") === "1" ? " checked" : ""}><span>${li.innerHTML}</span></label>`;
+      li.querySelector("input").addEventListener("change", e => UI.store.set(key, e.target.checked ? "1" : ""));
+    });
+  });
+  const ids = QZ.ORDER.filter(id => QZ.TOPICS[id].exam === 2);
+  const m = QZ.mastery("#mast", ids);
+  QZ.exam("#exam2", { topics: ids, count: 8, minutes: 50, onGrade: () => m.render() });
+})();
+</script>
+</body>
+</html>

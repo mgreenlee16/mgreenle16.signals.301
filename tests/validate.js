@@ -13,6 +13,7 @@ const CX = require(js("cx.js"));
 const QZ = require(js("quiz.js"));
 require(js("gen-exam1.js"));
 require(js("gen-exam2.js"));
+require(js("gen-final.js"));
 
 const RUNS = +process.argv[2] || 300;
 const sig4 = x => (x === 0 ? 0 : +x.toPrecision(4));

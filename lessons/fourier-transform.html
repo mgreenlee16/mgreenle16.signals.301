@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Fourier Transform &amp; Uncertainty · Learn Signals</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../" data-section="lessons" data-lesson="fourier-transform">
+<main>
+<div class="prose">
+  <div class="eyebrow">Lesson 11 · Final</div>
+  <h1>The Fourier Transform &amp; Uncertainty</h1>
+  <p class="lead">A Fourier series breaks a periodic signal into harmonics \(k\omega_0\). Let the period grow without bound and the harmonics merge into a continuum: every signal on the whole real line becomes an integral of sinusoids. This lesson defines the Fourier transform and its inverse, works out the standard pairs and properties, connects it to the Laplace transform and to filtering, derives the Nyquist sampling rate, and proves that no signal can be sharply concentrated in both time and frequency.</p>
+  <nav class="toc"><b>Contents</b><ol>
+    <li><a href="#def">Definition and inverse</a></li>
+    <li><a href="#pairs">Standard pairs</a></li>
+    <li><a href="#props">Properties</a></li>
+    <li><a href="#laplace">Rational transforms and the Laplace transform</a></li>
+    <li><a href="#filters">Transfer functions and ideal filters</a></li>
+    <li><a href="#nyquist">The Nyquist sampling rate</a></li>
+    <li><a href="#uncert">The uncertainty principle</a></li>
+    <li><a href="#examples">Worked examples</a></li>
+    <li><a href="#practice">Practice problems</a></li>
+  </ol></nav>
+
+  <h2 id="def"><span class="sec">Section 11.1</span>Definition and inverse</h2>
+  <p>For \(g\) in \(L^1(-\infty,\infty)\) (or \(L^2\)), the <b class="term">Fourier transform</b> and its inverse are</p>
+  $$\hat G(\omega) = (\mathcal Fg)(\omega) = \int_{-\infty}^{\infty}e^{-i\omega t}g(t)\,dt,\qquad g(t) = \frac{1}{2\pi}\int_{-\infty}^{\infty}e^{i\omega t}\hat G(\omega)\,d\omega.$$
+  <p>The inverse writes \(g\) as a continuous sum of sinusoids \(e^{i\omega t}\) with weights \(\hat G(\omega)\), so \(|\hat G(\omega)|\) is the <b>spectrum</b> of \(g\). For real \(g\), \(\hat G(-\omega) = \overline{\hat G(\omega)}\), so the magnitude is even and only \(\omega \ge 0\) needs plotting. Unlike the Laplace transform, \(g\) may be nonzero for \(t &lt; 0\), but it must decay: \(e^t1_+(t)\) has a Laplace transform \(1/(s-1)\) and no Fourier transform.</p>
+
+  <h2 id="pairs"><span class="sec">Section 11.2</span>Standard pairs</h2>
+  <table class="data text"><thead><tr><th>g(t)</th><th>Ĝ(ω)</th><th>Note</th></tr></thead><tbody>
+    <tr><td>pulse: 1 on \([-\mu,\mu]\)</td><td>\(\dfrac{2\sin\omega\mu}{\omega} = 2\mu\,\mathrm{sinc}(\omega\mu)\)</td><td>\(\mathrm{sinc}(x) = \sin x/x\); \(\hat G(0) = 2\mu\), the area</td></tr>
+    <tr><td>\(e^{at}1_+(t)\), \(\Re a &lt; 0\)</td><td>\(\dfrac{1}{i\omega - a}\)</td><td>the Laplace transform at \(s = i\omega\)</td></tr>
+    <tr><td>\(e^{-a|t|}\), \(a &gt; 0\)</td><td>\(\dfrac{2a}{a^2 + \omega^2}\)</td><td>real and even, like \(g\)</td></tr>
+    <tr><td>\(e^{-at^2}\), \(a &gt; 0\)</td><td>\(\sqrt{\pi/a}\;e^{-\omega^2/4a}\)</td><td>a Gaussian maps to a Gaussian</td></tr>
+    <tr><td>\(\delta(t)\)</td><td>\(1\)</td><td>all frequencies equally</td></tr>
+    <tr><td>\(\dfrac{\sin\omega_ct}{\pi t}\)</td><td>1 for \(|\omega| &lt; \omega_c\), else 0</td><td>the ideal low-pass filter</td></tr>
+  </tbody></table>
+
+  <h2 id="props"><span class="sec">Section 11.3</span>Properties</h2>
+  <div class="keyeq">
+    <div><h4>Shifts and scaling</h4>
+      $$g(t - t_0)\to e^{-i\omega t_0}\hat G(\omega),\qquad e^{i\omega_0t}g(t)\to\hat G(\omega - \omega_0)$$
+      $$g(at)\to\frac{1}{|a|}\hat G\!\left(\frac\omega a\right),\qquad \cos(\omega_0t)g\to\tfrac12[\hat G(\omega-\omega_0) + \hat G(\omega+\omega_0)]$$</div>
+    <div><h4>Calculus and products</h4>
+      $$\dot g\to i\omega\hat G(\omega),\qquad g\ast u = \int g(t-\sigma)u(\sigma)d\sigma\to\hat G\hat U$$
+      $$\int|g|^2dt = \frac1{2\pi}\int|\hat G|^2d\omega\ \ \text{(Parseval)}$$</div>
+  </div>
+  <p>Parseval's identity, with the weight \(\frac1{2\pi}\), says the transform preserves energy; it is the continuous version of \(\|f\|^2 = \sum|a_k|^2\). It also evaluates integrals: \(e^{-at}1_+\) has energy \(\frac1{2a}\), so \(\int\frac{d\omega}{a^2 + \omega^2} = \frac{\pi}{a}\).</p>
+
+  <h2 id="laplace"><span class="sec">Section 11.4</span>Rational transforms and the Laplace transform</h2>
+  <p>If \(g = 0\) for \(t &lt; 0\) and its Laplace transform \(G\) is stable, then \(\hat G(\omega) = G(i\omega)\): the Fourier transform is the Laplace transform on the imaginary axis. To invert a rational \(\hat G(\omega)\), write it in terms of \(s = i\omega\) and expand in partial fractions. Poles in the left half-plane give terms \(e^{\lambda t}1_+(t)\) that live in \(t \ge 0\). Poles in the right half-plane give terms \(-e^{\lambda t}1_+(-t)\) that live in \(t \le 0\), since \(\mathcal F\{-e^{\lambda t}1_+(-t)\} = \frac{1}{i\omega - \lambda}\) when \(\Re\lambda &gt; 0\). For example \(\frac{2a}{a^2+\omega^2} = \frac{1}{a + i\omega} + \frac{1}{a - i\omega}\) gives \(e^{-at}\) for \(t&gt;0\) plus \(e^{at}\) for \(t&lt;0\), which is \(e^{-a|t|}\).</p>
+
+  <h2 id="filters"><span class="sec">Section 11.5</span>Transfer functions and ideal filters</h2>
+  <p>For a stable system \(y = g\ast u\), so \(\hat Y(\omega) = G(i\omega)\hat U(\omega)\). Each frequency component of the input is multiplied by the frequency response, which is the steady-state rule of Lesson 9 applied to every \(\omega\) at once. The ideal low-pass filter (\(\hat G = 1\) on \(|\omega| &lt; \omega_c\)) has impulse response</p>
+  $$g(t) = \frac1{2\pi}\int_{-\omega_c}^{\omega_c}e^{i\omega t}d\omega = \frac{\sin\omega_ct}{\pi t},$$
+  <p>which is nonzero for \(t &lt; 0\). The filter would respond before it is excited, so it is not causal and cannot be built. Butterworth filters (Lesson 10) are the practical approximation.</p>
+
+  <h2 id="nyquist"><span class="sec">Section 11.6</span>The Nyquist sampling rate</h2>
+  <p>A signal is <b>band-limited</b> if \(\hat G(\omega) = 0\) for \(|\omega| &gt; \omega_{\max}\). Sample it every \(T\) seconds. If</p>
+  $$T &lt; \frac{\pi}{\omega_{\max}}\qquad\big(\text{equivalently } F_s = 1/T &gt; 2f_{\max}\big),$$
+  <p>then the samples determine \(g\) exactly, through the <b>Shannon interpolation formula</b></p>
+  $$g(t) = \sum_{k=-\infty}^{\infty}g(kT)\,\frac{\sin\big(\pi(t - kT)/T\big)}{\pi(t - kT)/T}.$$
+  <p>Sampling makes the spectrum periodic with period \(2\pi/T\). If the copies overlap (\(T\) too large), high frequencies fold onto low ones. This is <b>aliasing</b>, the same effect seen with the DFT in Lesson 4. A tone at \(f\) Hz sampled at \(F_s\) appears at \(|f - \ell F_s|\) folded into \([0, F_s/2]\).</p>
+</div>
+
+<section class="lab" id="lab2">
+  <div class="lab-head"><span class="num">Interactive 1</span><span class="title">Sampling and Shannon reconstruction</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl"><label for="nw">signal frequency ω (rad/s) <output for="nw"></output></label><input type="range" id="nw" min="0.5" max="6" step="0.1" value="2" data-dec="1"></div>
+    <div class="ctl"><label for="nT">sample period T (s) <output for="nT"></output></label><input type="range" id="nT" min="0.1" max="2" step="0.02" value="0.5" data-dec="2"></div>
+    <div class="presets"><span>Try</span>
+      <button data-preset='{"nw":2,"nT":0.5}'>well sampled</button><button data-preset='{"nw":2,"nT":1.5}'>T too large: alias</button><button data-preset='{"nw":3,"nT":1.04}'>just at Nyquist</button>
+    </div>
+    <div id="ro2" class="readout"></div>
+  </div>
+  <div class="views"><figure><div id="plot2"></div><figcaption>g(t) = cos ωt (gray), samples g(kT) (dots) and the Shannon reconstruction Σ g(kT) sinc (pink). With T &gt; π/ω the reconstruction is a different, lower-frequency cosine.</figcaption></figure></div>
+</section>
+
+<div class="prose">
+  <h2 id="uncert"><span class="sec">Section 11.7</span>The uncertainty principle</h2>
+  <p>Normalize \(\|g\| = 1\). Then \(|g(t)|^2\) and \(|\hat G(\omega)|^2/2\pi\) are probability densities (by Parseval). Their means \(\mu_g, \mu_G\) and standard deviations \(\sigma_g, \sigma_G\) measure where the signal is, and how spread out it is, in time and in frequency:</p>
+  $$\sigma_g^2 = \int(t - \mu_g)^2|g(t)|^2dt,\qquad \sigma_G^2 = \frac1{2\pi}\int(\omega - \mu_G)^2|\hat G(\omega)|^2d\omega.$$
+  <p>The <b class="term">Fourier uncertainty principle</b> states</p>
+  $$\sigma_g\,\sigma_G \ge \tfrac12,$$
+  <p>with equality only for Gaussians \(g = ce^{-at^2 + bt}\). The proof is Cauchy–Schwarz applied to \((t - \mu_g)g\) and \(\dot g - i\mu_Gg\), using \(\sigma_G = \|\dot g - i\mu_Gg\|\) (Parseval and \(\mathcal F\dot g = i\omega\hat G\)). A short pulse must have a wide spectrum; a narrow-band signal must last a long time. For \(g = e^{-at^2}\), \(\sigma_g = \frac{1}{2\sqrt a}\) and \(\sigma_G = \sqrt a\), so the product is exactly \(\tfrac12\).</p>
+</div>
+
+<section class="lab" id="lab1">
+  <div class="lab-head"><span class="num">Interactive 2</span><span class="title">Time width versus frequency width</span><span class="live"></span></div>
+  <div class="controls">
+    <div class="ctl inline"><span>g(t)</span>
+      <div class="seg" id="uT" data-value="gauss"><button data-value="gauss" aria-pressed="true">e^(−at²)</button><button data-value="two" aria-pressed="false">e^(−a|t|)</button><button data-value="one" aria-pressed="false">e^(−at)1₊(t)</button><button data-value="pulse" aria-pressed="false">pulse ±1/a</button></div></div>
+    <div class="ctl"><label for="ua">a (larger = narrower in time) <output for="ua"></output></label><input type="range" id="ua" min="0.2" max="5" step="0.1" value="1" data-dec="1"></div>
+    <div id="ro1" class="readout"></div>
+  </div>
+  <div class="views two-up">
+    <figure><div id="pt1"></div><figcaption>g(t), normalized so its peak is 1.</figcaption></figure>
+    <figure><div id="pw1"></div><figcaption>|Ĝ(ω)|, normalized so its peak is 1.</figcaption></figure>
+  </div>
+</section>
+
+<div class="prose"><h2 id="examples"><span class="sec">Section 11.8</span>Worked examples</h2></div>
+<div class="tabs">
+  <div class="tablist"><span class="tab-title">Worked examples</span>
+    <button>Ex 11.1 · Shifted pulse</button><button>Ex 11.2 · Inverse of a rational Ĝ</button><button>Ex 11.3 · Parseval</button><button>Ex 11.4 · Sampling</button><button>Ex 11.5 · Uncertainty</button></div>
+  <div class="panel">
+    <p>Find the Fourier transform of \(g = 1\) on \([0, 2]\), zero elsewhere.</p>
+    <details><summary>Solution</summary>
+    <p>It is the pulse on \([-1,1]\) delayed by 1: \(\hat G(\omega) = e^{-i\omega}\frac{2\sin\omega}{\omega}\). Directly: \(\int_0^2e^{-i\omega t}dt = \frac{1 - e^{-2i\omega}}{i\omega} = e^{-i\omega}\frac{e^{i\omega} - e^{-i\omega}}{i\omega}\). ✓ The magnitude is the same as the centered pulse; only the phase changes.</p></details>
+  </div>
+  <div class="panel">
+    <p>Find \(g(t)\) whose Fourier transform is \(\hat G(\omega) = \dfrac{6}{(2 + i\omega)(1 - i\omega)}\).</p>
+    <details><summary>Solution</summary>
+    <p>With \(s = i\omega\): \(\frac{6}{(s+2)(1-s)} = \frac{2}{s+2} + \frac{2}{1-s}\). The left pole \(-2\) gives \(2e^{-2t}\) for \(t \ge 0\). The term \(\frac{2}{1 - i\omega}\) is the transform of \(2e^{t}1_+(-t)\), which lives on \(t \le 0\). So \(g(t) = 2e^{-2t}\) for \(t &gt; 0\) and \(2e^{t}\) for \(t &lt; 0\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Evaluate \(\displaystyle\int_{-\infty}^\infty\frac{\sin^2\omega}{\omega^2}d\omega\).</p>
+    <details><summary>Solution</summary>
+    <p>The pulse on \([-1,1]\) has \(\hat G = 2\sin\omega/\omega\) and energy \(\int|g|^2 = 2\). Parseval: \(2 = \frac1{2\pi}\int\frac{4\sin^2\omega}{\omega^2}d\omega\), so the integral is \(\pi\).</p></details>
+  </div>
+  <div class="panel">
+    <p>Audio is band-limited to 20 kHz. What is the slowest sampling rate that avoids aliasing, and where does a 30 kHz tone appear if you sample at 44.1 kHz without filtering?</p>
+    <details><summary>Solution</summary>
+    <p>\(F_s &gt; 2\cdot20 = 40\) kHz (CDs use 44.1 kHz). A 30 kHz tone is above \(F_s/2 = 22.05\) kHz and folds to \(44.1 - 30 = 14.1\) kHz. That is why an analog low-pass (anti-aliasing) filter comes before the sampler.</p></details>
+  </div>
+  <div class="panel">
+    <p>A Gaussian pulse \(e^{-at^2}\) has \(\sigma_g = 0.1\) s. Find \(a\) and \(\sigma_G\).</p>
+    <details><summary>Solution</summary>
+    <p>\(\sigma_g = \frac{1}{2\sqrt a} = 0.1\Rightarrow\sqrt a = 5\), \(a = 25\). Then \(\sigma_G = \sqrt a = 5\) rad/s, and \(\sigma_g\sigma_G = 0.5\), the minimum possible.</p></details>
+  </div>
+</div>
+
+<div class="prose"><h2 id="practice"><span class="sec">Section 11.9</span>Practice problems</h2></div>
+<div id="qz"></div>
+</main>
+<script src="../assets/js/cx.js"></script>
+<script src="../assets/js/ui.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/gen-exam1.js"></script>
+<script src="../assets/js/gen-exam2.js"></script>
+<script src="../assets/js/gen-final.js"></script>
+<script>
+(function () {
+  const { num } = CX;
+  const PI = Math.PI;
+  // ---------- sampling ----------
+  UI.wire("#lab2", () => {
+    const w = UI.val("nw"), T = UI.val("nT"), g = t => Math.cos(w * t);
+    const K = Math.ceil(60 / T), ks = Array.from({ length: 2 * K + 1 }, (_, i) => i - K);
+    const sinc = x => (Math.abs(x) < 1e-9 ? 1 : Math.sin(x) / x);
+    const rec = t => ks.reduce((s, k) => s + g(k * T) * sinc(PI * (t - k * T) / T), 0);
+    const t = UI.linspace(0, 12, 700), tk = [];
+    for (let k = 0; k * T <= 12; k++) tk.push(k * T);
+    UI.plot("#plot2", { xlabel: "t", ylabel: "signal", xlim: [0, 12], ylim: [-1.5, 1.5], h: 300,
+      series: [{ x: t, y: t.map(g), c: 6 }, { x: t, y: t.map(rec), c: 4, width: 2.4 }], stems: [{ x: tk, y: tk.map(g), c: 1, width: 1, r: 4 }] });
+    const Tmax = PI / w, ws = 2 * PI / T, alias = Math.abs(((w + ws / 2) % ws + ws) % ws - ws / 2);
+    UI.readout("#ro2", [["Nyquist: need T < π/ω", `${num(Tmax, 3)} s`], ["your T", `${num(T, 3)} s`, T < Tmax ? "OK" : "too large"], ["sampling rate 2π/T", `${num(ws, 3)} rad/s`], ["frequency seen", `${num(T < Tmax ? w : alias, 3)} rad/s`]]);
+    UI.live("#lab2", T < Tmax ? "no aliasing" : `aliased to ${num(alias, 3)} rad/s`);
+  });
+
+  // ---------- uncertainty ----------
+  UI.wire("#lab1", () => {
+    const typ = UI.seg("uT"), a = UI.val("ua");
+    const D = {
+      gauss: { g: t => Math.exp(-a * t * t), G: w => Math.exp(-w * w / (4 * a)), sg: 1 / (2 * Math.sqrt(a)), sG: Math.sqrt(a) },
+      two: { g: t => Math.exp(-a * Math.abs(t)), G: w => a * a / (a * a + w * w), sg: 1 / (Math.SQRT2 * a), sG: a },
+      one: { g: t => (t >= 0 ? Math.exp(-a * t) : 0), G: w => a / Math.hypot(a, w), sg: 1 / (2 * a), sG: Infinity },
+      pulse: { g: t => (Math.abs(t) <= 1 / a ? 1 : 0), G: w => (Math.abs(w) < 1e-9 ? 1 : Math.abs(Math.sin(w / a) / (w / a))), sg: 1 / (a * Math.sqrt(3)), sG: Infinity },
+    }[typ];
+    const t = UI.linspace(-5, 5, 800), w = UI.linspace(-30, 30, 800);
+    UI.plot("#pt1", { xlabel: "t", ylabel: "g(t)", xlim: [-5, 5], ylim: [-0.05, 1.1], h: 280, series: [{ x: t, y: t.map(D.g), c: 4, width: 2.5 }] });
+    UI.plot("#pw1", { xlabel: "ω", ylabel: "|Ĝ(ω)|", xlim: [-30, 30], ylim: [-0.05, 1.1], h: 280, series: [{ x: w, y: w.map(D.G), c: 1, width: 2.5 }] });
+    const prod = D.sg * D.sG;
+    UI.readout("#ro1", [["σ_g (time spread)", D.sg], ["σ_G (frequency spread)", isFinite(D.sG) ? D.sG : "∞ (|Ĝ|² decays too slowly)"], ["σ_g σ_G", isFinite(prod) ? prod : "∞", "always ≥ 0.5; equal only for a Gaussian"]]);
+    UI.live("#lab1", isFinite(prod) ? `σ_g σ_G = ${num(prod, 3)}` : "σ_G = ∞");
+  });
+
+  QZ.mount("#qz", { topics: ["ft-pairs", "ft-props", "ft-sampling", "ft-uncert"], title: "Fourier transform: problem generator" });
+})();
+</script>
+</body>
+</html>
