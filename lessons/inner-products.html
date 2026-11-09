@@ -25,13 +25,27 @@
   </ol></nav>
 
   <h2 id="spaces"><span class="sec">Section 2.1</span>Linear spaces</h2>
-  <p>A <b class="term">linear (vector) space</b> is a set where you can add elements and multiply them by scalars (here complex numbers) with the usual rules. The three spaces of this course are:</p>
+  <p>A <b class="term">linear (vector) space</b> is a set \(V\) with an addition and a multiplication by scalars (here complex numbers) such that, for all \(f, g, h\in V\) and scalars \(\alpha, \beta\):</p>
+  <ul>
+    <li><b>closure:</b> \(f + g\in V\) and \(\alpha f\in V\);</li>
+    <li>addition is commutative and associative, \(f + g = g + f\), \((f + g) + h = f + (g + h)\);</li>
+    <li>there is a <b>zero</b> element with \(f + 0 = f\), and each \(f\) has a negative \(-f\) with \(f + (-f) = 0\);</li>
+    <li>\(\alpha(f + g) = \alpha f + \alpha g\), \((\alpha + \beta)f = \alpha f + \beta f\), \(\alpha(\beta f) = (\alpha\beta)f\), and \(1\cdot f = f\).</li>
+  </ul>
+  <p>With the usual operations on vectors or functions, the arithmetic rules hold automatically, so <b>to test a subset, check that it contains 0 and is closed under addition and scalar multiplication</b>. \(\{x\in\mathbb R^2 : x_1 + x_2 = 0\}\) and \(\{f : f(0) = 0\}\) pass, because they are defined by linear conditions. \(\{f : f(0) = 1\}\) fails (no zero), "polynomials of degree exactly 3" fails (\((t^3 + t) - t^3 = t\)), and \(\{x : x_1 \ge 0\}\) fails (multiply by \(-1\)). The three spaces of this course are:</p>
   <ul>
     <li>\(\mathbb C^n\), column vectors of \(n\) complex numbers. Samples of a signal live here.</li>
     <li>\(L^2(0,\tau)\), functions on \([0,\tau]\) with \(\int_0^\tau |f(t)|^2dt &lt; \infty\), the finite-energy signals. Periodic signals live here, viewed over one period.</li>
     <li>Trigonometric polynomials \(\sum_{k=-n}^{n} a_ke^{-ik\omega_0t}\), a finite-dimensional subspace of \(L^2(0,\tau)\) with dimension \(2n+1\). These are what the DFT works with.</li>
   </ul>
-  <p>A set \(\{\varphi_k\}\) is <b>linearly independent</b> if \(\sum c_k\varphi_k = 0\) forces every \(c_k = 0\), and it is a <b>basis</b> if in addition every element is some combination \(\sum c_k\varphi_k\). The number of basis elements is the <b>dimension</b>: \(n\) for \(\mathbb C^n\), infinite for \(L^2(0,\tau)\).</p>
+  <p>A set \(\{\varphi_k\}\) is <b class="term">linearly independent</b> if \(\sum c_k\varphi_k = 0\) forces every \(c_k = 0\); otherwise one element is a combination of the others and the set is <b>dependent</b>. Ways to test it:</p>
+  <ul>
+    <li><b>Vectors in \(\mathbb C^n\):</b> put them in the columns of a matrix and row reduce. With \(n\) vectors in \(\mathbb C^n\), they are independent iff the determinant is nonzero. For example \([1,0,1], [0,1,1], [1,1,2]\) are dependent, since the third is the sum of the first two.</li>
+    <li><b>Functions:</b> look for an identity, such as \(\cos^2t + \sin^2t - 1 = 0\) or \(\sin(t + 1) = \cos1\sin t + \sin1\cos t\). Or evaluate \(\sum c_k\varphi_k(t) = 0\) at several values of \(t\) and solve for the \(c_k\).</li>
+    <li><b>Orthogonal sets:</b> nonzero orthogonal elements are always independent. Take the inner product of \(\sum c_k\varphi_k = 0\) with \(\varphi_j\) to get \(c_j\|\varphi_j\|^2 = 0\).</li>
+  </ul>
+  <p>A set is a <b>basis</b> if it is independent and every element is some combination \(\sum c_k\varphi_k\). The number of basis elements is the <b>dimension</b>: \(n\) for \(\mathbb C^n\), infinite for \(L^2(0,\tau)\).</p>
+  <p><b>Membership in \(L^2\).</b> \(f\in L^2(a,b)\) means \(\int_a^b|f(t)|^2dt &lt; \infty\). Bounded functions on a finite interval always qualify. Two things can go wrong. A singularity \(t^{-p}\) at an endpoint is square integrable only if \(p &lt; \tfrac12\): \(t^{-1/4}\in L^2(0,1)\), but \(t^{-1/2}\notin L^2(0,1)\) because \(\int_0^1t^{-1}dt = \infty\). On an infinite interval, \(|f|^2\) must decay faster than \(1/t\): \(e^{-t}\) and \(\frac{1}{1+t}\) are in \(L^2(0,\infty)\), but \(\frac{1}{\sqrt{1+t}}\) and \(\sin t\) are not.</p>
 
   <h2 id="ip"><span class="sec">Section 2.2</span>Inner products and norms</h2>
   <p>An <b class="term">inner product</b> \((f,g)\) assigns a complex number to each pair of elements so that</p>
@@ -247,7 +261,7 @@
     UI.live("#lab3", `error² = ${num(ff - kept, 4)}`);
   });
 
-  QZ.mount("#qz", { topics: ["ip-vec", "ip-func", "ip-expand"], title: "Inner products: problem generator" });
+  QZ.mount("#qz", { topics: ["ip-space", "ip-vec", "ip-func", "ip-expand"], title: "Inner products: problem generator" });
 })();
 </script>
 </body>

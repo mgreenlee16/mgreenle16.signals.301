@@ -50,6 +50,20 @@
   </ul>
   <p>For \(G(s) = \frac{1}{s(s+1)^3}\): \([sG]_{0} = 1\), \([(s+1)^3G]_{-1} = -1\), then \(-1\) and \(-1\) for the lower powers, so \(g(t) = 1 - \tfrac{t^2}{2}e^{-t} - te^{-t} - e^{-t}\).</p>
 
+  <h3>Pole locations and the type of time function</h3>
+  <p>Every term of \(g = \mathcal L^{-1}G\) is set by a pole (or a pair of poles). You can name the form of \(g\) just by looking at the s-plane:</p>
+  <table class="data text"><thead><tr><th>Pole(s)</th><th>Term in g(t)</th><th>Behavior</th></tr></thead><tbody>
+    <tr><td>real \(\lambda = -a &lt; 0\)</td><td>\(Ce^{-at}\)</td><td>decays; time constant \(1/a\)</td></tr>
+    <tr><td>\(\lambda = 0\)</td><td>\(C\) (a step)</td><td>constant</td></tr>
+    <tr><td>real \(\lambda = a &gt; 0\)</td><td>\(Ce^{at}\)</td><td>grows: unstable</td></tr>
+    <tr><td>pair \(\sigma \pm i\omega\), \(\sigma &lt; 0\)</td><td>\(e^{\sigma t}(B\cos\omega t + C\sin\omega t)\)</td><td>decaying oscillation at \(\omega\) rad/s</td></tr>
+    <tr><td>pair \(\pm i\omega\)</td><td>\(B\cos\omega t + C\sin\omega t\)</td><td>sustained oscillation</td></tr>
+    <tr><td>pair \(\sigma \pm i\omega\), \(\sigma &gt; 0\)</td><td>\(e^{\sigma t}(B\cos\omega t + C\sin\omega t)\)</td><td>growing oscillation: unstable</td></tr>
+    <tr><td>repeated \(\lambda\), multiplicity \(m\)</td><td>\(e^{\lambda t}, te^{\lambda t}, \dots, t^{m-1}e^{\lambda t}\)</td><td>a double pole at 0 gives a ramp \(C_1 + C_2t\)</td></tr>
+    <tr><td>\(\deg n = \deg d\)</td><td>\(k\,\delta(t)\)</td><td>direct term</td></tr>
+  </tbody></table>
+  <p>The real part sets growth or decay and the imaginary part sets the frequency. The slowest-decaying (rightmost) poles dominate the response for large \(t\).</p>
+
   <h2 id="proper"><span class="sec">Section 6.5</span>Proper functions: the direct term</h2>
   <p>If \(\deg n = \deg d\), first pull out the constant \(k = G(\infty)\), the ratio of the leading coefficients (or divide the polynomials). The remainder is strictly proper. The constant transforms back to an impulse, \(k\delta(t)\):</p>
   $$\frac{2s^2+3s+4}{s^2+3s+2} = 2 + \frac{3}{s+1} - \frac{6}{s+2} \;\longrightarrow\; g(t) = 2\delta(t) + 3e^{-t} - 6e^{-2t}.$$
@@ -206,7 +220,7 @@
     UI.live("#lab2", kind.split(" ")[0]);
   });
 
-  QZ.mount("#qz", { topics: ["pf-real", "pf-complex", "pf-repeated", "pf-proper", "pf-ode"], title: "Partial fractions & ODEs: problem generator" });
+  QZ.mount("#qz", { topics: ["pf-real", "pf-complex", "pf-repeated", "pf-proper", "pf-poletype", "pf-ode"], title: "Partial fractions & ODEs: problem generator" });
 })();
 </script>
 </body>

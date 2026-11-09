@@ -22,44 +22,68 @@
   </ol></nav>
 
   <h2 id="objectives"><span class="sec">Part 1</span>Learning objectives checklist</h2>
-  <p>Tick each item when you can do it without notes. The ticks are saved in this browser.</p>
-  <h3>Complex numbers <a href="../lessons/complex.html" style="font-size:.8rem">(Lesson 1)</a></h3>
+  <p>These are the official learning objectives for Chapters 1–3, word for word. Tick each item when you can do it without notes. The ticks are saved in this browser.</p>
+  <h3>Chapter 1 · Complex numbers <a href="../lessons/complex.html" style="font-size:.8rem">(Lesson 1)</a></h3>
   <ul class="checklist ck" data-ck="c">
-    <li>Add, multiply and divide complex numbers; use the conjugate and \(z\bar z = |z|^2\).</li>
-    <li>Convert between rectangular and polar form, getting the angle right in every quadrant.</li>
-    <li>Find the magnitude and angle of a product or quotient of several factors.</li>
-    <li>Compute large powers with De Moivre's formula.</li>
-    <li>Find all \(n\)-th roots of a complex number, and roots of unity.</li>
-    <li>Evaluate \(e^z\), \(\ln z\) (all values), \(a^b\) such as \(i^i\), and \(\cos\)/\(\sin\) of complex arguments.</li>
-    <li>Combine \(\alpha\cos\omega t + \beta\sin\omega t\) into \(\gamma\cos(\omega t - \psi)\).</li>
+    <li>Perform arithmetic with complex numbers, including addition, subtraction, multiplication, division, powers, and roots.</li>
+    <li>Represent and interpret complex numbers geometrically in the complex plane.</li>
+    <li>Determine the complex conjugate, magnitude (modulus), and argument (angle) of a complex number.</li>
+    <li>Use Euler’s formula to convert between complex exponentials and trigonometric functions.</li>
+    <li>Convert between rectangular and polar forms and use polar form to perform operations with complex numbers.</li>
+    <li>Determine the roots of unity and represent them on the unit circle.</li>
   </ul>
-  <h3>Linear spaces and inner products <a href="../lessons/inner-products.html" style="font-size:.8rem">(Lesson 2)</a></h3>
+  <h3>Chapter 1 · Linear spaces and inner products <a href="../lessons/inner-products.html" style="font-size:.8rem">(Lesson 2)</a></h3>
   <ul class="checklist ck" data-ck="i">
-    <li>Compute inner products and norms in \(\mathbb C^n\) (conjugating the second vector) and in \(L^2(0,\tau)\) with the \(1/\tau\) factor.</li>
-    <li>Decide whether two vectors or functions are orthogonal; find a constant that makes them orthogonal.</li>
-    <li>Use Cauchy–Schwarz and the Pythagorean theorem.</li>
-    <li>Expand a vector in an orthogonal basis with \(a_k = (f,\varphi_k)/\|\varphi_k\|^2\).</li>
-    <li>Use Parseval's formula and compute the error of a best approximation.</li>
+    <li>State the defining properties of a linear space and determine whether a given set with specified operations forms a linear space.</li>
+    <li>Determine whether a set of vectors or functions is linearly independent.</li>
+    <li>Compute inner products for finite-dimensional vectors and for functions.</li>
+    <li>Use an inner product to compute norms and distances.</li>
+    <li>Determine whether a set of vectors or functions is orthogonal or orthonormal.</li>
   </ul>
-  <h3>Fourier series <a href="../lessons/fourier-series.html" style="font-size:.8rem">(Lesson 3)</a></h3>
+  <h3>Chapter 1 · Orthogonal expansions and approximation <a href="../lessons/inner-products.html" style="font-size:.8rem">(Lesson 2)</a></h3>
+  <ul class="checklist ck" data-ck="o">
+    <li>Determine the coefficients of a function’s expansion in an orthogonal or orthonormal basis.</li>
+    <li>Apply Parseval’s equality to relate the norm of a function to the coefficients of its expansion.</li>
+    <li>Approximate a function using a finite subset of basis functions and quantify the resulting approximation error.</li>
+  </ul>
+  <h3>Chapter 2 · Fourier-series representation <a href="../lessons/fourier-series.html" style="font-size:.8rem">(Lesson 3)</a></h3>
   <ul class="checklist ck" data-ck="f">
-    <li>Find the period and \(\omega_0\) of a signal.</li>
-    <li>Compute \(a_k\) by integration for piecewise signals (pulses, ramps, triangles, rectified sinusoids).</li>
-    <li>Read \(a_k\) off a trigonometric polynomial, using identities for products and powers.</li>
-    <li>Convert between exponential, cosine–sine (\(\alpha_k, \beta_k\)) and harmonic (\(\gamma_k, \psi_k\)) forms.</li>
-    <li>Use symmetry: real \(\Rightarrow a_{-k} = \overline{a_k}\); even \(\Rightarrow\) real \(a_k\); odd \(\Rightarrow\) imaginary \(a_k\).</li>
-    <li>Plot an amplitude/power spectrum; compute power with Parseval and the truncation error \(\|f - p_n\|^2\).</li>
-    <li>State what the series converges to at a jump (the midpoint) and describe the Gibbs phenomenon.</li>
-    <li>Apply the shift, modulation, derivative, integral, conjugate and product rules, and know which sign convention a problem uses.</li>
+    <li>Define the space \(L^2\) and determine whether a given function belongs to \(L^2\) on a specified interval.</li>
+    <li>Determine the period, frequency, and fundamental frequency of a periodic function or Fourier series.</li>
+    <li>Calculate the Fourier-series coefficients \(a_k\) using integrals and construct the corresponding Fourier-series expansion.</li>
+    <li>Express a Fourier series in cosine-and-sine form and determine the relationship between the coefficients \((\alpha_k, \beta_k)\) and \(a_k\).</li>
+    <li>Express a Fourier series in harmonic form in terms of \(\gamma_k\) and relate this representation to other forms of the Fourier series.</li>
   </ul>
-  <h3>DFT and FFT <a href="../lessons/dft.html" style="font-size:.8rem">(Lesson 4)</a></h3>
+  <h3>Chapter 2 · Properties and efficient computation <a href="../lessons/fourier-series.html" style="font-size:.8rem">(Lesson 3)</a></h3>
+  <ul class="checklist ck" data-ck="g">
+    <li>Use properties of real-valued functions to determine relationships among their Fourier-series coefficients.</li>
+    <li>Use even or odd symmetry to simplify the calculation of Fourier-series coefficients.</li>
+    <li>Derive the Fourier series of a new function from the Fourier series of a known function.</li>
+    <li>Determine the Fourier series of a derivative from a known Fourier series, when the appropriate conditions are satisfied.</li>
+  </ul>
+  <h3>Chapter 2 · Spectral interpretation and Parseval’s equality <a href="../lessons/fourier-series.html" style="font-size:.8rem">(Lesson 3)</a></h3>
+  <ul class="checklist ck" data-ck="h">
+    <li>Determine and interpret the spectrum of a periodic function from its Fourier-series coefficients.</li>
+    <li>Determine and interpret the power spectrum of a periodic function.</li>
+    <li>Apply Parseval’s equality to relate the mean-square value or norm of a periodic function to its Fourier-series coefficients.</li>
+    <li>Explain the relationship between a periodic function and a function defined over a limited interval, including periodic extension.</li>
+  </ul>
+  <h3>Chapter 2 · Approximation, truncation, and convergence <a href="../lessons/fourier-series.html" style="font-size:.8rem">(Lesson 3)</a></h3>
+  <ul class="checklist ck" data-ck="j">
+    <li>Approximate a function using a finite number of terms from its Fourier series.</li>
+    <li>Calculate or characterize the error introduced by truncating a Fourier series.</li>
+    <li>Describe the Gibbs phenomenon qualitatively, including where it occurs and what happens as additional Fourier-series terms are included.</li>
+  </ul>
+  <h3>Chapter 3 · Discrete Fourier transform <a href="../lessons/dft.html" style="font-size:.8rem">(Lesson 4)</a></h3>
   <ul class="checklist ck" data-ck="d">
-    <li>Write down \(F_\nu\) and \(F_\nu^{-1} = \frac1\nu\overline{F_\nu}\); compute a small DFT by hand.</li>
-    <li>Know MATLAB's ordering \([a_0, a_1, \dots, a_{-1}]\) and convert between a signal and its <code>ifft</code> array.</li>
-    <li>Apply the Nyquist condition \(\nu \ge 2K+1\) and predict aliasing.</li>
-    <li>Explain why <code>ifft</code> of samples approximates the Fourier coefficients and where it fails.</li>
-    <li>State the FFT's cost \(\nu\log_2\nu\) and compute the speed-up.</li>
-    <li>Read frequencies in Hz from <code>fft</code> peak indices, including negative frequencies and the sign of complex exponentials.</li>
+    <li>Construct and evaluate a trigonometric polynomial.</li>
+    <li>Explain uniform sampling of a periodic function and relate sampled values to Fourier-series coefficients.</li>
+    <li>Apply the Discrete Fourier Transform (DFT) to convert a sequence of sampled values into frequency-domain coefficients.</li>
+    <li>Apply the inverse DFT to reconstruct sampled values from their frequency-domain coefficients.</li>
+    <li>Explain the purpose of the Fast Fourier Transform (FFT) and its relationship to the DFT.</li>
+    <li>Compare the computational complexity of direct DFT calculation with FFT calculation.</li>
+    <li>Use sampled data and the DFT or FFT to calculate a discrete frequency spectrum.</li>
+    <li>Interpret FFT output by identifying the frequencies and relative strengths of signal components.</li>
   </ul>
 
   <h2 id="sheet"><span class="sec">Part 2</span>Formula sheet</h2>

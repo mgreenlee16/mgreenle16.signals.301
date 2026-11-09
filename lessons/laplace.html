@@ -29,6 +29,7 @@
   $$G(s) = (\mathcal Lg)(s) = \int_0^\infty e^{-st}g(t)\,dt,\qquad s = \sigma + i\omega \in \mathbb C.$$
   <p>The integral converges in the half-plane \(\Re s &gt; \gamma\), the <b>region of convergence</b>, because there \(|e^{-st}g(t)| \le me^{(\gamma-\sigma)t}\) decays. Capital letters denote transforms: \(G = \mathcal Lg\), \(U = \mathcal Lu\), \(Y = \mathcal Ly\). The transform only looks at \(t \ge 0\), and \(g\) and \(G\) determine each other uniquely, so the inverse transform \(g = \mathcal L^{-1}G\) is well defined.</p>
   <p>The transform is <b>linear</b>, \(\mathcal L(\alpha g + \beta h) = \alpha G + \beta H\), because the integral is. That is what lets us build transforms of complicated signals from a short table.</p>
+  <p><b>Specifying the domain.</b> Always state where the transform is defined. For \(e^{at}\) it is \(\Re s &gt; \Re a\): the integrand \(e^{(a-s)t}\) must decay. Constants, \(t^n\) and \(\cos\omega t\) need \(\Re s &gt; 0\). For a sum, the domain is the <em>intersection</em>, \(\Re s\) greater than the largest real part among the poles. Example: \(g = 2 + e^{3t} - e^{-5t}\cos t\) has \(G(s) = \frac2s + \frac{1}{s-3} - \frac{s+5}{(s+5)^2+1}\), defined for \(\Re s &gt; 3\). The formula for \(G\) makes sense at other \(s\) (except the poles), but the integral only converges in this half-plane.</p>
 
   <h2 id="pairs"><span class="sec">Section 5.2</span>The basic pairs</h2>
   <p>Everything starts from the exponential. For any complex \(a\) and \(\Re s &gt; \Re a\),</p>
@@ -74,7 +75,10 @@
   <h2 id="conv"><span class="sec">Section 5.5</span>Convolution</h2>
   <p>The <b class="term">convolution</b> of two signals on \([0,\infty)\) is</p>
   $$(g\otimes u)(t) = \int_0^t g(t-\sigma)u(\sigma)\,d\sigma = \int_0^t g(\sigma)u(t-\sigma)\,d\sigma,$$
-  <p>and its transform is the product: \(\mathcal L\{g\otimes u\} = G(s)U(s)\). Convolving is hard; multiplying is easy. This is the reason a linear time-invariant system is described by a transfer function (Lesson 7): its output is the convolution of the input with the impulse response. For example, \(e^{-t}\otimes e^{-2t} = \int_0^t e^{-(t-\sigma)}e^{-2\sigma}d\sigma = e^{-t} - e^{-2t}\), and indeed \(\frac1{s+1}\cdot\frac1{s+2} = \frac1{s+1} - \frac1{s+2}\).</p>
+  <p>and its transform is the product: \(\mathcal L\{g\otimes u\} = G(s)U(s)\). Convolving is hard; multiplying is easy. This is the reason a linear time-invariant system is described by a transfer function (Lesson 7): its output is the convolution of the input with the impulse response.</p>
+  <p><b>Physical meaning.</b> Think of the input as a train of tiny impulses: the slice \(u(\sigma)\,d\sigma\) applied at time \(\sigma\). An LTI system answers an impulse at time \(\sigma\) with the impulse response shifted to start there, \(g(t - \sigma)\). By linearity the output at time \(t\) is the sum of the responses to all earlier slices:</p>
+  $$y(t) = \int_0^t \underbrace{g(t - \sigma)}_{\text{memory of an input }t-\sigma\text{ seconds ago}}\;u(\sigma)\,d\sigma.$$
+  <p>So \(g\) is the system's memory: \(g(t - \sigma)\) weights how much an input from \(t - \sigma\) seconds ago still matters now. A fast-decaying \(g\) forgets quickly. Interactive 2 shows this weighting: flip \(g\), slide it to \(t\), multiply, and take the area.</p><p> For example, \(e^{-t}\otimes e^{-2t} = \int_0^t e^{-(t-\sigma)}e^{-2\sigma}d\sigma = e^{-t} - e^{-2t}\), and indeed \(\frac1{s+1}\cdot\frac1{s+2} = \frac1{s+1} - \frac1{s+2}\).</p>
 </div>
 
 <section class="lab" id="lab2">
@@ -99,6 +103,14 @@
   <p>The rule needs the step: the delayed signal must be zero on \([0,t_0)\). Without it, \(e^{-(t-t_0)} = e^{t_0}e^{-t}\) simply has transform \(e^{t_0}/(s+1)\), not \(e^{-st_0}/(s+1)\). A pulse of height 1 on \([0,t_0]\) is \(1_+(t) - 1_+(t-t_0)\), so its transform is \(\frac{1 - e^{-st_0}}{s}\).</p>
   <p>The <b class="term">Dirac delta</b> \(\delta(t)\) is the limit of pulses of height \(n\) on \([0, 1/n]\): zero except at the origin, with area one. Its key property is \(\int h(t)\delta(t)\,dt = h(0)\), which gives</p>
   $$\mathcal L\{\delta\} = 1,\qquad \mathcal L\{\delta(t - t_0)\} = e^{-st_0},\qquad g\otimes\delta = g.$$
+  <p>The properties of \(\delta\) you should be able to use:</p>
+  <ul>
+    <li><b>Sifting:</b> \(\int h(t)\delta(t - t_0)\,dt = h(t_0)\) for continuous \(h\); for example \(\int(t^2 + 1)\delta(t - 3)\,dt = 10\).</li>
+    <li><b>Area one, zero away from \(t_0\):</b> \(\int\delta(t)\,dt = 1\), and \(h(t)\delta(t - t_0) = h(t_0)\delta(t - t_0)\).</li>
+    <li><b>Identity for convolution:</b> \(g\otimes\delta = g\). Hitting a system with an impulse returns its impulse response, and \(g\otimes\delta(t - t_0) = g(t - t_0)1_+(t - t_0)\) delays it.</li>
+    <li><b>Derivative of the step:</b> \(\delta = \frac{d}{dt}1_+(t)\), consistent with \(s\cdot\frac1s = 1\). A jump of size \(J\) in a signal puts \(J\delta\) in its derivative.</li>
+    <li><b>Direct terms:</b> a proper transfer function with \(\deg n = \deg d\) has \(G(\infty) = k \ne 0\), and its impulse response contains \(k\delta(t)\) (Lesson 6).</li>
+  </ul>
 </div>
 
 <div class="prose"><h2 id="table"><span class="sec">Section 5.7</span>Table of pairs and properties</h2></div>

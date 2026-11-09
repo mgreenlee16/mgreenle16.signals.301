@@ -9,7 +9,7 @@
 <body data-root="../" data-section="lessons" data-lesson="state-space">
 <main>
 <div class="prose">
-  <div class="eyebrow">Lesson 8 · Exam 2</div>
+  <div class="eyebrow">Lesson 8 · Final (Chapter 5)</div>
   <h1>State Space</h1>
   <p class="lead">A transfer function describes a system from input to output. A state-space model describes what happens inside: a vector of states, such as positions and velocities or capacitor voltages and inductor currents, that evolves by a first-order matrix ODE. This lesson solves \(\dot x = Ax + Bu\) with the matrix exponential, links eigenvalues to poles and stability, computes \(G(s) = C(sI-A)^{-1}B + D\), and turns ODEs and mass–spring–damper systems into state-space form.</p>
   <nav class="toc"><b>Contents</b><ol>
@@ -18,6 +18,7 @@
     <li><a href="#eig">Eigenvalues, poles and stability</a></li>
     <li><a href="#tf">The transfer function</a></li>
     <li><a href="#real">Realizations: from an ODE to state space</a></li>
+    <li><a href="#minimal">McMillan degree and minimal realizations</a></li>
     <li><a href="#msd">Mass–spring–damper systems</a></li>
     <li><a href="#examples">Worked examples</a></li>
     <li><a href="#practice">Practice problems</a></li>
@@ -76,9 +77,18 @@
   $$\dot x = \begin{bmatrix}0 &amp; 1\\ -a_0 &amp; -a_1\end{bmatrix}x + \begin{bmatrix}0\\ b\end{bmatrix}u,\qquad y = \begin{bmatrix}1 &amp; 0\end{bmatrix}x.$$
   <p>This <b>companion form</b> has \(\det(sI - A) = s^2 + a_1s + a_0\). In general, for \(G(s) = \frac{b_{n-1}s^{n-1} + \cdots + b_0}{s^n + a_{n-1}s^{n-1} + \cdots + a_0} + D\), the controllable canonical realization is</p>
   $$A = \begin{bmatrix}0&amp;1&amp;&amp;\\&amp;\ddots&amp;\ddots&amp;\\&amp;&amp;0&amp;1\\-a_0&amp;-a_1&amp;\cdots&amp;-a_{n-1}\end{bmatrix},\quad B = \begin{bmatrix}0\\ \vdots\\ 0\\ 1\end{bmatrix},\quad C = \begin{bmatrix}b_0&amp;b_1&amp;\cdots&amp;b_{n-1}\end{bmatrix},\quad D.$$
-  <p>Realizations are not unique: any change of state coordinates \(\tilde x = Tx\) gives \((TAT^{-1}, TB, CT^{-1}, D)\) with the same \(G\). MATLAB's <code>[A,B,C,D] = tf2ss(num,den)</code> returns one.</p>
+  <p>The same idea works for any order. For \(y^{(n)} + a_{n-1}y^{(n-1)} + \cdots + a_1\dot y + a_0y = bu\), take \(x_1 = y, x_2 = \dot y, \dots, x_n = y^{(n-1)}\), so \(\dot x_j = x_{j+1}\) and \(\dot x_n = -a_0x_1 - \cdots - a_{n-1}x_n + bu\), with \(x(0) = [y(0), \dot y(0), \dots, y^{(n-1)}(0)]^T\). <b>Any linear ODE can be put in state-space form.</b> Different outputs only change \(C\) (and \(D\)): for \(m\ddot y + c\dot y + ky = u\) with \(x = (y, \dot y)\), position is \(C = [1\ 0]\), velocity is \(C = [0\ 1]\), and \(z = 3y - 2\dot y\) is \(C = [3\ {-2}]\), all with the same \(A = \begin{bmatrix}0&amp;1\\-k/m&amp;-c/m\end{bmatrix}\) and \(B = \begin{bmatrix}0\\1/m\end{bmatrix}\).</p>
 
-  <h2 id="msd"><span class="sec">Section 8.6</span>Mass–spring–damper systems</h2>
+  <h2 id="minimal"><span class="sec">Section 8.6</span>McMillan degree and minimal realizations</h2>
+  <p><b>Which \(G\) can be realized?</b> \((sI - A)^{-1} = M(s)/\Delta(s)\), where \(\Delta = \det(sI - A)\) has degree \(n\) and the adjugate \(M\) has entries of degree at most \(n - 1\). So \(C(sI-A)^{-1}B\) is strictly proper and \(G = \frac{c(s)}{\det(sI - A)} + D\) is proper. Conversely every proper rational \(G\) has a realization, for example the companion form above. <b>\(G\) has a state-space realization if and only if it is proper, and its poles are contained in the eigenvalues of \(A\).</b></p>
+  <p>The <b class="term">McMillan degree</b> of \(G = p/d\) is the degree of \(d\) after cancelling all common roots of \(p\) and \(d\): the number of poles, counted with multiplicity. A realization is <b class="term">minimal</b> if no realization has a smaller state dimension, and</p>
+  $$\{A\text{ on }\mathbb C^n, B, C, D\}\text{ is minimal}\iff n = \text{McMillan degree of }G\iff\text{eigenvalues of }A = \text{poles of }G.$$
+  <p>Two realizations are <b>similar</b> if \(A_1 = TAT^{-1}\), \(B_1 = TB\), \(C_1 = CT^{-1}\), \(D_1 = D\) for an invertible \(T\) (a change of state variables \(\xi = Tx\)). Similar realizations have the same transfer function, because \(CT^{-1}(sI - TAT^{-1})^{-1}TB = C(sI - A)^{-1}B\). Moreover, <b>all minimal realizations of the same \(G\) are similar</b>. So realizations are not unique; MATLAB's <code>tf2ss</code> returns one, and <code>minreal</code> removes cancelling pole–zero pairs.</p>
+  <p><b>A pole–zero cancellation (from the notes).</b> The notes' third-order system with \(C = [1\ \ 4\ \ 3]\) has \(A\) with eigenvalues \(\{-1\pm3i, -4\}\) (so \(A\) is stable) and transfer function</p>
+  $$G(s) = \frac{s^2 + 6s + 8}{s^3 + 6s^2 + 18s + 40} = \frac{(s+2)(s+4)}{(s^2 + 2s + 10)(s+4)} = \frac{s+2}{s^2 + 2s + 10}.$$
+  <p>The factor \(s + 4\) cancels (its residue is zero), so the McMillan degree is 2, the three-state model is not minimal, and the eigenvalue \(-4\) is not a pole of \(G\). A minimal (companion-form) realization is \(A_1 = \begin{bmatrix}0&amp;1\\-10&amp;-2\end{bmatrix}\), \(B_1 = \begin{bmatrix}0\\1\end{bmatrix}\), \(C_1 = [2\ \ 1]\). With \(u = 30\): \(G(0) = \tfrac15\), so \(y(\infty) = 6\), approached like \(e^{-t}\) while oscillating at 3 rad/s.</p>
+
+  <h2 id="msd"><span class="sec">Section 8.7</span>Mass–spring–damper systems</h2>
   <p>A system of masses, springs and dampers with position vector \(q\) obeys</p>
   $$M\ddot q + \Phi\dot q + Kq = bu,$$
   <p>with mass matrix \(M\), damping matrix \(\Phi\) and stiffness matrix \(K\), all symmetric and positive (semi)definite. With state \(x = \begin{bmatrix}q\\ \dot q\end{bmatrix}\),</p>
@@ -98,7 +108,7 @@
     <figure><div id="plot2"></div><figcaption>The four entries of e<sup>At</sup> for A = [0 1; −k/m −c/m]. The first column is the motion from x(0) = [1, 0] (released from y = 1 at rest); the second is from x(0) = [0, 1] (kicked from y = 0).</figcaption></figure></div>
 </section>
 
-<div class="prose"><h2 id="examples"><span class="sec">Section 8.7</span>Worked examples</h2></div>
+<div class="prose"><h2 id="examples"><span class="sec">Section 8.8</span>Worked examples</h2></div>
 <div class="tabs">
   <div class="tablist"><span class="tab-title">Worked examples</span>
     <button>Ex 8.1 · G(s) from (A,B,C,D)</button><button>Ex 8.2 · e^{At}</button><button>Ex 8.3 · Free response</button><button>Ex 8.4 · Realization</button><button>Ex 8.5 · Stability</button></div>
@@ -131,7 +141,7 @@
   </div>
 </div>
 
-<div class="prose"><h2 id="practice"><span class="sec">Section 8.8</span>Practice problems</h2></div>
+<div class="prose"><h2 id="practice"><span class="sec">Section 8.9</span>Practice problems</h2></div>
 <div id="qz"></div>
 </main>
 <script src="../assets/js/cx.js"></script>
@@ -194,7 +204,7 @@
     UI.live("#lab2", `λ = ${str(ev[0], 3)}`);
   });
 
-  QZ.mount("#qz", { topics: ["ss-tf", "ss-exp", "ss-realize"], title: "State space: problem generator" });
+  QZ.mount("#qz", { topics: ["ss-tf", "ss-exp", "ss-realize", "ss-minimal"], title: "State space: problem generator" });
 })();
 </script>
 </body>

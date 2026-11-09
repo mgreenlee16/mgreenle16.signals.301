@@ -13,7 +13,7 @@
   <h1>Endless practice</h1>
   <p class="lead">Every problem type on the site in one place. Choose an exam, pick the topics you want (all are on by default), then solve, check, read the worked solution, and get a new problem. Your accuracy on the last 20 attempts of each topic is shown below, so you can see what still needs work.</p>
   <div class="ctl inline" style="font-family:var(--sans);margin:1rem 0"><span>Exam&nbsp;</span>
-    <div class="seg" id="ex" data-value="1"><button data-value="1" aria-pressed="true">Exam 1</button><button data-value="2" aria-pressed="false">Exam 2</button><button data-value="3" aria-pressed="false">Final material</button><button data-value="0" aria-pressed="false">Everything</button></div></div>
+    <div class="seg" id="ex" data-value="1"><button data-value="1" aria-pressed="true">Exam 1</button><button data-value="2" aria-pressed="false">Exam 2 (Laplace)</button><button data-value="3" aria-pressed="false">Final material</button><button data-value="0" aria-pressed="false">Everything</button></div></div>
   <div class="note"><b>Entering answers</b>Type numbers or expressions: <code>-3/2</code>, <code>sqrt(2)/2</code>, <code>pi/4</code>, <code>2-3i</code>, <code>e^(-pi/2)</code>, <code>2^(1/10)*e^(i*pi/20)</code>. Angles are in radians and any angle equal modulo 2π is accepted. About three significant figures is enough. Press Enter to check.</div>
 </div>
 <div id="qz"></div>
@@ -32,7 +32,7 @@
 <script>
 (function () {
   const seg = document.getElementById("ex");
-  const titles = { 1: "Exam 1 · all topics", 2: "Exam 2 · all topics", 3: "Final material · all topics", 0: "Whole course" };
+  const titles = { 1: "Exam 1 · all topics", 2: "Exam 2 · Laplace chapter", 3: "Final material · all topics", 0: "Whole course" };
   let m;
   function go() {
     const ex = +seg.dataset.value;

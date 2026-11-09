@@ -571,4 +571,30 @@
       ok ? [`No: harmonic ${K} aliases`, "Only if ν is a power of 2", "Only the cosine terms"] : [`Yes: \\(\\nu > ${K}\\) is enough`, "Yes, if ν is a power of 2", `No: harmonic ${K} aliases to harmonic ${K - 1}`],
       `<p>The Nyquist condition for this setting is that all harmonics lie strictly inside \\((-\\nu/2, \\nu/2)\\), i.e. \\(\\nu \\ge 2K+1\\). Sampling cannot tell \\(e^{-ik\\omega_0t}\\) from \\(e^{-i(k+\\ell\\nu)\\omega_0t}\\), so harmonic ${K} looks like harmonic \\(${K} \\bmod ${nu} \\to ${aliasH}\\). (Example from the notes: \\(2\\sin 4t\\) sampled 5 times looks like \\(-2\\sin t\\).)</p>`);
   });
+
+  // ======================= LINEAR SPACES, INDEPENDENCE, L² =======================
+  reg("ip-space", "Linear spaces, independence and L²", "inner-products", () => {
+    const v = R.int(0, 2);
+    if (v === 0) {
+      const yes = ["\\(\\{x\\in\\mathbb R^2 : x_1 + x_2 = 0\\}\\)", "polynomials of degree at most 3", "\\(\\{f\\in L^2(0,1) : f(0) = 0\\}\\)", "\\(\\{f : \\int_0^1 f\\,dt = 0\\}\\)", "trigonometric polynomials \\(\\sum_{|k|\\le n}a_ke^{-ikt}\\)", "\\(\\{x\\in\\mathbb C^3 : x_1 = 2x_3\\}\\)"];
+      const no = [["\\(\\{f : f(0) = 1\\}\\)", "it does not contain the zero function"], ["polynomials of degree exactly 3", "\\((t^3 + t) + (-t^3)\\) has degree 1, and 0 is missing"],
+        ["\\(\\{x\\in\\mathbb R^2 : x_1x_2 = 0\\}\\)", "\\((1,0) + (0,1) = (1,1)\\) is not in the set"], ["\\(\\{x\\in\\mathbb R^2 : x_1 \\ge 0\\}\\)", "multiplying by \\(-1\\) leaves the set"], ["\\(\\{f : \\int_0^1 f\\,dt = 1\\}\\)", "the sum of two members has integral 2"]];
+      const [bad, why] = R.pick(no), good = R.shuffle(yes).slice(0, 3);
+      return mc("<p>With the usual addition and scalar multiplication, which set is <b>not</b> a linear space?</p>", bad, good,
+        `<p>A linear space must contain 0 and be closed under addition and scalar multiplication. ${bad} fails: ${why}. The others are defined by linear conditions (or are spans), so sums and multiples stay inside.</p>`);
+    }
+    if (v === 1) {
+      const indep = ["\\(\\{1, t, t^2\\}\\)", "\\(\\{e^t, e^{2t}\\}\\)", "\\(\\{[1,1]^T, [1,-1]^T\\}\\)", "\\(\\{\\cos t, \\sin t\\}\\)", "\\(\\{[1,0,1]^T, [0,1,1]^T, [0,0,1]^T\\}\\)"];
+      const dep = [["\\(\\{\\cos^2t, \\sin^2t, 1\\}\\)", "\\(\\cos^2t + \\sin^2t - 1 = 0\\)"], ["\\(\\{[1,2]^T, [2,4]^T\\}\\)", "the second is twice the first"],
+        ["\\(\\{[1,0,1]^T, [0,1,1]^T, [1,1,2]^T\\}\\)", "the third is the sum of the first two"], ["\\(\\{\\sin t, \\cos t, \\sin(t+1)\\}\\)", "\\(\\sin(t+1) = \\cos1\\sin t + \\sin1\\cos t\\)"], ["\\(\\{1, \\cos2t, \\cos^2t\\}\\)", "\\(\\cos^2t = \\tfrac12 + \\tfrac12\\cos2t\\)"]];
+      const [bad, why] = R.pick(dep);
+      return mc("<p>Which set is <b>linearly dependent</b>?</p>", bad, R.shuffle(indep).slice(0, 3),
+        `<p>A set is dependent if some nontrivial combination is zero. Here ${why}. The others are independent; for example, orthogonal nonzero vectors are always independent, and distinct powers or exponentials cannot cancel for all \\(t\\).</p>`);
+    }
+    const inL2 = ["\\(t^{-1/4}\\) on \\((0,1)\\)", "\\(\\ln t\\) on \\((0,1)\\)", "\\(e^{-t}\\) on \\((0,\\infty)\\)", "\\(\\frac{1}{1+t}\\) on \\((0,\\infty)\\)", "\\(e^{t}\\) on \\((0,1)\\)"];
+    const notL2 = [["\\(t^{-1/2}\\) on \\((0,1)\\)", "\\(\\int_0^1 t^{-1}dt = \\infty\\)"], ["\\(1/t\\) on \\((0,1)\\)", "\\(\\int_0^1 t^{-2}dt = \\infty\\)"], ["\\(\\frac{1}{\\sqrt{1+t}}\\) on \\((0,\\infty)\\)", "\\(\\int_0^\\infty\\frac{dt}{1+t} = \\infty\\)"], ["\\(\\sin t\\) on \\((0,\\infty)\\)", "\\(\\int_0^\\infty\\sin^2t\\,dt = \\infty\\)"]];
+    const [bad, why] = R.pick(notL2);
+    return mc("<p>Which function is <b>not</b> in \\(L^2\\) of the stated interval (finite \\(\\int|f|^2dt\\))?</p>", bad, R.shuffle(inL2).slice(0, 3),
+      `<p>\\(f\\in L^2(a,b)\\) means \\(\\int_a^b|f|^2dt &lt; \\infty\\). For ${bad}, ${why}. A singularity \\(t^{-p}\\) at 0 is square integrable only for \\(p &lt; \\tfrac12\\); on an infinite interval \\(|f|^2\\) must decay faster than \\(1/t\\).</p>`);
+  });
 })(typeof window !== "undefined" ? window : globalThis);

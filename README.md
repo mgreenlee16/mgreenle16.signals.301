@@ -9,10 +9,10 @@ Live site (once GitHub Pages is enabled): `https://mgreenlee16.github.io/mgreenl
 | Exam | Lessons (`lessons/`) | Review |
 | --- | --- | --- |
 | Exam 1 | `complex`, `inner-products`, `fourier-series`, `dft` | `exams/exam1.html` |
-| Exam 2 | `laplace`, `inverse-laplace`, `transfer-functions`, `state-space` | `exams/exam2.html` |
-| Final | `bode`, `filters`, `fourier-transform` | `exams/final.html` (new material or cumulative) |
+| Exam 2 (Laplace chapter) | `laplace`, `inverse-laplace`, `transfer-functions` | `exams/exam2.html` |
+| Final | `state-space`, `bode`, `filters`, `fourier-transform` | `exams/final.html` (new material or cumulative) |
 
-Each lesson has prose in the course notation, live interactive figures (31 in all), worked examples, and a problem generator. Altogether there are 44 generator topics, each producing endless exam-style problems with checked answers and worked solutions.
+Each lesson has prose in the course notation, live interactive figures (31 in all), worked examples, and a problem generator. Altogether there are 48 generator topics, each producing endless exam-style problems with checked answers and worked solutions.
 
 - `practice.html`: every generator in one drill, filtered by exam, with per-topic accuracy.
 - `tools/`: `complex` (complex calculator), `fourier` (Fourier series of any piecewise f(t)), `dft` (MATLAB-style fft/ifft), `laplace` (partial fractions like MATLAB's `residue`, inverse Laplace), `system` (transfer-function analyzer: poles, stability, step/impulse responses, Bode plot, steady-state output).

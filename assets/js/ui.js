@@ -27,7 +27,7 @@
     { slug: "dft", n: 4, exam: 1, title: "The DFT & FFT",
       blurb: "Trigonometric polynomials and sampling, the DFT matrix F_ν and its inverse, MATLAB's ifft ordering, Nyquist and aliasing, the FFT, and reading frequencies off a spectrum.",
       tags: ["4 interactives", "worked examples", "problem generator"] },
-    { part: "Exam 2 · Laplace transforms, transfer functions and state space", exam: 2 },
+    { part: "Exam 2 · The Laplace transform chapter: transforms, partial fractions, ODEs and transfer functions", exam: 2 },
     { slug: "laplace", n: 5, exam: 2, title: "The Laplace Transform",
       blurb: "Definition and region of convergence, the table of pairs, linearity, multiplication by eᵃᵗ, derivatives and integrals, convolution, the delay rule and the delta function.",
       tags: ["2 interactives", "worked examples", "problem generator"] },
@@ -37,10 +37,10 @@
     { slug: "transfer-functions", n: 7, exam: 2, title: "Transfer Functions, Circuits & Stability",
       blurb: "Transfer functions and impulse responses, RLC circuits and impedance, stability, the final value theorem, and the mass–spring–damper.",
       tags: ["3 interactives", "worked examples", "problem generator"] },
-    { slug: "state-space", n: 8, exam: 2, title: "State Space",
+    { part: "Final · State space, frequency response, filters and the Fourier transform (plus everything before)", exam: 3 },
+    { slug: "state-space", n: 8, exam: 3, title: "State Space",
       blurb: "ẋ = Ax + Bu, y = Cx + Du; the matrix exponential, eigenvalues and stability, G(s) = C(sI − A)⁻¹B + D, and writing ODEs in state-space form.",
       tags: ["2 interactives", "worked examples", "problem generator"] },
-    { part: "Final · Frequency response, filters and the Fourier transform", exam: 3 },
     { slug: "bode", n: 9, exam: 3, title: "Sinusoid Response & Bode Plots",
       blurb: "Steady-state response |G(iω)|cos(ωt + φ), stability, Bode plots by hand from straight-line asymptotes, natural frequency, damping ratio and resonance.",
       tags: ["3 interactives", "worked examples", "problem generator"] },
@@ -56,12 +56,12 @@
     { slug: "fourier", kicker: "Exam 1", title: "Fourier Series Calculator", blurb: "Type f(t) (piecewise with if()), pick τ: get aₖ, αₖ, βₖ, γₖ, ψₖ, ‖f‖², truncation error, the partial sum and the spectrum." },
     { slug: "dft", kicker: "Exam 1", title: "DFT / FFT Calculator", blurb: "MATLAB-style fft and ifft of any list, with the harmonic held in each slot, or sample a function at ν points." },
     { slug: "laplace", kicker: "Exam 2", title: "Partial Fractions & Inverse Laplace", blurb: "Enter num and den in MATLAB order: poles, residues like MATLAB's residue, the direct term, g(t) in real form, and a plot." },
-    { slug: "system", kicker: "Exam 2", title: "Transfer Function Analyzer", blurb: "Enter G(s): poles and zeros on the s-plane, stability, G(0), and the impulse and step responses." },
+    { slug: "system", kicker: "Exam 2 & Final", title: "Transfer Function Analyzer", blurb: "Enter G(s): poles and zeros on the s-plane, stability, G(0), and the impulse and step responses." },
   ];
   const EXAMS = [
     { slug: "exam1", n: 1, title: "Exam 1 Review", blurb: "Learning objectives checklist, formula sheet, exam-style worked problems and a timed practice exam generator for Chapters 1–3." },
-    { slug: "exam2", n: 2, title: "Exam 2 Review", blurb: "Objectives checklist, Laplace table and formula sheet, exam-style problems and a practice exam generator. Covers Laplace transforms, partial fractions, transfer functions, circuits, stability, state space and mass–spring–damper systems." },
-    { slug: "final", n: 3, title: "Final Exam Review", blurb: "Objectives, formula sheet, exam-style problems and a cumulative practice exam generator. New material: frequency response, Bode plots, filters and the Fourier transform, plus everything from Exams 1 and 2." },
+    { slug: "exam2", n: 2, title: "Exam 2 Review", blurb: "The Laplace transform chapter, matching the official learning objectives: checklist, Laplace table and formula sheet, exam-style problems and a practice exam generator. Covers Laplace transforms, partial fractions, ODEs, LTI systems and transfer functions, circuits, mass–spring–damper systems and the final value theorem." },
+    { slug: "final", n: 3, title: "Final Exam Review", blurb: "Objectives, formula sheet, exam-style problems and a cumulative practice exam generator. New material: state space, frequency response, Bode plots, filters and the Fourier transform, plus everything from Exams 1 and 2." },
   ];
   const GLYPH = {
     complex: '<line x1="90" y1="4" x2="90" y2="60" class="axisl"/><line x1="30" y1="32" x2="150" y2="32" class="axisl"/><circle cx="90" cy="32" r="22" class="fan"/><line x1="90" y1="32" x2="122" y2="12" class="sig2"/><circle cx="122" cy="12" r="3.5" class="accfill"/><line x1="90" y1="32" x2="122" y2="52" class="sig1 dashl"/><text x="126" y="12" class="small">z</text><text x="126" y="58" class="small">z̄</text>',

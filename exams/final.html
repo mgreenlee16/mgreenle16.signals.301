@@ -9,10 +9,10 @@
 <body data-root="../" data-section="exams">
 <main>
 <div class="prose">
-  <div class="eyebrow">Final · Chapters 8–11, plus Exams 1 and 2</div>
+  <div class="eyebrow">Final · Chapter 5 and Chapters 8–11, plus Exams 1 and 2</div>
   <h1>Final Exam Review</h1>
-  <p class="lead">The final adds frequency response, Bode plots, filters and the Fourier transform (Chapters 8–11 of the notes) to everything from Exams 1 and 2. This page covers the new material in depth and links to the earlier reviews. Its practice-exam generator can draw from the new topics only or from the whole course.</p>
-  <div class="note"><b>Earlier material</b>Use the <a href="exam1.html">Exam 1 review</a> (complex numbers, inner products, Fourier series, DFT) and the <a href="exam2.html">Exam 2 review</a> (Laplace, partial fractions, transfer functions, state space) for their checklists and formula sheets. If your instructor posts an official final scope, compare it with the checklist below.</div>
+  <p class="lead">The final adds state space (Chapter 5) and frequency response, Bode plots, filters and the Fourier transform (Chapters 8–11) to everything from Exams 1 and 2. This page covers the new material in depth and links to the earlier reviews. Its practice-exam generator can draw from the new topics only or from the whole course.</p>
+  <div class="note"><b>Earlier material</b>Use the <a href="exam1.html">Exam 1 review</a> (complex numbers, inner products, Fourier series, DFT) and the <a href="exam2.html">Exam 2 review</a> (the Laplace transform chapter) for their checklists and formula sheets. If your instructor posts an official final scope, compare it with the checklist below.</div>
   <nav class="toc"><b>Contents</b><ol>
     <li><a href="#objectives">Learning objectives checklist</a></li>
     <li><a href="#sheet">Formula sheet</a></li>
@@ -23,6 +23,26 @@
   </ol></nav>
 
   <h2 id="objectives"><span class="sec">Part 1</span>Learning objectives checklist</h2>
+  <h3>Chapter 5 · State space <a href="../lessons/state-space.html" style="font-size:.8rem">(Lesson 8)</a></h3>
+  <p style="font-size:.9rem;color:var(--muted)">Official Chapter 5 objectives, word for word.</p>
+  <ul class="checklist ck" data-ck="S">
+    <li>Know the definition of exponential matrix \(e^{At}\).</li>
+    <li>Know the Laplace transform of \(e^{At}\).</li>
+    <li>Use the Laplace transform to evaluate \(e^{At}\).</li>
+    <li>Understand the relationship between the poles of the Laplace transform of \(e^{At}\) and the eigenvalues of \(A\).</li>
+    <li>Know the definition of matrix differential equation.</li>
+    <li>Use Laplace transform to solve matrix differential equations.</li>
+    <li>Convert linear differential equations to the matrix form.</li>
+    <li>Understand the meaning of state.</li>
+    <li>Represent a LTI system using the state space and parameters \(A, B, C, D\).</li>
+    <li>Describe the LTI system using the state equation and output equation.</li>
+    <li>Derive the solutions of the state equation and output equation, using Laplace transform.</li>
+    <li>Represent differential equations in the state space form.</li>
+    <li>Derive the transfer function from given state space representation.</li>
+    <li>Realize state space for a given transfer function.</li>
+    <li>Realize the minimum state space for a given transfer function.</li>
+    <li>Know that state space realization is not unique.</li>
+  </ul>
   <h3>Sinusoid response and Bode plots <a href="../lessons/bode.html" style="font-size:.8rem">(Lesson 9)</a></h3>
   <ul class="checklist ck" data-ck="B">
     <li>Find the steady-state response of a stable \(G\) to constants, sinusoids and sums of sinusoids.</li>
@@ -49,6 +69,14 @@
   <h2 id="sheet"><span class="sec">Part 2</span>Formula sheet</h2>
 </div>
 <div class="keyeq wide">
+  <div><h4>State space</h4>
+    $$\dot x = Ax + Bu,\ y = Cx + Du,\quad e^{At} = \textstyle\sum\frac{A^kt^k}{k!} = \mathcal L^{-1}(sI-A)^{-1}$$
+    $$x(t) = e^{At}x(0) + \textstyle\int_0^te^{A(t-\sigma)}Bu(\sigma)\,d\sigma$$
+    $$G = C(sI-A)^{-1}B + D,\quad g = Ce^{At}B + D\delta(t)$$</div>
+  <div><h4>Realizations</h4>
+    $$G = \tfrac{c_0 + \cdots + c_{n-1}s^{n-1}}{a_0 + \cdots + a_{n-1}s^{n-1} + s^n} + D:\ A = \text{companion},\ B = e_n,\ C = [c_0\cdots c_{n-1}]$$
+    $$\text{minimal}\iff n = \text{McMillan degree}\iff \text{eig}(A) = \text{poles}(G)$$
+    $$\text{similar: } (TAT^{-1}, TB, CT^{-1}, D)\ \text{same } G$$</div>
   <div><h4>Steady state</h4>
     $$u = \gamma\cos(\omega t + \varphi)\Rightarrow y_{ss} = \gamma|G(i\omega)|\cos(\omega t + \varphi + \angle G(i\omega))$$
     $$|i\omega + a| = \sqrt{\omega^2 + a^2},\quad \angle(i\omega + a) = \arctan(\omega/a)\ (a&gt;0)$$</div>
@@ -85,7 +113,16 @@
 </div>
 <div class="tabs">
   <div class="tablist"><span class="tab-title">Problems</span>
-    <button>1 · Steady state &amp; Bode</button><button>2 · Resonance</button><button>3 · Butterworth</button><button>4 · Fourier transform</button></div>
+    <button>0 · State space</button><button>1 · Steady state &amp; Bode</button><button>2 · Resonance</button><button>3 · Butterworth</button><button>4 · Fourier transform</button></div>
+  <div class="panel">
+    <p>\(A = \begin{bmatrix}0 &amp; 1\\ -6 &amp; -5\end{bmatrix}\), \(B = \begin{bmatrix}0\\1\end{bmatrix}\), \(C = \begin{bmatrix}2 &amp; 1\end{bmatrix}\), \(D = 0\).</p>
+    <p><b>(a)</b> Eigenvalues and stability. <b>(b)</b> \(G(s)\). <b>(c)</b> \(x(t)\) for \(u = 0\), \(x(0) = (1, 0)\). <b>(d)</b> \(G(0)\). <b>(e)</b> Is this realization minimal? Give a minimal one.</p>
+    <details><summary>Solution</summary>
+    <p><b>(a)</b> \(\det(sI - A) = s^2 + 5s + 6 = (s+2)(s+3)\): eigenvalues \(-2, -3\); stable.</p>
+    <p><b>(b)</b> \(\operatorname{adj}(sI - A) = \begin{bmatrix}s+5 &amp; 1\\ -6 &amp; s\end{bmatrix}\), so \((sI-A)^{-1}B = \frac{1}{(s+2)(s+3)}\begin{bmatrix}1\\ s\end{bmatrix}\) and \(G = \frac{2 + s}{(s+2)(s+3)} = \frac{1}{s+3}\). The eigenvalue \(-2\) cancels.</p>
+    <p><b>(c)</b> First column of \((sI - A)^{-1}\): \(\frac{s+5}{(s+2)(s+3)} \to 3e^{-2t} - 2e^{-3t}\) and \(\frac{-6}{(s+2)(s+3)} \to -6e^{-2t} + 6e^{-3t}\). So \(x_1 = 3e^{-2t} - 2e^{-3t}\), \(x_2 = -6e^{-2t} + 6e^{-3t}\). (\(e^{-2t}\) appears even though \(-2\) is not a pole of \(G\).)</p>
+    <p><b>(d)</b> \(G(0) = \tfrac13\). <b>(e)</b> The McMillan degree of \(G = \frac{1}{s+3}\) is 1, so this two-state realization is not minimal; a minimal one is \(A = -3\), \(B = 1\), \(C = 1\), \(D = 0\). Realizations are not unique.</p></details>
+  </div>
   <div class="panel">
     <p>\(G(s) = \dfrac{20}{(s+2)(s+10)}\).</p>
     <p><b>(a)</b> Find \(y_{ss}\) for \(u = 3 + 2\cos2t\). <b>(b)</b> Sketch the asymptotic magnitude Bode plot. <b>(c)</b> Find \(20\log_{10}|G(10i)|\).</p>

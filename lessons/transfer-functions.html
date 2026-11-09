@@ -24,10 +24,21 @@
     <li><a href="#practice">Practice problems</a></li>
   </ol></nav>
 
-  <h2 id="tf"><span class="sec">Section 7.1</span>Transfer functions and the impulse response</h2>
-  <p>A <b>system</b> maps an input \(u(t)\) to an output \(y(t)\). If it is linear and time invariant and starts at rest (all initial conditions zero), then</p>
+  <h2 id="tf"><span class="sec">Section 7.1</span>LTI systems, transfer functions and the impulse response</h2>
+  <p>A <b>system</b> maps an input \(u(t)\) to an output \(y(t)\). It is</p>
+  <ul>
+    <li><b class="term">linear</b> if superposition holds: inputs \(u_1, u_2\) giving \(y_1, y_2\) means \(\alpha u_1 + \beta u_2\) gives \(\alpha y_1 + \beta y_2\). In particular zero input gives zero output, so \(y = 3u + 1\) and \(y = u^2\) are not linear.</li>
+    <li><b class="term">time invariant</b> if delaying the input delays the output by the same amount: \(u(t - \tau)\mapsto y(t - \tau)\). The system's rules do not depend on the clock, so \(y = t\,u(t)\) and \(\dot y + ty = u\) are not time invariant.</li>
+  </ul>
+  <p>Constant-coefficient linear ODEs (starting from rest), RLC circuits and mass–spring–damper systems are <b>LTI</b>. For an LTI system starting at rest (all initial conditions zero),</p>
   $$Y(s) = G(s)U(s),\qquad y(t) = (g\otimes u)(t) = \int_0^t g(t-\sigma)u(\sigma)\,d\sigma.$$
   <p>\(G\) is the <b class="term">transfer function</b> and \(g = \mathcal L^{-1}G\) is the <b class="term">impulse response</b>: the output when \(u = \delta\), since then \(U = 1\) and \(y = g\otimes\delta = g\). The step response is the output for \(u = 1_+\), with \(Y = G(s)/s\).</p>
+  <p>Any two of \(G\), \(U\), \(Y\) determine the third:</p>
+  <ul>
+    <li><b>From the impulse response:</b> \(G = \mathcal L\{g\}\). For \(g = 3e^{-2t} - e^{-t}\), \(G = \frac{3}{s+2} - \frac{1}{s+1} = \frac{2s + 1}{(s+1)(s+2)}\).</li>
+    <li><b>From a measured input–output pair:</b> \(G = Y/U\). A unit step producing \(y = 4(1 - e^{-3t})\) gives \(Y = \frac{12}{s(s+3)}\), so \(G = \frac{12}{s+3}\). The impulse response is also the derivative of the step response.</li>
+    <li><b>The output:</b> \(y = \mathcal L^{-1}\{GU\}\). <b>The input that produces a desired output:</b> \(u = \mathcal L^{-1}\{Y/G\}\).</li>
+  </ul>
 
   <h2 id="ode"><span class="sec">Section 7.2</span>From a differential equation</h2>
   <p>Set every initial condition to zero and transform; each derivative becomes a power of \(s\). For \(y^{(3)} + 8\ddot y - 3\dot y + 2y = 4u\):</p>
@@ -220,7 +231,7 @@
     UI.live("#lab3", `ζ = ${num(zeta, 3)}`);
   });
 
-  QZ.mount("#qz", { topics: ["tf-ode", "tf-stability", "tf-circuit", "tf-msd", "tf-response"], title: "Transfer functions: problem generator" });
+  QZ.mount("#qz", { topics: ["tf-lti", "tf-io", "tf-ode", "tf-stability", "tf-circuit", "tf-msd", "tf-response"], title: "Transfer functions: problem generator" });
 })();
 </script>
 </body>

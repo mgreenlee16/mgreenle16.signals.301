@@ -13,7 +13,7 @@
   const { lin, ptex, fld, mc } = root.GH;
   const R = QZ.R;
   const GROUP = { laplace: "Laplace transform", "inverse-laplace": "Partial fractions & ODEs", "transfer-functions": "Transfer functions", "state-space": "State space" };
-  const reg = (id, title, lesson, gen) => QZ.register(id, { title, exam: 2, group: GROUP[lesson], lesson }, gen);
+  const reg = (id, title, lesson, gen) => QZ.register(id, { title, exam: lesson === "state-space" ? 3 : 2, group: GROUP[lesson], lesson }, gen);
 
   // ---------- helpers ----------
   const spn = p => (p === 0 ? "s" : `s ${p < 0 ? "+" : "-"} ${tex(Math.abs(p))}`); // s - p, no parentheses
@@ -64,16 +64,28 @@
         `<p>Use the pair for ${b.name}, with linearity: \\(\\mathcal L\\{${lin([[b.c, b.body]])}\\} = ${b.Ft}\\).</p>`);
     }
     return {
-      q: `<p>Find the Laplace transform \\(G(s)\\) of \\(g(t) = ${gt}\\) for \\(t \\ge 0\\). To check, enter the value \\(G(${s0})\\).</p>`,
-      fields: [fld(`G(${s0})`, val)],
-      sol: `<p>The transform is linear, so transform term by term with the table:</p>$$G(s) = ${Gt}.$$<p>${bs.map(b => b.name).join("; ")}.</p><p>At \\(s = ${s0}\\): \\(G(${s0}) \\approx ${num(val)}\\).</p>`,
+      q: `<p>Find the Laplace transform \\(G(s)\\) of \\(g(t) = ${gt}\\) for \\(t \\ge 0\\) and its region of convergence \\(\\Re s &gt; \\gamma\\). To check, enter \\(G(${s0})\\) and \\(\\gamma\\).</p>`,
+      fields: [fld(`G(${s0})`, val), fld("γ (ROC is ℜs > γ)", amax)],
+      sol: `<p>The transform is linear, so transform term by term with the table:</p>$$G(s) = ${Gt}.$$<p>${bs.map(b => b.name).join("; ")}.</p><p>At \\(s = ${s0}\\): \\(G(${s0}) \\approx ${num(val)}\\). Each term converges for \\(\\Re s\\) greater than the real part of its pole (\\(e^{at}\\), \\(te^{at}\\), \\(e^{at}\\cos\\omega t\\): \\(\\Re s &gt; a\\); constants, \\(t^n\\), \\(\\cos\\omega t\\): \\(\\Re s &gt; 0\\)), so the region of convergence of the sum is the intersection, \\(\\Re s &gt; ${amax}\\).</p>`,
       verify: () => nearR(CX.integrate(t => Math.exp(-s0 * t) * bs.reduce((a, b) => a + b.c * b.f(t), 0), 0, 60, 6000).re, val, 1e-6),
     };
   });
   const scaleC = (z, k) => CX.scale(CX.toC(z), k);
 
   reg("lp-props", "Laplace properties", "laplace", () => {
-    const v = R.int(0, 5);
+    const v = R.int(0, 6);
+    if (v === 6) { // delta function
+      const k = R.int(0, 2);
+      if (k === 0) { const t0 = R.int(1, 4), c = R.nz(-5, 5);
+        return { q: `<p>Evaluate \\(\\displaystyle\\int_{-\\infty}^{\\infty}(t^2 ${c < 0 ? "-" : "+"} ${Math.abs(c)})\\,\\delta(t - ${t0})\\,dt\\).</p>`, fields: [fld("value", t0 * t0 + c)],
+          sol: `<p>Sifting property: \\(\\int h(t)\\delta(t - t_0)\\,dt = h(t_0)\\). So the integral is \\(${t0}^2 ${c < 0 ? "-" : "+"} ${Math.abs(c)} = ${t0 * t0 + c}\\).</p>` }; }
+      if (k === 1) { const t0 = R.int(1, 3), A = R.nz(-4, 5), B = R.nz(-4, 5), s0 = R.int(1, 2), ans = A + B * Math.exp(-s0 * t0);
+        return { q: `<p>Find the Laplace transform of \\(g(t) = ${lin([[A, "\\delta(t)"], [B, `\\delta(t - ${t0})`]])}\\) and enter \\(G(${s0})\\).</p>`, fields: [fld(`G(${s0})`, ans)],
+          sol: `<p>\\(\\mathcal L\\{\\delta\\} = 1\\) and \\(\\mathcal L\\{\\delta(t-t_0)\\} = e^{-st_0}\\), so \\(G(s) = ${A} ${B < 0 ? "-" : "+"} ${Math.abs(B)}e^{-${t0}s}\\) and \\(G(${s0}) = ${num(ans)}\\).</p>`, verify: () => nearR(ans, A + B * Math.exp(-s0 * t0)) }; }
+      const a = R.int(1, 4), t1 = R.pick([0.5, 1, 2]), ans = Math.exp(-a * t1);
+      return { q: `<p>A system has impulse response \\(g(t) = e^{-${a}t}\\). It is driven by \\(u(t) = \\delta(t)\\) (a sharp hammer blow). What is \\(y(t) = (g\\otimes\\delta)(t)\\) at \\(t = ${t1}\\)?</p>`, fields: [fld(`y(${t1})`, ans)],
+        sol: `<p>\\(g\\otimes\\delta = g\\) (because \\(\\mathcal L\\{\\delta\\} = 1\\), so \\(Y = G\\)). That is why \\(g\\) is called the impulse response: \\(y(${t1}) = e^{-${a * t1}} \\approx ${num(ans)}\\).</p>` };
+    }
     if (v === 0) { // derivative rule
       const a = R.nz(-4, 3), c = R.nz(-4, 5), s0 = Math.max(1, a + R.int(1, 3));
       const G0 = c / (s0 - a), ans = s0 * G0 - c;
@@ -307,6 +319,73 @@
       verify: () => nearR(A + B + Cc, 0, 1e-9) && nearR(A, K * u0 / (p1 * p2)) };
   });
 
+  // ---------- pole locations → time functions ----------
+  reg("pf-poletype", "Pole locations and time functions", "inverse-laplace", () => {
+    const C1 = "a decaying exponential \\(Ce^{-at}\\)", C2 = "a growing exponential \\(Ce^{at}\\)", C3 = "a constant (a step)",
+      C4 = "a ramp \\(C_1 + C_2t\\)", C5 = "\\(C_1e^{-at} + C_2te^{-at}\\) (repeated real pole)", C6 = "a decaying oscillation \\(e^{-at}(B\\cos\\omega t + C\\sin\\omega t)\\)",
+      C7 = "a sustained oscillation \\(B\\cos\\omega t + C\\sin\\omega t\\)", C8 = "a growing oscillation \\(e^{at}(B\\cos\\omega t + C\\sin\\omega t)\\)";
+    const a = R.int(1, 5), w = R.int(1, 6);
+    const cases = [
+      [`\\(${-a}\\)`, C1, "A single real pole \\(\\lambda\\) gives \\(e^{\\lambda t}\\); \\(\\lambda &lt; 0\\) decays."],
+      [`\\(${a}\\)`, C2, "A real pole in the right half-plane gives a growing exponential: unstable."],
+      ["\\(0\\)", C3, "A pole at \\(s = 0\\) is \\(1/s\\), the step."],
+      ["\\(0, 0\\) (double)", C4, "\\(1/s^2\\) is \\(t\\), so a double pole at 0 gives \\(C_1 + C_2t\\)."],
+      [`\\(${-a}, ${-a}\\) (double)`, C5, "A repeated pole \\(\\lambda\\) of multiplicity 2 gives \\(e^{\\lambda t}\\) and \\(te^{\\lambda t}\\)."],
+      [`\\(${-a} \\pm ${w}i\\)`, C6, "A complex pair \\(\\sigma\\pm i\\omega\\) gives \\(e^{\\sigma t}\\cos\\omega t\\) and \\(e^{\\sigma t}\\sin\\omega t\\); \\(\\sigma &lt; 0\\) decays."],
+      [`\\(\\pm ${w}i\\)`, C7, "Poles on the imaginary axis \\(\\pm i\\omega\\) give \\(\\cos\\omega t\\), \\(\\sin\\omega t\\): they neither grow nor decay."],
+      [`\\(${a} \\pm ${w}i\\)`, C8, "A complex pair with positive real part gives an oscillation with a growing envelope: unstable."],
+    ];
+    const [poles, right, why] = R.pick(cases);
+    const wrong = R.shuffle([C1, C2, C3, C4, C5, C6, C7, C8].filter(x => x !== right)).slice(0, 3);
+    return mc(`<p>A strictly proper \\(G(s)\\) has poles at ${poles} and no others. What kind of function is its impulse response \\(g(t)\\)?</p>`, right, wrong,
+      `<p>${why} In general the real part of a pole sets the growth or decay rate and the imaginary part sets the oscillation frequency.</p>`);
+  });
+
+  // ---------- LTI systems ----------
+  reg("tf-lti", "Linear time-invariant systems", "transfer-functions", () => {
+    const LTI = "linear and time invariant", LTV = "linear but time varying", NTI = "nonlinear but time invariant", NTV = "nonlinear and time varying";
+    const k = R.int(2, 5), d = R.int(1, 3);
+    const sys = [
+      [`y(t) = ${k}u(t - ${d})`, LTI, "Scaling and delaying the input: superposition holds, and shifting \\(u\\) shifts \\(y\\)."],
+      [`\\dot y + ${k}y = u\\ \\ (y(0) = 0)`, LTI, "A constant-coefficient linear ODE at rest is LTI; its transfer function is \\(1/(s + " + k + ")\\)."],
+      [`y(t) = \\int_0^t e^{-${k}(t-\\sigma)}u(\\sigma)\\,d\\sigma`, LTI, "A convolution with a fixed kernel is linear and time invariant."],
+      [`y(t) = t\\,u(t)`, LTV, "Linear (superposition holds) but the gain \\(t\\) depends on time, so a delayed input does not give a delayed output."],
+      [`y(t) = e^{-${k}t}u(t)`, LTV, "Linear, but the time-dependent gain makes it time varying."],
+      [`\\dot y + t\\,y = u`, LTV, "A linear ODE whose coefficient depends on \\(t\\) is time varying."],
+      [`y(t) = u(${k}t)`, LTV, "Linear, but time compression is not time invariant: \\(u(t - \\tau)\\) gives \\(u(${k}t - \\tau)\\), not \\(y(t - \\tau) = u(${k}t - ${k}\\tau)\\)."],
+      [`y(t) = u(t)^2`, NTI, "Squaring breaks superposition (\\((u_1 + u_2)^2 \\ne u_1^2 + u_2^2\\)) but involves no explicit time."],
+      [`y(t) = ${k}u(t) + ${d}`, NTI, "The added constant breaks linearity: a zero input does not give a zero output."],
+      [`y(t) = \\sin(u(t))`, NTI, "Nonlinear in \\(u\\), with no explicit time dependence."],
+      [`y(t) = t\\,u(t)^2`, NTV, "Squared input (nonlinear) and a time-dependent gain (time varying)."],
+    ];
+    const [eq, right, why] = R.pick(sys);
+    return mc(`<p>Classify the system with input \\(u\\) and output \\(y\\): \\(${eq}\\).</p>`, right, [LTI, LTV, NTI, NTV].filter(x => x !== right),
+      `<p><b>Linear</b> means superposition: \\(\\alpha u_1 + \\beta u_2 \\mapsto \\alpha y_1 + \\beta y_2\\). <b>Time invariant</b> means delaying the input by \\(\\tau\\) just delays the output by \\(\\tau\\). ${why} Only LTI systems have a transfer function \\(G(s) = Y(s)/U(s)\\) and satisfy \\(y = g\\otimes u\\).</p>`);
+  });
+
+  // ---------- transfer function from impulse response, input from output ----------
+  reg("tf-io", "Transfer function, input and output", "transfer-functions", () => {
+    const v = R.int(0, 2);
+    if (v === 0) {
+      const [a, b] = R.distinct(2, 1, 6), A = R.nz(-5, 6), B = R.nz(-5, 6), s0 = R.int(1, 3);
+      const G0 = A / a + B / b, Gs = A / (s0 + a) + B / (s0 + b);
+      return { q: `<p>An LTI system has impulse response \\(g(t) = ${lin([[A, `e^{-${a}t}`], [B, `e^{-${b}t}`]])}\\). Find its transfer function; enter the DC gain \\(G(0)\\) and \\(G(${s0})\\).</p>`,
+        fields: [fld("G(0)", G0), fld(`G(${s0})`, Gs)],
+        sol: `<p>The transfer function is the Laplace transform of the impulse response: \\(G(s) = ${fr(A, `s + ${a}`)} ${B < 0 ? "-" : "+"} ${fr(Math.abs(B), `s + ${b}`)}\\). So \\(G(0) = ${tex(G0)}\\) and \\(G(${s0}) = ${tex(Gs)}\\).</p>`,
+        verify: () => nearR(CX.integrate(t => (A * Math.exp(-a * t) + B * Math.exp(-b * t)) * Math.exp(-s0 * t), 0, 40, 4000).re, Gs, 1e-6) };
+    }
+    if (v === 1) {
+      const a = R.int(1, 6), c = R.nz(-6, 8), K = c * a;
+      return { q: `<p>Starting from rest, a unit step input \\(u = 1\\) produces \\(y(t) = ${c}(1 - e^{-${a}t})\\). Assuming the system is LTI, find \\(G(s) = \\frac{K}{s + p}\\): enter \\(K\\) and \\(p\\).</p>`,
+        fields: [fld("K", K), fld("p", a)],
+        sol: `<p>\\(Y(s) = ${c}\\left(\\frac1s - \\frac1{s+${a}}\\right) = ${fr(c * a, `s(s+${a})`)}\\) and \\(U = 1/s\\), so \\(G = Y/U = ${fr(K, `s + ${a}`)}\\). (Equivalently, the impulse response is the derivative of the step response: \\(g = ${c * a}e^{-${a}t}\\).)</p>` };
+    }
+    const a = R.int(1, 5), K = R.nz(1, 6), c = R.nz(-4, 6), u0 = c * a / K;
+    return { q: `<p>\\(G(s) = ${fr(K, `s + ${a}`)}\\). Which constant input \\(u(t) = u_0\\), applied from rest, produces the output \\(y(t) = ${c}(1 - e^{-${a}t})\\)?</p>`, fields: [fld("u₀", u0)],
+      sol: `<p>\\(U = Y/G = ${fr(c * a, `s(s + ${a})`)}\\cdot${fr(`s + ${a}`, K)} = ${fr(tex(u0), "s")}\\), so \\(u_0 = ${tex(u0)}\\). Check with the final value theorem: \\(y(\\infty) = G(0)u_0 = ${tex(K / a)}\\cdot${tex(u0)} = ${c}\\). ✓</p>`,
+      verify: () => nearR(K / a * u0, c) };
+  });
+
   // ======================= STATE SPACE =======================
   function intA() { // integer 2x2 matrix with integer eigenvalues l1 > l2, plus P with A = P diag P^{-1}
     const [l1, l2] = R.distinct(2, -5, 1).sort((a, b) => b - a), k = R.nz(-2, 2);
@@ -355,6 +434,18 @@
     return mc(`<p>Write \\(\\ddot y + ${a1}\\dot y + ${lin([[a0, "y"]])} = ${b}u\\) in state-space form with state \\(x = [\\,y,\\ \\dot y\\,]^T\\).</p>`, right,
       [`\\(A = ${mat([[0, 1], [a0, a1]])},\\ B = ${mat([[0], [b]])},\\ C = ${mat([[1, 0]])}\\)`, `\\(A = ${mat([[0, -a0], [1, -a1]])},\\ B = ${mat([[b], [0]])},\\ C = ${mat([[0, 1]])}\\)`, `\\(A = ${mat([[-a1, -a0], [1, 0]])},\\ B = ${mat([[0], [b]])},\\ C = ${mat([[1, 0]])}\\)`],
       `<p>With \\(x_1 = y\\), \\(x_2 = \\dot y\\): \\(\\dot x_1 = x_2\\) and \\(\\dot x_2 = \\ddot y = -${a0}x_1 - ${a1}x_2 + ${b}u\\). The output is \\(y = x_1\\). Check: \\(\\det(sI - A) = s^2 + ${a1}s + ${a0}\\), the characteristic polynomial of the ODE, and \\(G(s) = ${fr(b, ptex([1, a1, a0]))}\\).</p>`);
+  });
+
+  reg("ss-minimal", "Minimal realizations and McMillan degree", "state-space", () => {
+    const [p1, p2, z] = R.distinct(3, -6, -1), cancel = Math.random() < 0.6, K = R.nz(1, 6), m = R.int(-5, 5);
+    if (m === p1 || m === p2 || m === z) return null;
+    // G = K (s - m)(s - z) / ((s - p1)(s - p2)(s - z)) written out unfactored (cancels when "cancel")
+    const nm = convR([K, -K * m], cancel ? [1, -z] : [1]), den = convR(polyR([p1, p2]), [1, -z]);
+    const deg = cancel ? 2 : 3, g0 = CX.polyval(nm, C(0)).re / CX.polyval(den, C(0)).re;
+    return { q: `<p>\\(G(s) = ${fr(ptex(nm), ptex(den))}\\). Find its McMillan degree (the number of poles after cancelling common factors), the dimension \\(n\\) of a minimal state-space realization, and \\(G(0)\\).</p>`,
+      fields: [fld("McMillan degree", deg), fld("minimal n", deg), fld("G(0)", g0)],
+      sol: `<p>Factor: \\(${ptex(den)} = ${sp(p1)}${sp(p2)}${sp(z)}\\) and \\(${ptex(nm)} = ${K === 1 ? "" : K}${sp(m)}${cancel ? sp(z) : ""}\\). ${cancel ? `The common factor \\(${sp(z)}\\) cancels, leaving \\(G = ${fr(`${K === 1 ? "" : K}${sp(m)}`, `${sp(p1)}${sp(p2)}`)}\\)` : "There is no common factor"}, so the McMillan degree is ${deg}. A realization is minimal exactly when its state dimension equals the McMillan degree, so \\(n = ${deg}\\). A third-order realization ${cancel ? "exists (for example the companion form of the unreduced fraction) but is not minimal; its \\(A\\) has an eigenvalue at " + z + " that is not a pole of \\(G\\)" : "is already minimal, and the eigenvalues of \\(A\\) equal the poles"}. \\(G(0) = ${tex(g0)}\\).</p>`,
+      verify: () => CX.near(CX.div(CX.polyval(nm, C(0.3)), CX.polyval(den, C(0.3))), C(K * (0.3 - m) / ((0.3 - p1) * (0.3 - p2)) * (cancel ? 1 : 1 / (0.3 - z))), 1e-9) };
   });
 
   if (typeof module !== "undefined" && module.exports) module.exports = Hn;
